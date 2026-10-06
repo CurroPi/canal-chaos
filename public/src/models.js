@@ -90,12 +90,46 @@ function addPrint(p, material, back) {
   p.rig.add(plane);
 }
 
-const ariesPrint = () => printMat('aries', (g, w, h) => {
+// "ARIES" in chunky, wonky, slightly worn pixel letters, like a punk stencil
+const PIXEL_LETTERS = {
+  A: ['.###.', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'],
+  R: ['####.', '#...#', '#...#', '####.', '#.#..', '#..#.', '#...#'],
+  I: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '#####'],
+  E: ['#####', '#....', '#....', '####.', '#....', '#....', '#####'],
+  S: ['.####', '#....', '#....', '.###.', '....#', '....#', '####.'],
+};
+
+function pixelMat(key, w, h, draw) {
+  if (!printMats[key]) {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    draw(canvas.getContext('2d'));
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.magFilter = tex.minFilter = THREE.NearestFilter; // keep the pixels crisp
+    tex.generateMipmaps = false;
+    printMats[key] = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+  }
+  return printMats[key];
+}
+
+const ariesPrint = () => pixelMat('aries', 38, 33, (g) => {
+  let seed = 7; // same wonkiness every time
+  const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
   g.fillStyle = '#f4f4f4';
-  g.font = 'bold 64px "Arial Black", Impact, sans-serif';
-  g.textAlign = 'center';
-  g.textBaseline = 'middle';
-  g.fillText('ARIES', w / 2, h / 2);
+  'ARIES'.split('').forEach((ch, i) => {
+    const x0 = 2 + i * 7;
+    const y0 = 7 + Math.round(rnd() * 4 - 2);         // letters bounce up and down
+    PIXEL_LETTERS[ch].forEach((row, y) => {
+      [...row].forEach((cell, x) => {
+        if (cell !== '#' || rnd() < 0.06) return;       // a few worn-off pixels
+        const lean = y < 2 && rnd() < 0.3 ? 1 : 0;      // the odd wonky top
+        g.fillRect(x0 + x + lean, y0 + y * 2, 1, 2);    // tall, chunky pixels
+        if (y === 6 && rnd() < 0.25) g.fillRect(x0 + x, y0 + 14, 1, 1 + Math.floor(rnd() * 4)); // drips
+      });
+    });
+  });
 });
 
 // A made-up rock band. Any resemblance to a real band is a coincidence.

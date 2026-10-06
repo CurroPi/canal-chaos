@@ -44,7 +44,7 @@ window.addEventListener('resize', resize);
 resize();
 
 const world = createWorld(scene, CONFIG);
-// ---------- Your hipster ----------
+// ---------- Your walker ----------
 function loadCharacter() {
   try { return characterById(localStorage.getItem('canal-hipster')); } catch { return CHARACTERS[0]; }
 }
@@ -143,18 +143,18 @@ function showRules() {
       <li><b>☕ Your coffee is your extra life.</b> The narrowboat café pops up every 500 points with another.</li>
     </ul>
     <p class="small music-hint">♪ Music on: tap ♪ or press M to mute.</p>
-    <button>Choose your hipster</button>
+    <button>Choose your walker</button>
   `, showSelect);
 }
 
-// Choose your hipster: they turn slowly in front of you while you browse
+// Choose your walker: they turn slowly in front of you while you browse
 function showSelect() {
   if (state === 'over' && performance.now() - overAt < 900) return;
   clearTimeout(overlayTimer);
   reset();
   state = 'select';
   showOverlay(`
-    <p class="small label">Choose your hipster</p>
+    <p class="small label">Choose your walker</p>
     <div class="picker">
       <button class="arrow" data-dir="-1" aria-label="Previous">◀</button>
       <div class="who">
@@ -626,7 +626,7 @@ function gameOver(e) {
     <p class="big">${final}</p>
     <p class="small">${isRecord ? '🎉 New personal best!' : `Best ${best}`}</p>
     <button>Try again</button>
-    <button class="secondary">Change hipster</button>
+    <button class="secondary">Change walker</button>
   `), 700);
   setTimeout(() => overlay.querySelector('.secondary')?.addEventListener('click', showSelect), 710);
 }
