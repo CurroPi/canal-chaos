@@ -288,6 +288,7 @@ function hit(e) {
 
 // ---------- Game flow ----------
 function reset() {
+  world.reset();
   for (const e of entities) removeEntity(e);
   for (const d of particles) scene.remove(d);
   entities = [];
@@ -514,5 +515,6 @@ if (new URLSearchParams(location.search).has('debug')) {
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z) })); },
     skip(seconds) { elapsed += seconds; },
     godMode() { invulnUntil = Infinity; },
+    landmark(kind) { world.forceNext = kind; },
   };
 }

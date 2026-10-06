@@ -1,6 +1,7 @@
 // The scrolling canal scenery: towpath, canal, narrowboats, brick wall, far bank.
 import * as THREE from 'three';
 import { box, mat } from './models.js';
+import { FRONT_X, makeWarehouse, makeOffice, makeGasholder, makeContainerville } from './buildings.js';
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 const rand = (min, max) => min + Math.random() * (max - min);
@@ -9,12 +10,36 @@ const BOAT_COLOURS = [0x1f5f3a, 0x8c1c1c, 0x1d2f5c, 0x5b2a5e, 0x2a6f73, 0x222222
 const GRAFFITI = [0xff5fa2, 0x3fd3ff, 0xffd23f, 0x7cff6b, 0xffffff, 0xff7a1a];
 
 const trunkGeo = new THREE.CylinderGeometry(0.15, 0.2, 1.4, 6);
-const crownGeo = new THREE.ConeGeometry(1.2, 2.6, 7);
+const crownGeo = new THREE.IcosahedronGeometry(1.4, 0);
 
 export function createWorld(scene, cfg) {
   const L = cfg.tile.length;
   const N = cfg.tile.count;
   const tiles = [];
+  let sinceLandmark = 0;
+  let queued = null;
+
+  // What stands on the far bank of the next tile: mostly warehouses, sometimes a landmark
+  function nextFarBank() {
+    if (world.forceNext) {
+      queued = world.forceNext;
+      world.forceNext = null;
+      return 'gap';
+    }
+    if (queued) {
+      const kind = queued;
+      queued = null;
+      return kind;
+    }
+    sinceLandmark++;
+    if (sinceLandmark >= 6 && Math.random() < 0.3) {
+      // Leave a low gap in front of a landmark so you can see it coming
+      sinceLandmark = 0;
+      queued = pick(['gasholder', 'containerville']);
+      return 'gap';
+    }
+    return Math.random() < 0.15 ? 'gap' : 'warehouses';
+  }
 
   for (let i = 0; i < N; i++) {
     const tile = new THREE.Group();
@@ -22,22 +47,33 @@ export function createWorld(scene, cfg) {
     buildStatic(tile, L);
     tile.userData.decor = new THREE.Group();
     tile.add(tile.userData.decor);
-    decorate(tile, L);
     scene.add(tile);
     tiles.push(tile);
   }
 
-  return {
+  const world = {
+    forceNext: null, // testing helper: the next tile's far bank
+
     scroll(dz) {
       for (const tile of tiles) {
         tile.position.z += dz;
         if (tile.position.z - L / 2 > 12) {
           tile.position.z -= N * L;
-          decorate(tile, L);
+          decorate(tile, L, nextFarBank());
         }
       }
     },
+
+    // Fresh scenery for a new run, with our office the first building you see
+    reset() {
+      const officeTile = tiles.reduce((a, b) => (Math.abs(b.position.z + 25) < Math.abs(a.position.z + 25) ? b : a));
+      sinceLandmark = 0;
+      queued = null;
+      for (const tile of tiles) decorate(tile, L, tile === officeTile ? 'office' : nextFarBank());
+    },
   };
+  world.reset();
+  return world;
 }
 
 // Things that look the same on every tile
@@ -54,7 +90,8 @@ function buildStatic(tile, L) {
   tile.add(box(0.5, 0.12, L, 0xcfc8b8, -3.2, 0.0, 0));
   tile.add(box(0.4, 1, L, 0x7d7468, -3.25, -0.6, 0));
   tile.add(box(12, 0.1, L, 0x3d6b6a, -9.5, -0.75, 0));
-  tile.add(box(8, 1.2, L, 0x6f8f4e, -19.5, -0.3, 0));
+  tile.add(box(0.4, 1, L, 0x6e675e, FRONT_X + 0.2, -0.6, 0)); // far canal edge
+  tile.add(box(16, 0.8, L, 0x5c5650, FRONT_X - 8, -0.4, 0));  // far bank ground
 
   // Brick wall (right) with brick courses and coping stones
   tile.add(box(1, 3.2, L, 0x9b4f3a, 3.6, 1.6, 0));
@@ -65,7 +102,7 @@ function buildStatic(tile, L) {
 }
 
 // Random bits that change every time a tile is reused
-function decorate(tile, L) {
+function decorate(tile, L, farBank) {
   const decor = tile.userData.decor;
   decor.clear();
 
@@ -93,15 +130,25 @@ function decorate(tile, L) {
     decor.add(box(0.03, rand(0.4, 1.3), rand(1, 3.5), pick(GRAFFITI), 3.08, rand(0.6, 2.2), rand(-L / 2 + 2, L / 2 - 2)));
   }
 
-  // Trees on the far bank
-  const trees = Math.floor(rand(1, 4));
-  for (let i = 0; i < trees; i++) {
-    const x = rand(-22, -16);
-    const z = rand(-L / 2, L / 2);
+  // The far bank: East London warehouses and the odd landmark
+  if (farBank === 'office') decor.add(makeOffice(0));
+  else if (farBank === 'gasholder') decor.add(makeGasholder(0));
+  else if (farBank === 'containerville') decor.add(makeContainerville(0));
+  else if (farBank === 'warehouses') {
+    if (Math.random() < 0.5) {
+      decor.add(makeWarehouse(0, L - 0.4));
+    } else {
+      const split = rand(7, 12);
+      decor.add(makeWarehouse(-L / 2 + split / 2, split - 0.3));
+      decor.add(makeWarehouse(split / 2, L - split - 0.3));
+    }
+  } else {
+    // A gap between buildings, with a scruffy canal-side tree
+    const z = rand(-5, 5);
     const trunk = new THREE.Mesh(trunkGeo, mat(0x6b4a2f));
-    trunk.position.set(x, 1, z);
+    trunk.position.set(FRONT_X - 2, 0.6, z);
     const crown = new THREE.Mesh(crownGeo, mat(pick([0x4f8a3c, 0x3f7a35, 0x5f9a45])));
-    crown.position.set(x, 2.9, z);
+    crown.position.set(FRONT_X - 2, 2.4, z);
     decor.add(trunk, crown);
   }
 }
