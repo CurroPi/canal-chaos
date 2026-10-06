@@ -111,6 +111,7 @@ function updateHud() {
 }
 
 // ---------- Speech bubbles ----------
+// Short lines of text that fade in where someone is, stay put, and fade out.
 const bubbleLayer = document.getElementById('bubbles');
 const HEAD_Y = { runner: 2.2, lime: 2.5, pram: 2.2, dogWalker: 2.2, cargoBike: 2.5, monstera: 2.6, cafe: 2.2 };
 const recentLines = [];
@@ -121,16 +122,8 @@ function pickLine(list) {
   const fresh = list.filter((l) => !recentLines.includes(l));
   const line = pick(fresh.length ? fresh : list);
   recentLines.push(line);
-  if (recentLines.length > 12) recentLines.shift();
+  if (recentLines.length > 4) recentLines.shift();
   return line;
-}
-
-function makeBubble(text, cls = '') {
-  const el = document.createElement('div');
-  el.className = `bubble ${cls}`;
-  el.textContent = text;
-  bubbleLayer.appendChild(el);
-  return el;
 }
 
 function toScreen(x, y, z) {
@@ -138,57 +131,48 @@ function toScreen(x, y, z) {
   return [(projected.x * 0.5 + 0.5) * window.innerWidth, (-projected.y * 0.5 + 0.5) * window.innerHeight];
 }
 
-function placeBubble(el, sx, sy) {
+// Show a line at a fixed spot on screen; returns false if it would overlap one already showing
+function say(text, [sx, sy], cls = '') {
+  const el = document.createElement('div');
+  el.className = `bubble ${cls}`;
+  el.textContent = text;
+  el.style.animationDuration = `${CONFIG.bubbles.seconds}s`;
   el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -100%)`;
+  bubbleLayer.appendChild(el);
+  const r = el.getBoundingClientRect();
+  for (const other of bubbleLayer.children) {
+    if (other === el) continue;
+    const o = other.getBoundingClientRect();
+    if (r.left < o.right && o.left < r.right && r.top < o.bottom && o.top < r.bottom) {
+      el.remove();
+      return false;
+    }
+  }
+  setTimeout(() => el.remove(), CONFIG.bubbles.seconds * 1000);
+  return true;
 }
 
-function removeBubble(e) {
-  e.bubble?.remove();
-  e.bubble = null;
+function clearBubbles() {
+  bubbleLayer.replaceChildren();
 }
 
-// Show, move and hide bubbles for people near you
+// People say their line once, when they're close enough to read
 function updateBubbles() {
   const b = CONFIG.bubbles;
-  let showing = entities.filter((e) => e.bubble).length;
   for (const e of entities) {
-    if (!e.line) continue;
+    if (!e.line || e.said) continue;
+    if (bubbleLayer.children.length >= b.maxAtOnce) return;
     const g = e.model.group.position;
-    const inRange = e.fromBehind ? g.z < -1 && g.z > -24 : g.z > b.showFrom && g.z < b.hideAt;
-    if (inRange && !e.bubble && !e.said && showing < b.maxAtOnce) {
-      e.bubble = makeBubble(e.line, e.fromBehind ? 'shout' : '');
-      e.said = true;
-      showing++;
-    }
-    if (e.bubble && !inRange) removeBubble(e);
-  }
-
-  // Place them above heads; nearer people get priority, others get nudged up so nothing overlaps
-  const placed = [];
-  const visible = entities.filter((e) => e.bubble).map((e) => {
-    const g = e.model.group.position;
-    const [sx, sy] = toScreen(g.x, HEAD_Y[e.kind] ?? 2.2, g.z);
-    return { el: e.bubble, sx, sy };
-  }).sort((a, b) => b.sy - a.sy);
-  for (const v of visible) {
-    const w = v.el.offsetWidth;
-    const h = v.el.offsetHeight + 12;
-    let top = v.sy - h;
-    for (const p of placed) {
-      const overlapX = Math.abs(v.sx - p.sx) < (w + p.w) / 2;
-      if (overlapX && top < p.top + p.h && top + h > p.top) top = p.top - h - 4;
-    }
-    placed.push({ sx: v.sx, top, w, h });
-    placeBubble(v.el, v.sx, top + h);
+    const inRange = e.fromBehind ? g.z < -3 && g.z > -12 : g.z > b.sayFrom && g.z < b.sayUntil;
+    if (!inRange) continue;
+    e.said = true;
+    say(e.line, toScreen(g.x, HEAD_Y[e.kind] ?? 2.2, g.z), e.fromBehind ? 'shout' : '');
   }
 }
 
-let playerBubble = null;
-let playerBubbleUntil = 0;
 function playerSays(list) {
-  playerBubble?.remove();
-  playerBubble = makeBubble(pickLine(list), 'player');
-  playerBubbleUntil = elapsed + CONFIG.bubbles.playerSeconds;
+  const pg = player.group.position;
+  say(pickLine(list), toScreen(pg.x, 2.4, pg.z), 'player');
 }
 
 function floatText(text, cls = '') {
@@ -229,7 +213,7 @@ function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = fals
   model.group.position.z = z;
   if (fromBehind) model.group.rotation.y = Math.PI;
   scene.add(model.group);
-  const e = { kind, model, lanes, own, hitZ, arrival, span, fromBehind, flash: null, bubble: null, said: false };
+  const e = { kind, model, lanes, own, hitZ, arrival, span, fromBehind, flash: null, said: false };
   const lines = LINES[fromBehind ? 'limeOvertake' : kind];
   e.line = lines && Math.random() < CONFIG.bubbles.chance ? pickLine(lines) : null;
   entities.push(e);
@@ -344,7 +328,6 @@ function removeFlash(e) {
 }
 
 function removeEntity(e) {
-  removeBubble(e);
   scene.remove(e.model.group);
   removeFlash(e);
   e.model.dispose?.();
@@ -431,8 +414,7 @@ function reset() {
   player.group.rotation.set(0, Math.PI, 0);
   player.group.visible = true;
   warningEl.classList.add('hidden');
-  playerBubble?.remove();
-  playerBubble = null;
+  clearBubbles();
   updateHud();
 }
 
@@ -467,7 +449,7 @@ function start() {
 function gameOver(e) {
   state = 'over';
   overAt = performance.now();
-  for (const other of entities) removeBubble(other);
+  clearBubbles();
   crashSound();
   player.group.visible = true;
   warningEl.classList.add('hidden');
@@ -595,10 +577,6 @@ function tick() {
     }
     updateWarning(t);
     updateBubbles();
-    if (playerBubble) {
-      if (elapsed > playerBubbleUntil) { playerBubble.remove(); playerBubble = null; }
-      else placeBubble(playerBubble, ...toScreen(pg.position.x, 2.3, pg.position.z));
-    }
 
     for (const e of entities) {
       const dz = Math.abs(e.model.group.position.z - pg.position.z);

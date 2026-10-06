@@ -38,13 +38,13 @@ export const CONFIG = {
 
   coffeeRefill: { bonusIfFull: 100 },
 
-  // Speech bubbles above people coming towards you
+  // Lines people say as they come towards you
   bubbles: {
-    chance: 0.5,     // share of people who say something
-    maxAtOnce: 3,
-    showFrom: -45,   // appear when they're this far ahead...
-    hideAt: -3,      // ...and disappear just before they reach you
-    playerSeconds: 1.6,
+    chance: 0.17,    // share of people who say something
+    maxAtOnce: 2,
+    sayFrom: -24,    // they speak once they're within this distance...
+    sayUntil: -10,   // ...but not when they're already on top of you
+    seconds: 2,      // how long a line stays on screen (fade in, hold, fade out)
   },
 
   officeEvery: 100, // points between sightings of our office // grabbing a coffee when you already have one
