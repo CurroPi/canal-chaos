@@ -22,7 +22,7 @@
 - [x] Leaderboard backend: Supabase (account ready)
 
 ## Phase 3: Build (each milestone must be playable)
-- [ ] M1 Prototype: square in 3 lanes, scrolling, one enemy, game over
+- [x] M1 Prototype: square in 3 lanes, scrolling, one enemy, game over
 - [ ] M2 Core feel: speed ramp, score, restart, bridges narrowing lanes
 - [ ] M3 Enemies and obstacles: full roster with behaviours
 - [ ] M4 Zones: Victoria Park → Camden progression and banners
@@ -32,3 +32,6 @@
 - [ ] M8 Online leaderboard
 - [ ] M9 Playtesting with friends and fixes
 - [ ] M10 Launch 🚀
+
+## Notes for later
+- Phone (portrait) view: lots of empty sky, player looks small. Tilt camera down on tall screens (M7).
