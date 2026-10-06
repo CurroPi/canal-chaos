@@ -4,7 +4,7 @@
 - [x] Create project folder
 - [x] CLAUDE.md (project memory for Claude)
 - [x] Draft GDD (`docs/GDD.md`)
-- [ ] Install git (Command Line Tools) and make the first commit
+- [x] Install git and make the first commit
 
 ## Phase 1: Design (no code)
 - [x] Section 2: Core loop and score (agreed)
