@@ -247,9 +247,11 @@ html, body {
 .bubble { font-family: var(--pixel-body); font-size: 24px; font-weight: 400; }
 .story strong { font-weight: 400; color: #b91c1c; }
 
-.hud-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 #mute {
-  pointer-events: auto;
+  position: fixed;
+  top: calc(max(12px, env(safe-area-inset-top)) + 26px);
+  right: 16px;
+  z-index: 20; /* above the intro cards, so you can mute before playing */
   padding: 6px 8px;
   border: 2px solid #1b1b1b;
   border-radius: 0;
@@ -260,3 +262,4 @@ html, body {
   box-shadow: 3px 3px 0 #1b1b1b;
   cursor: pointer;
 }
+.card .music-hint { text-align: center; color: #1f5f3a; }

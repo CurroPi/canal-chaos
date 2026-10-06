@@ -126,6 +126,7 @@ function showRules() {
       <li><b>🔔 Listen for bells.</b> Bikes come from behind. The red lane is where they're going.</li>
       <li><b>☕ Your coffee is your extra life.</b> The narrowboat café pops up every 500 points with another.</li>
     </ul>
+    <p class="small music-hint">♪ Music on: tap ♪ or press M to mute.</p>
     <button>Start walking</button>
   `);
 }
@@ -586,6 +587,15 @@ const muteBtn = document.getElementById('mute');
 function showMute() {
   muteBtn.textContent = isMuted() ? '♪ OFF' : '♪ ON';
 }
+// Browsers only allow sound after the first click/tap/key, so the music starts then,
+// on the intro screens, giving people the chance to mute it before they play
+function wakeAudio() {
+  initAudio();
+  startMusic();
+}
+window.addEventListener('pointerdown', wakeAudio, { once: true });
+window.addEventListener('keydown', wakeAudio, { once: true });
+
 muteBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   toggleMute();
