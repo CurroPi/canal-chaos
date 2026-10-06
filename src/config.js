@@ -36,7 +36,18 @@ export const CONFIG = {
     },
   },
 
-  coffeeRefill: { bonusIfFull: 100 }, // grabbing a coffee when you already have one
+  coffeeRefill: { bonusIfFull: 100 },
+
+  // Speech bubbles above people coming towards you
+  bubbles: {
+    chance: 0.5,     // share of people who say something
+    maxAtOnce: 3,
+    showFrom: -45,   // appear when they're this far ahead...
+    hideAt: -3,      // ...and disappear just before they reach you
+    playerSeconds: 1.6,
+  },
+
+  officeEvery: 100, // points between sightings of our office // grabbing a coffee when you already have one
 
   // Lime riders overtaking you from behind, with a bell and a warning
   overtaking: {

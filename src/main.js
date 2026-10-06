@@ -5,6 +5,7 @@ import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box } from './models.js';
 import { ENEMIES } from './enemies.js';
 import { initAudio, bell, spillSound, crashSound, pickupSound } from './sound.js';
+import { LINES } from './lines.js';
 
 // ---------- Scene setup ----------
 const canvas = document.getElementById('game');
@@ -109,6 +110,87 @@ function updateHud() {
   livesEl.innerHTML = hasCoffee ? '☕' : '<span class="spilled">☕</span>';
 }
 
+// ---------- Speech bubbles ----------
+const bubbleLayer = document.getElementById('bubbles');
+const HEAD_Y = { runner: 2.2, lime: 2.5, pram: 2.2, dogWalker: 2.2, cargoBike: 2.5, monstera: 2.6, cafe: 2.2 };
+const recentLines = [];
+const projected = new THREE.Vector3();
+
+// A line nobody has said in a while
+function pickLine(list) {
+  const fresh = list.filter((l) => !recentLines.includes(l));
+  const line = pick(fresh.length ? fresh : list);
+  recentLines.push(line);
+  if (recentLines.length > 12) recentLines.shift();
+  return line;
+}
+
+function makeBubble(text, cls = '') {
+  const el = document.createElement('div');
+  el.className = `bubble ${cls}`;
+  el.textContent = text;
+  bubbleLayer.appendChild(el);
+  return el;
+}
+
+function toScreen(x, y, z) {
+  projected.set(x, y, z).project(camera);
+  return [(projected.x * 0.5 + 0.5) * window.innerWidth, (-projected.y * 0.5 + 0.5) * window.innerHeight];
+}
+
+function placeBubble(el, sx, sy) {
+  el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -100%)`;
+}
+
+function removeBubble(e) {
+  e.bubble?.remove();
+  e.bubble = null;
+}
+
+// Show, move and hide bubbles for people near you
+function updateBubbles() {
+  const b = CONFIG.bubbles;
+  let showing = entities.filter((e) => e.bubble).length;
+  for (const e of entities) {
+    if (!e.line) continue;
+    const g = e.model.group.position;
+    const inRange = e.fromBehind ? g.z < -1 && g.z > -24 : g.z > b.showFrom && g.z < b.hideAt;
+    if (inRange && !e.bubble && !e.said && showing < b.maxAtOnce) {
+      e.bubble = makeBubble(e.line, e.fromBehind ? 'shout' : '');
+      e.said = true;
+      showing++;
+    }
+    if (e.bubble && !inRange) removeBubble(e);
+  }
+
+  // Place them above heads; nearer people get priority, others get nudged up so nothing overlaps
+  const placed = [];
+  const visible = entities.filter((e) => e.bubble).map((e) => {
+    const g = e.model.group.position;
+    const [sx, sy] = toScreen(g.x, HEAD_Y[e.kind] ?? 2.2, g.z);
+    return { el: e.bubble, sx, sy };
+  }).sort((a, b) => b.sy - a.sy);
+  for (const v of visible) {
+    const w = v.el.offsetWidth;
+    const h = v.el.offsetHeight + 12;
+    let top = v.sy - h;
+    for (const p of placed) {
+      const overlapX = Math.abs(v.sx - p.sx) < (w + p.w) / 2;
+      if (overlapX && top < p.top + p.h && top + h > p.top) top = p.top - h - 4;
+    }
+    placed.push({ sx: v.sx, top, w, h });
+    placeBubble(v.el, v.sx, top + h);
+  }
+}
+
+let playerBubble = null;
+let playerBubbleUntil = 0;
+function playerSays(list) {
+  playerBubble?.remove();
+  playerBubble = makeBubble(pickLine(list), 'player');
+  playerBubbleUntil = elapsed + CONFIG.bubbles.playerSeconds;
+}
+
 function floatText(text, cls = '') {
   const el = document.createElement('div');
   el.className = `float ${cls}`;
@@ -147,7 +229,9 @@ function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = fals
   model.group.position.z = z;
   if (fromBehind) model.group.rotation.y = Math.PI;
   scene.add(model.group);
-  const e = { kind, model, lanes, own, hitZ, arrival, span, fromBehind, flash: null };
+  const e = { kind, model, lanes, own, hitZ, arrival, span, fromBehind, flash: null, bubble: null, said: false };
+  const lines = LINES[fromBehind ? 'limeOvertake' : kind];
+  e.line = lines && Math.random() < CONFIG.bubbles.chance ? pickLine(lines) : null;
   entities.push(e);
   return e;
 }
@@ -260,6 +344,7 @@ function removeFlash(e) {
 }
 
 function removeEntity(e) {
+  removeBubble(e);
   scene.remove(e.model.group);
   removeFlash(e);
   e.model.dispose?.();
@@ -288,6 +373,7 @@ function spillCoffee() {
   score = Math.max(0, score - c.spillPenalty);
   spillSound();
   floatText(`☕ SPILLED! −${c.spillPenalty}`, 'bad');
+  playerSays(LINES.spill);
 
   // Splash of coffee
   const pos = player.group.position;
@@ -316,6 +402,7 @@ function collectCoffee(e) {
     hasCoffee = true;
     setCoffee(player, true);
     floatText('☕ REFILL! £4.80');
+    playerSays(LINES.refill);
   }
   pickupSound();
   updateHud();
@@ -344,6 +431,8 @@ function reset() {
   player.group.rotation.set(0, Math.PI, 0);
   player.group.visible = true;
   warningEl.classList.add('hidden');
+  playerBubble?.remove();
+  playerBubble = null;
   updateHud();
 }
 
@@ -378,6 +467,7 @@ function start() {
 function gameOver(e) {
   state = 'over';
   overAt = performance.now();
+  for (const other of entities) removeBubble(other);
   crashSound();
   player.group.visible = true;
   warningEl.classList.add('hidden');
@@ -451,8 +541,10 @@ function updateWarning(t) {
   warningEl.classList.remove('hidden');
 }
 
+let paused = false; // testing helper
+
 function tick() {
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const dt = paused ? 0 : Math.min(clock.getDelta(), 0.05);
   const t = clock.elapsedTime;
 
   if (state === 'playing') {
@@ -502,6 +594,11 @@ function tick() {
       if (e.model.fade) e.model.fade(Math.max(0, Math.min(1, 1 - (g.position.z - 0.5) / 3)));
     }
     updateWarning(t);
+    updateBubbles();
+    if (playerBubble) {
+      if (elapsed > playerBubbleUntil) { playerBubble.remove(); playerBubble = null; }
+      else placeBubble(playerBubble, ...toScreen(pg.position.x, 2.3, pg.position.z));
+    }
 
     for (const e of entities) {
       const dz = Math.abs(e.model.group.position.z - pg.position.z);
@@ -563,5 +660,6 @@ if (new URLSearchParams(location.search).has('debug')) {
     godMode() { invulnUntil = Infinity; },
     landmark(kind) { world.forceNext = kind; },
     special(kind) { specialsPool = [kind]; specialTimer = 0; },
+    pause(on = true) { paused = on; clock.getDelta(); },
   };
 }

@@ -123,3 +123,41 @@ html, body {
 }
 
 .card .label { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: #b91c1c; }
+
+#bubbles { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+
+.bubble {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: min(200px, 44vw);
+  padding: 7px 10px;
+  border: 2px solid #1b1b1b;
+  border-radius: 12px;
+  background: #fff;
+  color: #1b1b1b;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.25);
+  margin-top: -10px;
+  animation: pop 0.18s ease-out;
+}
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #1b1b1b;
+  border-bottom: 0;
+}
+.bubble.shout  { background: #ffd23f; text-transform: uppercase; }
+.bubble.player { background: #fff3e0; border-color: #6b4a2f; }
+
+@keyframes pop {
+  from { opacity: 0; scale: 0.6; }
+  to   { opacity: 1; scale: 1; }
+}

@@ -60,15 +60,31 @@ export function createWorld(scene, cfg) {
     tiles.push(tile);
   }
 
+  // Distance walked, so the office can come back every `cfg.officeEvery` points
+  let walked = 0;
+  let nextOffice = 0;
+  const trackPos = (tile) => walked - tile.position.z;
+
   const world = {
     forceNext: null, // testing helper: the next tile's far bank
 
     scroll(dz) {
+      walked += dz;
       for (const tile of tiles) {
         tile.position.z += dz;
         if (tile.position.z - L / 2 > 12) {
           tile.position.z -= N * L;
-          decorate(tile, L, nextFarBank());
+          const p = trackPos(tile);
+          let farBank;
+          if (p >= nextOffice - L / 2) {
+            farBank = 'office';
+            nextOffice += cfg.officeEvery;
+          } else if (p >= nextOffice - L * 1.5) {
+            farBank = 'gap'; // clear view of the office
+          } else {
+            farBank = nextFarBank();
+          }
+          decorate(tile, L, farBank);
         }
       }
     },
@@ -78,6 +94,8 @@ export function createWorld(scene, cfg) {
       const nearest = (z) => tiles.reduce((a, b) => (Math.abs(b.position.z - z) < Math.abs(a.position.z - z) ? b : a));
       const officeTile = nearest(-75);
       const inFront = nearest(officeTile.position.z + L);
+      walked = 0;
+      nextOffice = trackPos(officeTile) + cfg.officeEvery;
       sinceLandmark = 0;
       queued = null;
       for (const tile of tiles) {
