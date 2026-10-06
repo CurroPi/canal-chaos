@@ -39,12 +39,14 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 - **Looks only:** each character has their own appearance, lines and death messages, but they all play the same.
   This keeps the leaderboard fair. Perks may come later, after playtesting.
 
-| Character | Look | Signature line |
-|---|---|---|
-| **Oatley, the Tote Bag Classic** | Beanie, tote bag, oat flat white | "Is this oat?" |
-| **Fennel, the Plant Parent** | Linen trousers, carrying a trailing plant | "She's called Margaret." |
-| **Moss, the Vinyl Digger** | Moustache, record bag, headphones round the neck | "It's only available on a Japanese pressing." |
-| **Ziggy, the Ex-Raver** | Bum bag, bleached hair, still out from Friday | "Is it Saturday?" |
+| Character | Look |
+|---|---|
+| **Sophie**, the Tote Bag Classic | Beanie, tote bag (the current player model) |
+| **Alex** | Black Aries T-shirt |
+| **Joe**, the Vinyl Digger | Moustache, record bag, headphones round the neck |
+| **Josh**, the Ex-Raver | Rock band T-shirt, still out from Friday |
+
+**[OPEN]** Unlock by score or all open? Own drink per character? 3D preview or flat cards?
 
 Reserve cast for later: Jasper (Creative Director), Saffron (Ceramicist), Rafe (Startup Founder),
 Juniper (Natural Wine Person).
