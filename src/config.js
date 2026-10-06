@@ -51,11 +51,11 @@ export const CONFIG = {
     kinds: {
       cargoBike: { speed: 3,   hitZ: 1.6 }, // takes 2 lanes
       monstera:  { speed: 1.5, hitZ: 0.8 },
-      cafe:      { speed: 0,   hitZ: 2.6 }, // the queue blocks the canal-side lane
     },
   },
 
-  coffeeRefill: { bonusIfFull: 100 },
+  // The narrowboat café turns up every `every` points with a coffee to grab
+  cafe: { every: 500, speed: 0, hitZ: 2.6, bonusIfFull: 100 },
 
   // Lines people say as they come towards you
   bubbles: {
@@ -109,6 +109,8 @@ export const CONFIG = {
   },
 
   coffee: {
+    start: 1,          // coffees you start with
+    max: 2,            // most you can carry
     spillPenalty: 50,  // points lost when you spill
     invulnerable: 1.5, // seconds of safety after a spill
     slowFactor: 0.5,   // you stumble to this fraction of your speed...

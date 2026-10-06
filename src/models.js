@@ -83,14 +83,18 @@ export function makePlayer() {
   p.rig.add(box(0.04, 0.55, 0.04, 0xefe6d2, 0.18, 1.3, -0.17));
   p.rig.add(box(0.38, 0.42, 0.06, 0xefe6d2, 0.1, 0.95, -0.2));
 
-  // Coffee cup in the right hand
-  const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.055, 0.2, 8), mat(0xffffff));
-  cup.position.set(0, -0.66, 0.08);
-  const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8), mat(0x6b4a2f));
-  lid.position.set(0, -0.54, 0.08);
-  p.armR.add(cup, lid);
-  p.cup = [cup, lid];
-  p.holdR = -0.7;
+  // Takeaway coffees: one in each hand when you have two
+  const cupGeo = new THREE.CylinderGeometry(0.075, 0.055, 0.2, 8);
+  const lidGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8);
+  p.cups = [p.armR, p.armL].map((arm) => {
+    const cup = new THREE.Mesh(cupGeo, mat(0xffffff));
+    cup.position.set(0, -0.66, 0.08);
+    const lid = new THREE.Mesh(lidGeo, mat(0x6b4a2f));
+    lid.position.set(0, -0.54, 0.08);
+    const sleeve = box(0.16, 0.08, 0.16, 0xc8a27a, 0, -0.66, 0.08);
+    arm.add(cup, lid, sleeve);
+    return [cup, lid, sleeve];
+  });
 
   p.group.rotation.y = Math.PI; // walk away from the camera
   return p;
@@ -115,10 +119,11 @@ export function makeRunner() {
   return r;
 }
 
-// Show or hide the player's coffee
-export function setCoffee(player, on) {
-  for (const part of player.cup) part.visible = on;
-  player.holdR = on ? -0.7 : undefined;
+// Show how many coffees the player is carrying (0, 1 or 2)
+export function setCoffee(player, count) {
+  player.cups.forEach((parts, i) => parts.forEach((part) => { part.visible = count > i; }));
+  player.holdR = count >= 1 ? -0.7 : undefined;
+  player.holdL = count >= 2 ? -0.7 : undefined;
 }
 
 const CASUAL = [0x9ca3af, 0xf5f0e1, 0x4b5563, 0xb45309, 0x065f46, 0x7f1d1d, 0x1e3a8a];

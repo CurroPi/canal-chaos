@@ -58,7 +58,8 @@ let specialTimer = 0;
 let specialsPool = [];
 let entities = [];
 let particles = [];
-let hasCoffee = true;
+let coffees = CONFIG.coffee.start;
+let nextCafeAt = CONFIG.cafe.every;
 let invulnUntil = 0;
 let spilledAt = -99;
 let best = loadBest();
@@ -102,15 +103,27 @@ function showReady() {
     <h1>Canal Game</h1>
     <p class="small">Prototype · Victoria Park, Saturday, 11am</p>
     <p>Dodge runners, Lime bikes, dog leads, prams and bridges.<br>Listen for bells behind you. 🔔</p>
-    <p class="small">← → or A / D to change lane · swipe on phones<br>☕ Your coffee is your extra life.</p>
+    <p class="small">← → or A / D to change lane · swipe on phones<br>☕ Your coffee is your extra life. Grab a second one at the narrowboat café, every 500 points.</p>
     <button>Start walking</button>
   `);
 }
 
+// A takeaway coffee cup: lid, cup and cardboard sleeve
+const CUP_SVG = `<svg viewBox="0 0 24 32" aria-hidden="true">
+  <rect x="2.5" y="3" width="19" height="5" rx="1.5" fill="#6b4a2f"/>
+  <path d="M4 8h16l-2 22H6z" fill="#fff"/>
+  <path d="M4.6 13h14.8l-0.8 9H5.4z" fill="#c8a27a"/>
+</svg>`;
+
 function updateHud() {
   scoreEl.textContent = Math.floor(score);
   bestEl.textContent = best ? `Best ${best}` : '';
-  livesEl.innerHTML = hasCoffee ? '☕' : '<span class="spilled">☕</span>';
+  let cups = '';
+  for (let i = 0; i < CONFIG.coffee.max; i++) cups += `<span class="cup ${i < coffees ? 'full' : 'empty'}">${CUP_SVG}</span>`;
+  if (livesEl.dataset.count !== String(coffees)) {
+    livesEl.innerHTML = cups;
+    livesEl.dataset.count = String(coffees);
+  }
 }
 
 // ---------- Speech bubbles ----------
@@ -261,15 +274,17 @@ function spawnSpecial() {
   const kind = specialsPool[specialsPool.length - 1];
   const cfg = CONFIG.specials.kinds[kind];
 
-  // The café is moored on the canal side, so its queue is always in lane 0
-  if (!spawnAhead(kind, cfg, kind === 'cafe' ? [[0]] : null)) return false;
+  if (!spawnAhead(kind, cfg)) return false;
   specialsPool.pop();
+  return true;
+}
 
-  if (kind === 'cafe') {
-    // A coffee waiting by the hatch, in the lane next to the queue
-    const arrival = elapsed + CONFIG.travelTime;
-    addEntity('coffee', [1], { own: 0, hitZ: 0.6, arrival, span: [arrival, arrival], z: spawnDistance(CONFIG.walkSpeed) + 0.5 });
-  }
+// Every 500 points: the narrowboat café, with a coffee waiting by the hatch.
+// The café is moored on the canal side, so its queue is always in lane 0.
+function spawnCafe() {
+  if (!spawnAhead('cafe', CONFIG.cafe, [[0]])) return false;
+  const arrival = elapsed + CONFIG.travelTime;
+  addEntity('coffee', [1], { own: 0, hitZ: 0.6, arrival, span: [arrival, arrival], z: spawnDistance(CONFIG.walkSpeed) + 0.5 });
   return true;
 }
 
@@ -408,8 +423,8 @@ function steerOvertaker(e, dt) {
 // ---------- Hits ----------
 function spillCoffee() {
   const c = CONFIG.coffee;
-  hasCoffee = false;
-  setCoffee(player, false);
+  coffees--;
+  setCoffee(player, coffees);
   invulnUntil = elapsed + c.invulnerable;
   spilledAt = elapsed;
   score = Math.max(0, score - c.spillPenalty);
@@ -430,19 +445,19 @@ function spillCoffee() {
 }
 
 function hit(e) {
-  if (hasCoffee) spillCoffee();
+  if (coffees > 0) spillCoffee();
   else gameOver(e);
 }
 
 function collectCoffee(e) {
   removeEntity(e);
   entities = entities.filter((o) => o !== e);
-  if (hasCoffee) {
-    score += CONFIG.coffeeRefill.bonusIfFull;
-    floatText(`+${CONFIG.coffeeRefill.bonusIfFull} ☕ EXTRA SHOT`);
+  if (coffees >= CONFIG.coffee.max) {
+    score += CONFIG.cafe.bonusIfFull;
+    floatText(`+${CONFIG.cafe.bonusIfFull} ☕ EXTRA SHOT`);
   } else {
-    hasCoffee = true;
-    setCoffee(player, true);
+    coffees++;
+    setCoffee(player, coffees);
     floatText('☕ REFILL! £4.80');
     playerSays(LINES.refill);
   }
@@ -460,10 +475,11 @@ function reset() {
   lane = 1;
   elapsed = 0;
   score = 0;
-  hasCoffee = true;
+  coffees = CONFIG.coffee.start;
+  nextCafeAt = CONFIG.cafe.every;
   invulnUntil = 0;
   spilledAt = -99;
-  setCoffee(player, true);
+  setCoffee(player, coffees);
   spawnTimer = CONFIG.spawn.firstWaveDelay;
   behindTimer = CONFIG.overtaking.from;
   deliveryTimer = CONFIG.delivery.from;
@@ -634,6 +650,8 @@ function tick() {
       bridgeTimer = spawnBridge() ? lerp(b.gapStart, b.gapMin, progress()) * (0.8 + Math.random() * 0.4) : 0.5;
     }
 
+    if (score >= nextCafeAt && spawnCafe()) nextCafeAt += CONFIG.cafe.every;
+
     specialTimer -= dt;
     if (specialTimer <= 0) {
       const sp = CONFIG.specials;
@@ -706,13 +724,14 @@ tick();
 // Developer helper: open the game with ?debug in the URL to inspect it from the browser console
 if (new URLSearchParams(location.search).has('debug')) {
   window.debug = {
-    get state() { return { state, elapsed, score, lane, hasCoffee }; },
+    get state() { return { state, elapsed, score, lane, coffees }; },
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z) })); },
     skip(seconds) { elapsed += seconds; },
     godMode() { invulnUntil = Infinity; },
     landmark(kind) { world.forceNext = kind; },
     special(kind) { specialsPool = [kind]; specialTimer = 0; },
     delivery() { deliveryTimer = 0; },
+    cafe() { nextCafeAt = score; },
     get counts() { return { ...spawnCounts }; },
     pause(on = true) { paused = on; clock.getDelta(); },
   };

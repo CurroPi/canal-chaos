@@ -75,8 +75,11 @@ html, body {
   cursor: pointer;
 }
 
-#lives { font-size: 28px; margin-top: 2px; }
-#lives .spilled { filter: grayscale(1); opacity: 0.4; text-decoration: line-through; }
+#lives { display: flex; gap: 4px; margin-top: 4px; }
+#lives .cup svg { display: block; width: 22px; height: 30px; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35)); }
+#lives .cup.empty { opacity: 0.3; filter: grayscale(1); }
+#lives .cup.full { animation: cupIn 0.3s ease-out; }
+@keyframes cupIn { from { transform: scale(1.5); } to { transform: scale(1); } }
 
 #warning {
   position: fixed;
