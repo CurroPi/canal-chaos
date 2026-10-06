@@ -95,7 +95,7 @@ function showReady() {
   showOverlay(`
     <h1>Canal Game</h1>
     <p class="small">Prototype · Victoria Park, Saturday, 11am</p>
-    <p>Dodge runners, Lime bikes, dog leads, prams, influencers and bridges.<br>Listen for bells behind you. 🔔</p>
+    <p>Dodge runners, Lime bikes, dog leads, prams and bridges.<br>Listen for bells behind you. 🔔</p>
     <p class="small">← → or A / D to change lane · swipe on phones<br>☕ Your coffee is your extra life.</p>
     <button>Start walking</button>
   `);

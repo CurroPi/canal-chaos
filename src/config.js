@@ -18,7 +18,7 @@ export const CONFIG = {
   // hitZ = collision length, weight = how common, from = seconds into the run before they appear.
   enemies: {
     runner:       { speed: 4,   hitZ: 0.7, weight: 3,   from: 0 },
-    instagrammer: { speed: 0,   hitZ: 0.5, weight: 1.3, from: 0 },
+    // instagrammer: { speed: 0, hitZ: 0.5, weight: 1.3, from: 0 }, // paused: design not clear enough yet
     lime:         { speed: 9,   hitZ: 1.0, weight: 1.6, from: 6 },
     pram:         { speed: 1,   hitZ: 0.9, weight: 1.1, from: 10 },
     dogWalker:    { speed: 1.2, hitZ: 0.6, weight: 1.4, from: 16 }, // takes 2 lanes

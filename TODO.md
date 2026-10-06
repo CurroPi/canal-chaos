@@ -37,4 +37,5 @@
 - [ ] M10 Launch 🚀
 
 ## Notes for later
+- Instagrammer: removed for now (design not readable). Redesign later, e.g. ring light or selfie stick, then re-enable in src/config.js.
 - Phone (portrait) view: lots of empty sky, player looks small. Tilt camera down on tall screens (M7).
