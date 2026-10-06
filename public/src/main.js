@@ -4,7 +4,10 @@ import { CONFIG } from './config.js';
 import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box } from './models.js';
 import { ENEMIES } from './enemies.js';
-import { initAudio, bell, spillSound, crashSound, pickupSound, whineSound } from './sound.js';
+import {
+  initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
+  startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute,
+} from './sound.js';
 import { LINES } from './lines.js';
 
 // ---------- Scene setup ----------
@@ -541,6 +544,7 @@ function start() {
   if (state === 'over' && performance.now() - overAt < 900) return; // no accidental instant restarts
   clearTimeout(overlayTimer);
   initAudio();
+  startMusic();
   reset();
   prewarm(CONFIG.spawn.prewarmSeconds);
   state = 'playing';
@@ -550,6 +554,8 @@ function start() {
 function gameOver(e) {
   state = 'over';
   overAt = performance.now();
+  stopMusic();
+  gameOverJingle();
   clearBubbles();
   crashSound();
   player.group.visible = true;
@@ -576,8 +582,21 @@ function move(dir) {
   lane = Math.max(0, Math.min(2, lane + dir));
 }
 
+const muteBtn = document.getElementById('mute');
+function showMute() {
+  muteBtn.textContent = isMuted() ? '♪ OFF' : '♪ ON';
+}
+muteBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleMute();
+  showMute();
+  muteBtn.blur();
+});
+showMute();
+
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
+  if (e.key === 'm' || e.key === 'M') { toggleMute(); showMute(); return; }
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move(-1);
   else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move(1);
   else if ((e.key === ' ' || e.key === 'Enter') && state !== 'playing') start();
@@ -633,6 +652,7 @@ function tick() {
 
   if (state === 'playing') {
     elapsed += dt;
+    setMusicIntensity(progress());
     const walk = CONFIG.walkSpeed * speedFactor();
     score += walk * dt;
     world.scroll(walk * dt);
