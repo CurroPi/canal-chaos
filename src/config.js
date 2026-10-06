@@ -10,18 +10,37 @@ export const CONFIG = {
   // How snappy lane changes are (higher = faster)
   laneChangeSharpness: 14,
 
-  // Where things appear ahead, and when they're cleaned up
-  spawnZ: -110,
+  // Everything coming towards you appears far away in the fog, at whatever distance makes it
+  // take exactly this many seconds to reach you. Same travel time = nobody walks through anybody.
+  travelTime: 12.8,
   despawnZ: 12,
+  farZ: -260, // overtaking bikes are cleaned up beyond this
 
   // Oncoming traffic. speed = how fast they move towards you (on top of your walking),
   // hitZ = collision length, weight = how common, from = seconds into the run before they appear.
   enemies: {
-    runner:       { speed: 4,   hitZ: 0.7, weight: 3,   from: 0 },
+    runner:       { speed: 3.5, hitZ: 0.7, weight: 3,   from: 0 },
     // instagrammer: { speed: 0, hitZ: 0.5, weight: 1.3, from: 0 }, // paused: design not clear enough yet
     lime:         { speed: 9,   hitZ: 1.0, weight: 1.6, from: 6 },
-    pram:         { speed: 1,   hitZ: 0.9, weight: 0.5, from: 10 },
-    dogWalker:    { speed: 1.2, hitZ: 0.6, weight: 2.8, from: 12 }, // takes 2 lanes
+    pram:         { speed: 1.8, hitZ: 0.9, weight: 0.5, from: 10 },
+    dogWalker:    { speed: 2,   hitZ: 0.6, weight: 2.8, from: 12 }, // takes 2 lanes
+    runClub:      { speed: 3.5, hitZ: 1.0, weight: 1.2, from: 20 }, // takes 2 lanes
+  },
+
+  // Later on, run clubs sometimes come as a convoy of packs in alternating lanes, so you weave
+  runClubConvoy: { from: 50, chance: 0.4, packs: 3, gap: 1.1 },
+
+  // Food delivery e-bikes: overtake you from behind, fastest thing on the path
+  delivery: {
+    from: 35,
+    speed: 26,           // their real speed (you walk at 9)
+    hitZ: 1.1,
+    gapStart: 14,        // seconds between them at the start...
+    gapMin: 6,           // ...and at max busyness
+    warn: 1.1,           // seconds of warning
+    swerveFrom: 60,      // after this many seconds, they may switch lanes at the last moment
+    swerveChance: 0.5,
+    swerveAt: 0.6,       // ...this many seconds before reaching you
   },
 
   // Hackney specials: one-off surprises, each appears once per run (then the list reshuffles)
@@ -31,7 +50,7 @@ export const CONFIG = {
     gapMin: 9,         // ...and at max busyness
     kinds: {
       cargoBike: { speed: 3,   hitZ: 1.6 }, // takes 2 lanes
-      monstera:  { speed: 1,   hitZ: 0.8 },
+      monstera:  { speed: 1.5, hitZ: 0.8 },
       cafe:      { speed: 0,   hitZ: 2.6 }, // the queue blocks the canal-side lane
     },
   },
@@ -79,13 +98,14 @@ export const CONFIG = {
     doubleChanceMax: 0.45,     // ...and at max busyness
     extraGapAfterDouble: 0.35, // breathing room after a two-wide wave
     firstWaveDelay: 0.6,
-    prewarmSeconds: 6,         // the path is already busy when you start
+    prewarmSeconds: 10,        // the path is already busy when you start
   },
 
   // Fairness rule: never block all 3 lanes at once
   fairness: {
     window: 0.7,       // things arriving within this many seconds of each other count as "at once"
     sameLaneGap: 0.8,  // min seconds between two oncoming things in the same lane
+    visibleZ: -75,     // things may overtake each other further away than this (hidden by the fog)
   },
 
   coffee: {

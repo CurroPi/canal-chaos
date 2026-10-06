@@ -523,3 +523,87 @@ export function animatePickup(m, t) {
   m.spin.rotation.y = t * 3;
   m.spin.position.y = 1.1 + Math.sin(t * 4) * 0.12;
 }
+
+const CLUB_SHIRTS = [0xff2d87, 0x00e0b8, 0xff7a00, 0x7c4dff, 0xc6ff00];
+
+// A run club: a tight pack in matching shirts, two lanes wide, leader carrying the club flag.
+export function makeRunClub() {
+  const group = new THREE.Group();
+  const shirt = pick(CLUB_SHIRTS);
+  const members = [];
+  const rows = [
+    { z: 0.5, xs: [-1.1, -0.35, 0.4, 1.1] },
+    { z: -0.5, xs: Math.random() < 0.5 ? [-0.7, 0.7] : [-1.0, 0, 1.0] },
+  ];
+  for (const row of rows) {
+    for (const x of row.xs) {
+      const skin = pick(SKIN_TONES);
+      const r = makePerson({ skin, shirt, legs: skin, shoes: pick(NEON), hair: pick(HAIR) });
+      r.legL.add(box(0.23, 0.26, 0.25, 0x111111, 0, -0.12, 0));
+      r.legR.add(box(0.23, 0.26, 0.25, 0x111111, 0, -0.12, 0));
+      r.head.add(box(0.39, 0.07, 0.39, 0xffffff, 0, 0.1, 0));
+      r.rig.rotation.x = 0.15;
+      r.group.position.set(x + rand(-0.08, 0.08), 0, row.z + rand(-0.12, 0.12));
+      r.phase = Math.random() * 0.6; // nearly in step, obviously
+      group.add(r.group);
+      members.push(r);
+    }
+  }
+  // Club flag
+  const leader = members[1];
+  leader.holdR = -2.4;
+  const pole = new THREE.Group();
+  pole.position.set(0, -0.6, 0);
+  pole.add(box(0.04, 1.4, 0.04, 0xdddddd, 0, 0.7, 0));
+  pole.add(box(0.03, 0.4, 0.6, shirt, 0, 1.2, 0.3));
+  leader.armR.add(pole);
+
+  return { group, members, phase: Math.random() * 10 };
+}
+
+export function animateRunClub(m, t) {
+  for (const r of m.members) animateWalk(r, t + r.phase, 13);
+}
+
+const fatWheelGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.18, 12);
+
+// A food delivery rider on a fat-tyre e-bike with an insulated box on their back. Faces +z.
+export function makeDeliveryRider() {
+  const group = new THREE.Group();
+  for (const z of [0.6, -0.6]) {
+    const wheel = new THREE.Mesh(fatWheelGeo, mat(0x111111));
+    wheel.rotation.z = Math.PI / 2;
+    wheel.position.set(0, 0.34, z);
+    group.add(wheel);
+  }
+  group.add(box(0.12, 0.12, 1.1, 0x222222, 0, 0.6, 0));        // frame
+  group.add(box(0.2, 0.3, 0.5, 0x333333, 0, 0.55, -0.05));     // big battery
+  group.add(box(0.1, 0.6, 0.1, 0x222222, 0, 0.8, 0.55));       // fork
+  group.add(box(0.6, 0.06, 0.06, 0x111111, 0, 1.1, 0.5));      // handlebar
+  group.add(box(0.12, 0.2, 0.03, 0x111111, 0, 1.22, 0.55));    // phone mount
+  group.add(box(0.1, 0.17, 0.02, 0x7fd3ff, 0, 1.22, 0.57));    // the app, glowing
+
+  const rider = makePerson({
+    skin: pick(SKIN_TONES),
+    shirt: pick([0x1b1b1b, 0x2b2b2b, 0x3a3a3a]),
+    legs: 0x1b1b1b,
+    shoes: pick([0xf5f5f5, 0x111111]),
+    hair: 0x111111,
+  });
+  rider.group.position.set(0, 0.2, -0.3);
+  rider.rig.rotation.x = 0.4;
+  rider.armL.rotation.x = rider.armR.rotation.x = -1.1;
+  rider.head.add(box(0.42, 0.18, 0.46, 0x111111, 0, 0.24, 0)); // helmet
+  // Insulated food box on their back
+  rider.rig.add(box(0.7, 0.65, 0.55, pick([0x00c2b2, 0xff7a00, 0xe6f542]), 0, 1.35, -0.48));
+  rider.rig.add(box(0.72, 0.06, 0.57, 0xf5f5f5, 0, 1.45, -0.48));
+  group.add(rider.group);
+
+  return { group, rider, phase: Math.random() * 10 };
+}
+
+export function animateDelivery(m, t) {
+  const s = Math.sin(t * 14) * 0.5;
+  m.rider.legL.rotation.x = -0.8 + s;
+  m.rider.legR.rotation.x = -0.8 - s;
+}

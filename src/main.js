@@ -4,7 +4,7 @@ import { CONFIG } from './config.js';
 import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box } from './models.js';
 import { ENEMIES } from './enemies.js';
-import { initAudio, bell, spillSound, crashSound, pickupSound } from './sound.js';
+import { initAudio, bell, spillSound, crashSound, pickupSound, whineSound } from './sound.js';
 import { LINES } from './lines.js';
 
 // ---------- Scene setup ----------
@@ -50,6 +50,9 @@ let elapsed = 0;
 let score = 0;
 let spawnTimer = 0;
 let behindTimer = 0;
+let deliveryTimer = 0;
+let convoy = []; // run club packs still to send: { at, lanes }
+let waitingKind = null;
 let bridgeTimer = 0;
 let specialTimer = 0;
 let specialsPool = [];
@@ -113,7 +116,7 @@ function updateHud() {
 // ---------- Speech bubbles ----------
 // Short lines of text that fade in where someone is, stay put, and fade out.
 const bubbleLayer = document.getElementById('bubbles');
-const HEAD_Y = { runner: 2.2, lime: 2.5, pram: 2.2, dogWalker: 2.2, cargoBike: 2.5, monstera: 2.6, cafe: 2.2 };
+const HEAD_Y = { runner: 2.2, runClub: 2.2, delivery: 2.6, lime: 2.5, pram: 2.2, dogWalker: 2.2, cargoBike: 2.5, monstera: 2.6, cafe: 2.2 };
 const recentLines = [];
 const projected = new THREE.Vector3();
 
@@ -191,22 +194,36 @@ function spanFor(arrival, hitZ, closingSpeed) {
 }
 
 // Fairness rule: never let all 3 lanes be blocked at the same moment.
-function canPlace(lanes, span, arrival, fromAhead) {
+// Also: never let two things in the same lane visibly pass through each other.
+function canPlace(lanes, span, arrival, fromAhead, closing = 0) {
+  const f = CONFIG.fairness;
   const blocked = new Set(lanes);
   for (const e of entities) {
     if (ENEMIES[e.kind].pickup) continue; // coffees don't block anything
     const overlaps = e.span[0] < span[1] && span[0] < e.span[1];
     const sharesLane = e.lanes.some((l) => lanes.includes(l));
     if (overlaps) e.lanes.forEach((l) => blocked.add(l));
-    if (fromAhead) {
-      // Don't let something faster catch up with (and pass through) something in its lane
-      if (!e.fromBehind && sharesLane && e.arrival > arrival - CONFIG.fairness.sameLaneGap) return false;
-    } else if (overlaps && sharesLane) {
-      return false; // overtaking bikes need a clear lane
+    if (!sharesLane) continue;
+    if (!fromAhead) {
+      if (overlaps) return false; // overtaking bikes need a clear lane
+      continue;
+    }
+    if (e.fromBehind) continue;
+    if (Math.abs(e.arrival - arrival) < f.sameLaneGap) return false;
+    // Where would the two meet? Only a problem if it's somewhere you can see.
+    if (e.closing !== closing) {
+      const meetT = (e.closing * e.arrival - closing * arrival) / (e.closing - closing);
+      const meetZ = closing * (meetT - arrival);
+      if (meetT > elapsed && meetZ > f.visibleZ && meetZ < 2) return false;
     }
   }
   return blocked.size < 3;
 }
+
+const spawnCounts = {}; // testing helper: how many of each kind have appeared
+
+// How far away something must appear to reach you in exactly CONFIG.travelTime seconds
+const spawnDistance = (closing) => -closing * CONFIG.travelTime;
 
 function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = false }) {
   const model = ENEMIES[kind].build(lanes);
@@ -214,7 +231,9 @@ function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = fals
   if (fromBehind) model.group.rotation.y = Math.PI;
   scene.add(model.group);
   const e = { kind, model, lanes, own, hitZ, arrival, span, fromBehind, flash: null, said: false };
-  const lines = LINES[fromBehind ? 'limeOvertake' : kind];
+  e.closing = own + CONFIG.walkSpeed;
+  spawnCounts[kind] = (spawnCounts[kind] || 0) + 1;
+  const lines = LINES[fromBehind ? `${kind}Overtake` : kind];
   e.line = lines && Math.random() < CONFIG.bubbles.chance ? pickLine(lines) : null;
   entities.push(e);
   return e;
@@ -223,13 +242,13 @@ function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = fals
 // Try to place an oncoming thing; returns how many lanes it took (0 if it didn't fit)
 function spawnAhead(kind, cfg = CONFIG.enemies[kind], options = null) {
   const closing = cfg.speed + CONFIG.walkSpeed;
-  const arrival = elapsed + -CONFIG.spawnZ / closing;
+  const arrival = elapsed + CONFIG.travelTime;
   const span = spanFor(arrival, cfg.hitZ, closing);
   options ||= ENEMIES[kind].width === 2 ? [[0, 1], [1, 2]] : [[0], [1], [2]];
 
   for (const lanes of shuffle([...options])) {
-    if (canPlace(lanes, span, arrival, true)) {
-      addEntity(kind, lanes, { own: cfg.speed, hitZ: cfg.hitZ, arrival, span, z: CONFIG.spawnZ });
+    if (canPlace(lanes, span, arrival, true, closing)) {
+      addEntity(kind, lanes, { own: cfg.speed, hitZ: cfg.hitZ, arrival, span, z: spawnDistance(closing) });
       return lanes.length;
     }
   }
@@ -248,8 +267,8 @@ function spawnSpecial() {
 
   if (kind === 'cafe') {
     // A coffee waiting by the hatch, in the lane next to the queue
-    const arrival = elapsed + -CONFIG.spawnZ / CONFIG.walkSpeed;
-    addEntity('coffee', [1], { own: 0, hitZ: 0.6, arrival, span: [arrival, arrival], z: CONFIG.spawnZ + 0.5 });
+    const arrival = elapsed + CONFIG.travelTime;
+    addEntity('coffee', [1], { own: 0, hitZ: 0.6, arrival, span: [arrival, arrival], z: spawnDistance(CONFIG.walkSpeed) + 0.5 });
   }
   return true;
 }
@@ -271,41 +290,60 @@ function spawnWave() {
 
   let lanesUsed = 0;
   for (let tries = 0; tries < 3 && lanesUsed < wanted; tries++) {
-    const kind = pickKind();
-    if (ENEMIES[kind].width > wanted - lanesUsed) continue;
-    lanesUsed += spawnAhead(kind);
+    // Something that didn't fit last time gets first go, so the mix stays as configured
+    const kind = tries === 0 && waitingKind ? waitingKind : pickKind();
+    if (kind === waitingKind) waitingKind = null;
+    // Two-lane groups (dog walkers, run clubs) can be a whole wave on their own
+    const room = lanesUsed === 0 ? 2 : wanted - lanesUsed;
+    if (ENEMIES[kind].width > room) continue;
+    const used = spawnAhead(kind);
+    if (!used && !waitingKind) waitingKind = kind;
+    lanesUsed += used;
+    if (kind === 'runClub' && used) maybeStartConvoy();
+    if (used === 2) break;
   }
 
   const gap = lerp(s.startGap, s.minGap, p);
   spawnTimer = gap * (0.8 + Math.random() * 0.4) + (lanesUsed >= 2 ? s.extraGapAfterDouble : 0);
 }
 
+// Later in the run, a run club brings friends: more packs in alternating lanes, so you weave
+function maybeStartConvoy() {
+  const c = CONFIG.runClubConvoy;
+  if (elapsed < c.from || convoy.length || Math.random() > c.chance) return;
+  const last = entities[entities.length - 1].lanes;
+  for (let i = 1; i < c.packs; i++) {
+    const flip = i % 2 === 1;
+    const lanes = flip ? (last[0] === 0 ? [1, 2] : [0, 1]) : last;
+    convoy.push({ at: elapsed + i * c.gap, lanes });
+  }
+}
+
 function spawnBridge() {
   const b = CONFIG.bridge;
   const p = progress();
   const lanes = Math.random() < lerp(b.twoLaneChanceStart, b.twoLaneChanceMax, p) ? [1, 2] : [2];
-  const arrival = elapsed + -CONFIG.spawnZ / CONFIG.walkSpeed;
+  const arrival = elapsed + CONFIG.travelTime;
   const span = spanFor(arrival, b.hitZ, CONFIG.walkSpeed);
-  if (!canPlace(lanes, span, arrival, true)) return false;
-  addEntity('bridge', lanes, { own: 0, hitZ: b.hitZ, arrival, span, z: CONFIG.spawnZ });
+  if (!canPlace(lanes, span, arrival, true, CONFIG.walkSpeed)) return false;
+  addEntity('bridge', lanes, { own: 0, hitZ: b.hitZ, arrival, span, z: spawnDistance(CONFIG.walkSpeed) });
   return true;
 }
 
-// A Lime rider overtaking you: starts behind you, with a warning
-function spawnBehind() {
-  const o = CONFIG.overtaking;
-  const warn = lerp(o.warnStart, o.warnMin, progress());
-  const gain = o.speed - CONFIG.walkSpeed;
+// Something overtaking you from behind (a Lime or a delivery e-bike), with a warning
+function spawnBehind(kind, { speed, hitZ, warn, sameLaneAsYou = 0.6 }) {
+  const gain = speed - CONFIG.walkSpeed;
   const arrival = elapsed + warn;
-  const span = spanFor(arrival, o.hitZ, gain);
+  const span = spanFor(arrival, hitZ, gain);
 
-  const preferred = Math.random() < o.sameLaneAsYou ? [lane] : [];
+  const preferred = Math.random() < sameLaneAsYou ? [lane] : [];
   const laneIdx = [...preferred, ...shuffle([0, 1, 2])].find((l) => canPlace([l], span, arrival, false));
-  if (laneIdx === undefined) return;
+  if (laneIdx === undefined) return false;
 
-  const e = addEntity('lime', [laneIdx], {
-    own: -o.speed, hitZ: o.hitZ, arrival, span, z: gain * warn + 0.5, fromBehind: true,
+  const e = addEntity(kind, [laneIdx], {
+    own: -speed, hitZ, arrival, span, z: gain * warn + 0.5, fromBehind: true,
   });
+  e.gain = gain;
 
   // Flashing red strip on the lane they'll come through
   e.flash = new THREE.Mesh(
@@ -315,6 +353,27 @@ function spawnBehind() {
   e.flash.rotation.x = -Math.PI / 2;
   e.flash.position.set(CONFIG.lanes[laneIdx], 0.02, -7);
   scene.add(e.flash);
+  if (kind === 'delivery') whineSound();
+  else bell();
+  return true;
+}
+
+// Late in the run, a delivery rider may dart into another lane just before reaching you.
+// Only into a lane that keeps a way through, and the red flash moves with them.
+function maybeSwerve(e) {
+  const d = CONFIG.delivery;
+  if (e.kind !== 'delivery' || e.swerveChecked || elapsed < d.swerveFrom) return;
+  if (e.model.group.position.z > e.gain * d.swerveAt + 0.5) return;
+  e.swerveChecked = true;
+  if (Math.random() > d.swerveChance) return;
+  const others = entities;
+  entities = entities.filter((o) => o !== e);
+  const options = shuffle([e.lanes[0] - 1, e.lanes[0] + 1].filter((l) => l >= 0 && l <= 2));
+  const to = options.find((l) => canPlace([l], e.span, e.arrival, false));
+  entities = others;
+  if (to === undefined) return;
+  e.lanes = [to];
+  if (e.flash) e.flash.position.x = CONFIG.lanes[to];
   bell();
 }
 
@@ -407,6 +466,9 @@ function reset() {
   setCoffee(player, true);
   spawnTimer = CONFIG.spawn.firstWaveDelay;
   behindTimer = CONFIG.overtaking.from;
+  deliveryTimer = CONFIG.delivery.from;
+  convoy = [];
+  waitingKind = null;
   bridgeTimer = CONFIG.bridge.from;
   specialTimer = CONFIG.specials.from;
   specialsPool = [];
@@ -518,8 +580,9 @@ function updateWarning(t) {
   }
   const bikeLane = nearest.lanes[0];
   const side = bikeLane < lane ? 'ON YOUR LEFT!' : bikeLane > lane ? 'ON YOUR RIGHT!' : 'BEHIND YOU!';
-  warningEl.textContent = `🔔 ${side}`;
-  warningEl.classList.toggle('danger', bikeLane === lane);
+  const isDelivery = nearest.kind === 'delivery';
+  warningEl.textContent = isDelivery ? `🛵 DELIVERY! ${side}` : `🔔 ${side}`;
+  warningEl.classList.toggle('danger', bikeLane === lane || isDelivery);
   warningEl.classList.remove('hidden');
 }
 
@@ -550,9 +613,19 @@ function tick() {
 
     behindTimer -= dt;
     if (behindTimer <= 0) {
-      spawnBehind();
       const o = CONFIG.overtaking;
+      spawnBehind('lime', { speed: o.speed, hitZ: o.hitZ, warn: lerp(o.warnStart, o.warnMin, progress()), sameLaneAsYou: o.sameLaneAsYou });
       behindTimer = lerp(o.gapStart, o.gapMin, progress()) * (0.8 + Math.random() * 0.4);
+    }
+
+    deliveryTimer -= dt;
+    if (deliveryTimer <= 0) {
+      const d = CONFIG.delivery;
+      deliveryTimer = spawnBehind('delivery', d) ? lerp(d.gapStart, d.gapMin, progress()) * (0.8 + Math.random() * 0.4) : 0.5;
+    }
+
+    while (convoy.length && elapsed >= convoy[0].at) {
+      spawnAhead('runClub', CONFIG.enemies.runClub, [convoy.shift().lanes]);
     }
 
     bridgeTimer -= dt;
@@ -571,7 +644,7 @@ function tick() {
       const g = e.model.group;
       g.position.z += (e.own + walk) * dt;
       ENEMIES[e.kind].animate(e.model, t);
-      if (e.fromBehind) steerOvertaker(e, dt);
+      if (e.fromBehind) { maybeSwerve(e); steerOvertaker(e, dt); }
       // Bridges fade as they pass the camera so they don't block the view
       if (e.model.fade) e.model.fade(Math.max(0, Math.min(1, 1 - (g.position.z - 0.5) / 3)));
     }
@@ -594,7 +667,8 @@ function tick() {
 
     entities = entities.filter((e) => {
       const z = e.model.group.position.z;
-      if (z > CONFIG.despawnZ + 6 || z < CONFIG.spawnZ - 10) {
+      const gone = e.fromBehind ? z < CONFIG.farZ : z > CONFIG.despawnZ + 6;
+      if (gone) {
         removeEntity(e);
         return false;
       }
@@ -638,6 +712,8 @@ if (new URLSearchParams(location.search).has('debug')) {
     godMode() { invulnUntil = Infinity; },
     landmark(kind) { world.forceNext = kind; },
     special(kind) { specialsPool = [kind]; specialTimer = 0; },
+    delivery() { deliveryTimer = 0; },
+    get counts() { return { ...spawnCounts }; },
     pause(on = true) { paused = on; clock.getDelta(); },
   };
 }

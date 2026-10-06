@@ -4,8 +4,17 @@ export const LINES = {
   runner: [
     'It\'s a RUNNING path!',
     'Strava or it didn\'t happen',
-    'Run club! Sorry!',
     'Don\'t ruin my segment!',
+  ],
+
+  runClub: [
+    'Run club! Sorry!',
+    'Brunch after!',
+  ],
+
+  deliveryOvertake: [
+    'ORDER\'S GETTING COLD!',
+    '4 MINS LATE!',
   ],
 
   lime: [

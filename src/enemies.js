@@ -2,8 +2,9 @@
 import { CONFIG } from './config.js';
 import {
   makeRunner, makeLimeRider, makeInstagrammer, makePramPusher, makeDogWalker,
-  makeCargoBike, makeMonsteraCarrier, makeCafeQueue, makeCoffeePickup,
+  makeCargoBike, makeMonsteraCarrier, makeCafeQueue, makeCoffeePickup, makeRunClub, makeDeliveryRider,
   animateWalk, animateLime, animatePose, animateDogWalker, animateCargoBike, animateCafeQueue, animatePickup,
+  animateRunClub, animateDelivery,
 } from './models.js';
 import { makeBridge } from './world.js';
 
@@ -25,6 +26,32 @@ export const ENEMIES = {
       'Run over mid-tempo. They didn\'t even pause their watch.',
       'Collided with a marathon trainee. It\'s their taper week.',
       'Jogged into oblivion. They said "sorry" without stopping.',
+    ],
+  },
+
+  runClub: {
+    width: 2,
+    build: (lanes) => at(makeRunClub(), (X[lanes[0]] + X[lanes[1]]) / 2),
+    animate: (m, t) => animateRunClub(m, t + m.phase),
+    deaths: [
+      'Trampled by a run club. They didn\'t break formation.',
+      'Flattened by twelve people in matching shirts. Brunch is at 11.',
+      'Run over by a run club. It\'s basically a cult with oat milk.',
+    ],
+  },
+
+  delivery: {
+    width: 1,
+    build: ([l]) => at(makeDeliveryRider(), X[l]),
+    animate: (m, t) => animateDelivery(m, t + m.phase),
+    deaths: [
+      'Hit by a delivery e-bike doing 30. The pad thai survived.',
+      'Delivered. Straight to the afterlife.',
+      'Flattened by a food delivery. You gave it one star.',
+    ],
+    behindDeaths: [
+      'Your order is 2 minutes away. You are not.',
+      'Hit by someone else\'s dinner at 30mph.',
     ],
   },
 

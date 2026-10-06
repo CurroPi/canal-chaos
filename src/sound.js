@@ -57,3 +57,11 @@ export function pickupSound() {
   tone(880, t, 0.15, { type: 'triangle', vol: 0.18 });
   tone(1320, t + 0.08, 0.25, { type: 'triangle', vol: 0.15 });
 }
+
+// Electric motor whine, rising
+export function whineSound() {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  tone(220, t, 0.9, { type: 'sawtooth', vol: 0.07, endFreq: 880 });
+  tone(330, t, 0.9, { type: 'square', vol: 0.03, endFreq: 1320 });
+}
