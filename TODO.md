@@ -42,3 +42,11 @@
 ## Notes for later
 - Instagrammer: removed for now (design not readable). Redesign later, e.g. ring light or selfie stick, then re-enable in src/config.js.
 - Phone (portrait) view: lots of empty sky, player looks small. Tilt camera down on tall screens (M7).
+
+## Next session (as of 2026-10-07)
+- [ ] Check the live Netlify site (re-upload `public/` to Deploys first)
+- [ ] Leaderboard (Supabase): need Project URL + public anon key from the owner
+- [ ] Share button on game over
+- [ ] Maybe: pixel-style DOOM PIGEONS print for Josh to match Alex's ARIES
+- [ ] Maybe: unlock walkers by score; walker-specific lines
+- [ ] Phone polish: too much sky on tall screens
