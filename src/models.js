@@ -127,12 +127,9 @@ const phone = () => box(0.1, 0.18, 0.03, 0x111111, 0, -0.68, 0.06);
 const limeWheelGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.11, 12);
 const LIME = 0x4cd12a;
 
-// Someone on a hired Lime e-bike, one hand on the bars, one on their phone. Faces +z.
-export function makeLimeRider() {
-  const group = new THREE.Group();
+// A hired Lime e-bike on its own (also used for the ones dumped in the canal). Faces +z.
+export function makeLimeBike() {
   const bike = new THREE.Group();
-  group.add(bike);
-
   for (const z of [0.55, -0.55]) {
     const wheel = new THREE.Mesh(limeWheelGeo, mat(0x1b1b1b));
     wheel.rotation.z = Math.PI / 2;
@@ -147,6 +144,13 @@ export function makeLimeRider() {
   bike.add(box(0.6, 0.06, 0.06, 0x222222, 0, 1.0, 0.48));      // handlebar
   bike.add(box(0.38, 0.26, 0.3, 0x2f2f2f, 0, 0.86, 0.75));     // front basket
   bike.add(box(0.16, 0.08, 0.3, 0x222222, 0, 1.07, -0.3));     // saddle
+  return bike;
+}
+
+// Someone on a hired Lime e-bike, one hand on the bars, one on their phone. Faces +z.
+export function makeLimeRider() {
+  const group = new THREE.Group();
+  group.add(makeLimeBike());
 
   const rider = makePerson({
     skin: pick(SKIN_TONES),

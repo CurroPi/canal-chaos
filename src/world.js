@@ -1,13 +1,22 @@
 // The scrolling canal scenery: towpath, canal, narrowboats, brick wall, far bank.
 import * as THREE from 'three';
-import { box, mat } from './models.js';
-import { FRONT_X, makeWarehouse, makeOffice, makeGasholder, makeContainerville } from './buildings.js';
+import { box, mat, makeLimeBike } from './models.js';
+import { FRONT_X, makeBuilding, makeOffice, makeGasholder, makeContainerville, makeSharks } from './buildings.js';
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 const rand = (min, max) => min + Math.random() * (max - min);
 
 const BOAT_COLOURS = [0x1f5f3a, 0x8c1c1c, 0x1d2f5c, 0x5b2a5e, 0x2a6f73, 0x222222];
 const GRAFFITI = [0xff5fa2, 0x3fd3ff, 0xffd23f, 0x7cff6b, 0xffffff, 0xff7a1a];
+
+const WATER_Y = -0.7;
+const waterMat = new THREE.MeshLambertMaterial({ color: 0x3d5f52, transparent: true, opacity: 0.68 });
+
+// Canal rubbish (shared shapes)
+const canGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.22, 8);
+const bottleGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.34, 8);
+const cupGeo = new THREE.CylinderGeometry(0.08, 0.06, 0.2, 8);
+const coneGeo = new THREE.ConeGeometry(0.25, 0.7, 8);
 
 const trunkGeo = new THREE.CylinderGeometry(0.15, 0.2, 1.4, 6);
 const crownGeo = new THREE.IcosahedronGeometry(1.4, 0);
@@ -35,7 +44,7 @@ export function createWorld(scene, cfg) {
     if (sinceLandmark >= 6 && Math.random() < 0.3) {
       // Leave a low gap in front of a landmark so you can see it coming
       sinceLandmark = 0;
-      queued = pick(['gasholder', 'containerville']);
+      queued = pick(['gasholder', 'gasholder', 'containerville', 'containerville', 'sharks']);
       return 'gap';
     }
     return Math.random() < 0.15 ? 'gap' : 'warehouses';
@@ -64,12 +73,16 @@ export function createWorld(scene, cfg) {
       }
     },
 
-    // Fresh scenery for a new run, with our office the first building you see
+    // Fresh scenery for a new run. Our office comes a few seconds in, with a clear view of it.
     reset() {
-      const officeTile = tiles.reduce((a, b) => (Math.abs(b.position.z + 25) < Math.abs(a.position.z + 25) ? b : a));
+      const nearest = (z) => tiles.reduce((a, b) => (Math.abs(b.position.z - z) < Math.abs(a.position.z - z) ? b : a));
+      const officeTile = nearest(-75);
+      const inFront = nearest(officeTile.position.z + L);
       sinceLandmark = 0;
       queued = null;
-      for (const tile of tiles) decorate(tile, L, tile === officeTile ? 'office' : nextFarBank());
+      for (const tile of tiles) {
+        decorate(tile, L, tile === officeTile ? 'office' : tile === inFront ? 'gap' : nextFarBank());
+      }
     },
   };
   world.reset();
@@ -88,9 +101,12 @@ function buildStatic(tile, L) {
 
   // Canal edge, canal and far bank (left)
   tile.add(box(0.5, 0.12, L, 0xcfc8b8, -3.2, 0.0, 0));
-  tile.add(box(0.4, 1, L, 0x7d7468, -3.25, -0.6, 0));
-  tile.add(box(12, 0.1, L, 0x3d6b6a, -9.5, -0.75, 0));
-  tile.add(box(0.4, 1, L, 0x6e675e, FRONT_X + 0.2, -0.6, 0)); // far canal edge
+  tile.add(box(0.4, 2.1, L, 0x7d7468, -3.25, -1.05, 0));
+  tile.add(box(0.4, 2.1, L, 0x6e675e, FRONT_X + 0.2, -1.05, 0)); // far canal edge
+  tile.add(box(12, 0.1, L, 0x2a3326, -9.5, -2.0, 0));            // murky canal bed
+  const water = new THREE.Mesh(new THREE.BoxGeometry(12, 0.1, L), waterMat);
+  water.position.set(-9.5, WATER_Y - 0.05, 0);
+  tile.add(water);
   tile.add(box(16, 0.8, L, 0x5c5650, FRONT_X - 8, -0.4, 0));  // far bank ground
 
   // Brick wall (right) with brick courses and coping stones
@@ -110,7 +126,7 @@ function decorate(tile, L, farBank) {
   if (Math.random() < 0.6) {
     const z = rand(-3, 3);
     const colour = pick(BOAT_COLOURS);
-    decor.add(box(1.9, 0.7, 13, colour, -4.5, -0.35, z));
+    decor.add(box(1.9, 1.2, 13, colour, -4.5, -0.6, z));
     decor.add(box(1.6, 0.5, 11.5, 0xe9e1cf, -4.5, 0.25, z));
     decor.add(box(1.62, 0.06, 11.6, colour, -4.5, 0.53, z));
     for (let wz = -4.5; wz <= 4.5; wz += 1.8) {
@@ -130,17 +146,20 @@ function decorate(tile, L, farBank) {
     decor.add(box(0.03, rand(0.4, 1.3), rand(1, 3.5), pick(GRAFFITI), 3.08, rand(0.6, 2.2), rand(-L / 2 + 2, L / 2 - 2)));
   }
 
-  // The far bank: East London warehouses and the odd landmark
+  addRubbish(decor, L);
+
+  // The far bank: East London buildings and the odd landmark
   if (farBank === 'office') decor.add(makeOffice(0));
   else if (farBank === 'gasholder') decor.add(makeGasholder(0));
   else if (farBank === 'containerville') decor.add(makeContainerville(0));
+  else if (farBank === 'sharks') decor.add(makeSharks(0));
   else if (farBank === 'warehouses') {
     if (Math.random() < 0.5) {
-      decor.add(makeWarehouse(0, L - 0.4));
+      decor.add(makeBuilding(0, L - 0.4));
     } else {
       const split = rand(7, 12);
-      decor.add(makeWarehouse(-L / 2 + split / 2, split - 0.3));
-      decor.add(makeWarehouse(split / 2, L - split - 0.3));
+      decor.add(makeBuilding(-L / 2 + split / 2, split - 0.3));
+      decor.add(makeBuilding(split / 2, L - split - 0.3));
     }
   } else {
     // A gap between buildings, with a scruffy canal-side tree
@@ -153,10 +172,49 @@ function decorate(tile, L, farBank) {
   }
 }
 
-const BRICK = 0x8f4a36;
-const BRIDGE_DEPTH = 5;
+// Cans, bottles, bags, coffee cups and the odd dumped Lime bike
+function addRubbish(decor, L) {
+  const spot = () => [rand(-14.5, -6), rand(-L / 2, L / 2)];
+  const items = Math.floor(rand(4, 9));
+  for (let i = 0; i < items; i++) {
+    const [x, z] = spot();
+    const kind = Math.random();
+    let piece;
+    if (kind < 0.35) {
+      piece = new THREE.Mesh(canGeo, mat(pick([0xc0392b, 0xd0d0d0, 0x2e86de, 0x27ae60, 0xf1c40f])));
+      piece.rotation.set(0, rand(0, Math.PI), Math.PI / 2);
+    } else if (kind < 0.55) {
+      piece = new THREE.Mesh(bottleGeo, mat(pick([0x6f9f7f, 0xc7d6cf, 0x6b4a2f])));
+      piece.rotation.set(0, rand(0, Math.PI), Math.PI / 2);
+    } else if (kind < 0.75) {
+      piece = box(rand(0.35, 0.6), 0.03, rand(0.3, 0.45), pick([0xf2f2f2, 0x3498db, 0xe8e8e8, 0x2c3e50]));
+      piece.rotation.y = rand(0, Math.PI);
+    } else if (kind < 0.92) {
+      piece = new THREE.Mesh(cupGeo, mat(0xf5f5f5)); // somebody else's spilled flat white
+      piece.rotation.set(0, rand(0, Math.PI), Math.PI / 2);
+    } else {
+      piece = new THREE.Mesh(coneGeo, mat(0xff6a13)); // the obligatory traffic cone
+      piece.rotation.set(rand(-1.2, 1.2), 0, rand(-1.2, 1.2));
+    }
+    piece.position.set(x, WATER_Y + 0.03, z);
+    decor.add(piece);
+  }
 
-// A brick bridge over the canal. Its abutment blocks `blocked` lanes on the wall side,
+  // A dumped Lime bike: either fully sunk and glowing green under the water, or half sticking out
+  if (Math.random() < 0.4) {
+    const bike = makeLimeBike();
+    const [x, z] = spot();
+    const sunk = Math.random() < 0.6;
+    bike.rotation.set(sunk ? 0 : 0.3, rand(0, Math.PI * 2), sunk ? Math.PI / 2 : 1.1);
+    bike.position.set(x, sunk ? -1.45 : -1.05, z);
+    decor.add(bike);
+  }
+}
+
+const BRICK = 0x3e3431; // sooty London brick
+const BRIDGE_DEPTH = 7;
+
+// A dark, sooty brick bridge over the canal. Its abutment blocks `blocked` lanes on the wall side,
 // squeezing the towpath. The abutment fades out as it passes the camera.
 export function makeBridge(blocked, lanesX) {
   const group = new THREE.Group();
@@ -164,14 +222,14 @@ export function makeBridge(blocked, lanesX) {
 
   // Deck, high enough for the camera to pass under
   group.add(box(22, 1.0, D, BRICK, -6.5, 5.1, 0));
-  group.add(box(22, 0.05, D, 0x2e211b, -6.5, 4.58, 0));                // dark underside
+  group.add(box(22, 0.05, D, 0x0f0d0c, -6.5, 4.58, 0));                // dark underside
   for (const z of [D / 2 - 0.15, -D / 2 + 0.15]) {
-    group.add(box(22, 0.6, 0.3, 0x7f3e2d, -6.5, 5.9, z));              // parapets
-    group.add(box(22, 0.16, 0.12, 0xcfc8b8, -6.5, 4.62, z > 0 ? D / 2 : -D / 2)); // stone edging
+    group.add(box(22, 0.6, 0.3, 0x332a27, -6.5, 5.9, z));              // parapets
+    group.add(box(22, 0.16, 0.12, 0x6f6a63, -6.5, 4.62, z > 0 ? D / 2 : -D / 2)); // stone edging
   }
   group.add(box(1.2, 5, D, BRICK, -15.4, 2.3, 0));                      // pier on the far bank
   group.add(box(1, 1.4, D, BRICK, 3.6, 3.9, 0));                        // fill above the wall
-  group.add(box(6, 0.01, D, 0x968671, 0, 0.006, 0));                    // shade on the path
+  group.add(box(6, 0.01, D, 0x5e5246, 0, 0.006, 0));                    // deep shade on the path
 
   // Abutment over the blocked lanes
   const minX = lanesX[Math.min(...blocked)] - 1;
@@ -181,7 +239,7 @@ export function makeBridge(blocked, lanesX) {
   const abutment = new THREE.Mesh(geo, fadeMat);
   abutment.position.set((minX + maxX) / 2, 2.3, 0);
   group.add(abutment);
-  const lineMat = new THREE.MeshBasicMaterial({ color: 0x6f3426, transparent: true });
+  const lineMat = new THREE.MeshBasicMaterial({ color: 0x241e1b, transparent: true });
   const lines = [];
   for (let y = 0.4; y < 4.5; y += 0.45) {
     const line = new THREE.Mesh(new THREE.BoxGeometry(maxX - minX, 0.04, 0.02), lineMat);

@@ -41,7 +41,7 @@ export const CONFIG = {
     from: 12,
     gapStart: 16,             // seconds between bridges at the start...
     gapMin: 7,                // ...and at max busyness
-    hitZ: 2.7,
+    hitZ: 3.7,                // bridges are 7 deep
     twoLaneChanceStart: 0.25, // chance a bridge leaves only 1 lane open
     twoLaneChanceMax: 0.6,
   },
