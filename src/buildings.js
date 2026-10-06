@@ -321,7 +321,12 @@ function graffitiTexture(words) {
     g.fillStyle = '#f4f4f4';
     g.font = 'bold 72px "Marker Felt", "Comic Sans MS", cursive';
     g.textBaseline = 'middle';
-    g.fillText(words, 20, h / 2 + 4);
+    const fit = Math.min(1, (w - 40) / g.measureText(words).width); // squeeze to fit the wall
+    g.save();
+    g.translate(20, h / 2 + 4);
+    g.scale(fit, 1);
+    g.fillText(words, 0, 0);
+    g.restore();
   }));
 }
 
@@ -342,7 +347,7 @@ export function makeOffice(z) {
   }
 
   // Graffiti along the bottom
-  tagMat ||= new THREE.MeshBasicMaterial({ map: graffitiTexture('OAT MILK · E8 4EVA · RENT£££ · SOURDOUGH'), transparent: true });
+  tagMat ||= new THREE.MeshBasicMaterial({ map: graffitiTexture('RUSHT  GEWEY  HOTSEX  PISTOL PETE'), transparent: true });
   tagGeo ||= new THREE.PlaneGeometry(length - 1, 1.3);
   const tag = new THREE.Mesh(tagGeo, tagMat);
   tag.rotation.y = Math.PI / 2;

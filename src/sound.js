@@ -49,3 +49,11 @@ export function crashSound() {
   tone(140, t, 0.45, { type: 'square', vol: 0.12, endFreq: 50 });
   tone(90, t + 0.05, 0.5, { type: 'sawtooth', vol: 0.08, endFreq: 40 });
 }
+
+// Happy little "bling"
+export function pickupSound() {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  tone(880, t, 0.15, { type: 'triangle', vol: 0.18 });
+  tone(1320, t + 0.08, 0.25, { type: 'triangle', vol: 0.15 });
+}

@@ -20,9 +20,23 @@ export const CONFIG = {
     runner:       { speed: 4,   hitZ: 0.7, weight: 3,   from: 0 },
     // instagrammer: { speed: 0, hitZ: 0.5, weight: 1.3, from: 0 }, // paused: design not clear enough yet
     lime:         { speed: 9,   hitZ: 1.0, weight: 1.6, from: 6 },
-    pram:         { speed: 1,   hitZ: 0.9, weight: 1.1, from: 10 },
-    dogWalker:    { speed: 1.2, hitZ: 0.6, weight: 1.4, from: 16 }, // takes 2 lanes
+    pram:         { speed: 1,   hitZ: 0.9, weight: 0.5, from: 10 },
+    dogWalker:    { speed: 1.2, hitZ: 0.6, weight: 2.8, from: 12 }, // takes 2 lanes
   },
+
+  // Hackney specials: one-off surprises, each appears once per run (then the list reshuffles)
+  specials: {
+    from: 14,          // seconds before the first one
+    gapStart: 14,      // seconds between specials at the start...
+    gapMin: 9,         // ...and at max busyness
+    kinds: {
+      cargoBike: { speed: 3,   hitZ: 1.6 }, // takes 2 lanes
+      monstera:  { speed: 1,   hitZ: 0.8 },
+      cafe:      { speed: 0,   hitZ: 2.6 }, // the queue blocks the canal-side lane
+    },
+  },
+
+  coffeeRefill: { bonusIfFull: 100 }, // grabbing a coffee when you already have one
 
   // Lime riders overtaking you from behind, with a bell and a warning
   overtaking: {

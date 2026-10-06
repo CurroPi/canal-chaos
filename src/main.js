@@ -4,7 +4,7 @@ import { CONFIG } from './config.js';
 import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box } from './models.js';
 import { ENEMIES } from './enemies.js';
-import { initAudio, bell, spillSound, crashSound } from './sound.js';
+import { initAudio, bell, spillSound, crashSound, pickupSound } from './sound.js';
 
 // ---------- Scene setup ----------
 const canvas = document.getElementById('game');
@@ -50,6 +50,8 @@ let score = 0;
 let spawnTimer = 0;
 let behindTimer = 0;
 let bridgeTimer = 0;
+let specialTimer = 0;
+let specialsPool = [];
 let entities = [];
 let particles = [];
 let hasCoffee = true;
@@ -126,6 +128,7 @@ function spanFor(arrival, hitZ, closingSpeed) {
 function canPlace(lanes, span, arrival, fromAhead) {
   const blocked = new Set(lanes);
   for (const e of entities) {
+    if (ENEMIES[e.kind].pickup) continue; // coffees don't block anything
     const overlaps = e.span[0] < span[1] && span[0] < e.span[1];
     const sharesLane = e.lanes.some((l) => lanes.includes(l));
     if (overlaps) e.lanes.forEach((l) => blocked.add(l));
@@ -150,20 +153,37 @@ function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = fals
 }
 
 // Try to place an oncoming thing; returns how many lanes it took (0 if it didn't fit)
-function spawnAhead(kind) {
-  const cfg = CONFIG.enemies[kind];
+function spawnAhead(kind, cfg = CONFIG.enemies[kind], options = null) {
   const closing = cfg.speed + CONFIG.walkSpeed;
   const arrival = elapsed + -CONFIG.spawnZ / closing;
   const span = spanFor(arrival, cfg.hitZ, closing);
-  const options = ENEMIES[kind].width === 2 ? [[0, 1], [1, 2]] : [[0], [1], [2]];
+  options ||= ENEMIES[kind].width === 2 ? [[0, 1], [1, 2]] : [[0], [1], [2]];
 
-  for (const lanes of shuffle(options)) {
+  for (const lanes of shuffle([...options])) {
     if (canPlace(lanes, span, arrival, true)) {
       addEntity(kind, lanes, { own: cfg.speed, hitZ: cfg.hitZ, arrival, span, z: CONFIG.spawnZ });
       return lanes.length;
     }
   }
   return 0;
+}
+
+// The next Hackney special. Each appears once, then the list reshuffles.
+function spawnSpecial() {
+  if (!specialsPool.length) specialsPool = shuffle(Object.keys(CONFIG.specials.kinds));
+  const kind = specialsPool[specialsPool.length - 1];
+  const cfg = CONFIG.specials.kinds[kind];
+
+  // The café is moored on the canal side, so its queue is always in lane 0
+  if (!spawnAhead(kind, cfg, kind === 'cafe' ? [[0]] : null)) return false;
+  specialsPool.pop();
+
+  if (kind === 'cafe') {
+    // A coffee waiting by the hatch, in the lane next to the queue
+    const arrival = elapsed + -CONFIG.spawnZ / CONFIG.walkSpeed;
+    addEntity('coffee', [1], { own: 0, hitZ: 0.6, arrival, span: [arrival, arrival], z: CONFIG.spawnZ + 0.5 });
+  }
+  return true;
 }
 
 function pickKind() {
@@ -286,6 +306,21 @@ function hit(e) {
   else gameOver(e);
 }
 
+function collectCoffee(e) {
+  removeEntity(e);
+  entities = entities.filter((o) => o !== e);
+  if (hasCoffee) {
+    score += CONFIG.coffeeRefill.bonusIfFull;
+    floatText(`+${CONFIG.coffeeRefill.bonusIfFull} ☕ EXTRA SHOT`);
+  } else {
+    hasCoffee = true;
+    setCoffee(player, true);
+    floatText('☕ REFILL! £4.80');
+  }
+  pickupSound();
+  updateHud();
+}
+
 // ---------- Game flow ----------
 function reset() {
   world.reset();
@@ -303,6 +338,8 @@ function reset() {
   spawnTimer = CONFIG.spawn.firstWaveDelay;
   behindTimer = CONFIG.overtaking.from;
   bridgeTimer = CONFIG.bridge.from;
+  specialTimer = CONFIG.specials.from;
+  specialsPool = [];
   player.group.position.set(CONFIG.lanes[1], 0, 0);
   player.group.rotation.set(0, Math.PI, 0);
   player.group.visible = true;
@@ -450,6 +487,12 @@ function tick() {
       bridgeTimer = spawnBridge() ? lerp(b.gapStart, b.gapMin, progress()) * (0.8 + Math.random() * 0.4) : 0.5;
     }
 
+    specialTimer -= dt;
+    if (specialTimer <= 0) {
+      const sp = CONFIG.specials;
+      specialTimer = spawnSpecial() ? lerp(sp.gapStart, sp.gapMin, progress()) * (0.8 + Math.random() * 0.4) : 0.5;
+    }
+
     for (const e of entities) {
       const g = e.model.group;
       g.position.z += (e.own + walk) * dt;
@@ -460,14 +503,17 @@ function tick() {
     }
     updateWarning(t);
 
-    if (elapsed >= invulnUntil) {
-      for (const e of entities) {
-        const dz = Math.abs(e.model.group.position.z - pg.position.z);
-        const inLane = e.lanes.some((l) => Math.abs(CONFIG.lanes[l] - pg.position.x) < CONFIG.hitX);
-        if (dz < e.hitZ && inLane) {
-          hit(e);
-          break;
-        }
+    for (const e of entities) {
+      const dz = Math.abs(e.model.group.position.z - pg.position.z);
+      const inLane = e.lanes.some((l) => Math.abs(CONFIG.lanes[l] - pg.position.x) < CONFIG.hitX);
+      if (dz >= e.hitZ || !inLane) continue;
+      if (ENEMIES[e.kind].pickup) {
+        collectCoffee(e);
+        break;
+      }
+      if (elapsed >= invulnUntil) {
+        hit(e);
+        break;
       }
     }
 
@@ -516,5 +562,6 @@ if (new URLSearchParams(location.search).has('debug')) {
     skip(seconds) { elapsed += seconds; },
     godMode() { invulnUntil = Infinity; },
     landmark(kind) { world.forceNext = kind; },
+    special(kind) { specialsPool = [kind]; specialTimer = 0; },
   };
 }

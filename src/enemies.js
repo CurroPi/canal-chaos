@@ -2,7 +2,8 @@
 import { CONFIG } from './config.js';
 import {
   makeRunner, makeLimeRider, makeInstagrammer, makePramPusher, makeDogWalker,
-  animateWalk, animateLime, animatePose, animateDogWalker,
+  makeCargoBike, makeMonsteraCarrier, makeCafeQueue, makeCoffeePickup,
+  animateWalk, animateLime, animatePose, animateDogWalker, animateCargoBike, animateCafeQueue, animatePickup,
 } from './models.js';
 import { makeBridge } from './world.js';
 
@@ -79,6 +80,48 @@ export const ENEMIES = {
       'Tripped over a lead. The owner didn\'t look up from their phone.',
       'Taken out by a sausage dog called Biscuit. You\'ll never forget his name.',
     ],
+  },
+
+  // ---------- Hackney specials ----------
+  cargoBike: {
+    width: 2,
+    build: (lanes) => at(makeCargoBike(), (X[lanes[0]] + X[lanes[1]]) / 2),
+    animate: (m, t) => animateCargoBike(m, t + m.phase),
+    deaths: [
+      'Run over by a cargo bike carrying Otto, Wren and a sourdough loaf.',
+      'Flattened by a cargo bike. The toddlers waved.',
+      'Hit by £6,000 of Dutch cargo bike. The sourdough survived.',
+    ],
+  },
+
+  monstera: {
+    width: 1,
+    build: ([l]) => at(makeMonsteraCarrier(), X[l]),
+    animate: (m, t) => animateWalk(m, t + m.phase, 6),
+    deaths: [
+      'Slapped by a Monstera deliciosa. It was £85 on Marketplace.',
+      'Taken out by a houseplant. Its name is Gerald.',
+      'Walked into a Monstera. It has more Instagram followers than you.',
+    ],
+  },
+
+  cafe: {
+    width: 1,
+    build: ([l]) => at(makeCafeQueue(X[l]), X[l]),
+    animate: (m, t) => animateCafeQueue(m, t + m.phase),
+    deaths: [
+      'Walked into the cinnamon bun queue. Everyone tutted in unison.',
+      'Cut the narrowboat café queue. You\'re trending on the Hackney Facebook group.',
+      'Collided with a queue for £6 cinnamon buns. Worth it, apparently.',
+    ],
+  },
+
+  // Not an enemy: walk into it to get your coffee back
+  coffee: {
+    width: 1,
+    pickup: true,
+    build: ([l]) => at(makeCoffeePickup(), X[l]),
+    animate: (m, t) => animatePickup(m, t + m.phase),
   },
 
   bridge: {
