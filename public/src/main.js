@@ -50,6 +50,7 @@ function loadCharacter() {
 }
 let character = loadCharacter();
 let player = makePlayer(character);
+player.group.scale.setScalar(CONFIG.playerScale);
 scene.add(player.group);
 
 function setCharacter(c) {
@@ -57,6 +58,7 @@ function setCharacter(c) {
   try { localStorage.setItem('canal-hipster', c.id); } catch { /* storage unavailable */ }
   scene.remove(player.group);
   player = makePlayer(c);
+  player.group.scale.setScalar(CONFIG.playerScale);
   scene.add(player.group);
   setCoffee(player, coffees);
   updateHud();
@@ -184,7 +186,7 @@ function showPick() {
   document.getElementById('pickDots').textContent = CHARACTERS.map((c) => (c === character ? '■' : '□')).join(' ');
   // Face the camera for the preview
   player.group.position.set(0, 0, CONFIG.select.previewZ);
-  player.group.scale.setScalar(CONFIG.select.previewScale);
+  player.group.scale.setScalar(CONFIG.select.previewScale * CONFIG.playerScale);
 }
 
 function showReady() {
@@ -568,7 +570,7 @@ function reset() {
   specialsPool = [];
   player.group.position.set(CONFIG.lanes[1], 0, 0);
   player.group.rotation.set(0, Math.PI, 0);
-  player.group.scale.setScalar(1);
+  player.group.scale.setScalar(CONFIG.playerScale);
   player.group.visible = true;
   warningEl.classList.add('hidden');
   clearBubbles();

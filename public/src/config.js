@@ -68,7 +68,9 @@ export const CONFIG = {
 
   officeEvery: 100, // points between sightings of our office
 
-  // Character select preview: where the hipster stands and how big
+  playerScale: 0.94, // size of your walker (1 = same as everyone else)
+
+  // Character select preview: where the walker stands and how big
   select: { previewZ: -5, previewScale: 2.2 },
 
   // Lime riders overtaking you from behind, with a bell and a warning
