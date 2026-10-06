@@ -3,6 +3,10 @@
 A satirical endless-runner browser game set on the Regent's Canal towpath in London on a busy Saturday.
 Inspired by Subway Surfers, but the enemies are cyclists and runners, and the tone is MAXIMUM SATIRE.
 
+## Where things are
+- `public/`: the game itself (this is the folder that gets published online). Code is in `public/src/`; all tuning numbers in `public/src/config.js`; speech lines in `public/src/lines.js`.
+- Preview locally: `python3 -m http.server 8000 --directory public`, then open http://localhost:8000 (add `?debug` for test helpers).
+
 ## Key documents
 - `docs/GDD.md`: Game Design Document. The source of truth for what the game is.
 - `TODO.md`: phases, milestones, and current status. Update it when a task is finished.
@@ -20,6 +24,6 @@ Inspired by Subway Surfers, but the enemies are cyclists and runners, and the to
 - **Art style:** low-poly "toy" 3D (think Crossy Road). All models are built in code from simple shapes,
   with no external art files needed. 2D overlays (speech bubbles, banners, signs) carry the jokes.
 - **Engine:** Three.js, using plain JavaScript in the browser.
-- **Hosting:** Netlify (account created by owner). Set up at launch/playtest time.
+- **Hosting:** Netlify. Publish by uploading the `public/` folder (Netlify Drop / Deploys tab).
 - **Leaderboard backend:** Supabase (account created by owner). Set up at milestone M8.
   Only the public "anon/publishable" key goes in the game code. Never secret keys or passwords.
