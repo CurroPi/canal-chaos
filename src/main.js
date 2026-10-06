@@ -103,8 +103,7 @@ function showStory() {
   const lines = [
     '<p class="when">Saturday, 11am. Regent\'s Canal.</p>',
     '<p>All you want is to walk to Broadway Market with your oat flat white.</p>',
-    '<p>Two metres of towpath. How hard can it be?</p>',
-    '<p>Run clubs hunt in packs. Lime bikes don\'t brake. Delivery riders answer to no one. Somewhere, a sausage dog called Biscuit is on a six-metre lead.</p>',
+    '<p>Run clubs hunt in packs. Lime bikes don\'t brake. Biscuit the sausage dog is on a six-metre lead.</p>',
     '<p>The sign says <em>Share the Space</em>.<br><strong>Nobody has read the sign.</strong></p>',
     '<p class="motto">Keep your coffee. Keep your dignity. Keep walking.</p>',
   ];
