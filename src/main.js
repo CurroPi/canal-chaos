@@ -92,20 +92,44 @@ const bestEl = document.getElementById('best');
 const livesEl = document.getElementById('lives');
 const warningEl = document.getElementById('warning');
 
-function showOverlay(html) {
-  overlay.innerHTML = `<div class="card">${html}</div>`;
+function showOverlay(html, onButton = start, cls = '') {
+  overlay.innerHTML = `<div class="card ${cls}">${html}</div>`;
   overlay.classList.remove('hidden');
-  overlay.querySelector('button')?.addEventListener('click', start);
+  overlay.querySelector('button')?.addEventListener('click', onButton);
+}
+
+// The intro story: lines fade in one by one
+function showStory() {
+  const lines = [
+    '<p class="when">Saturday, 11am. Regent\'s Canal.</p>',
+    '<p>All you want is to walk to Broadway Market with your oat flat white.</p>',
+    '<p>Two metres of towpath. How hard can it be?</p>',
+    '<p>Run clubs hunt in packs. Lime bikes don\'t brake. Delivery riders answer to no one. Somewhere, a sausage dog called Biscuit is on a six-metre lead.</p>',
+    '<p>The sign says <em>Share the Space</em>.<br><strong>Nobody has read the sign.</strong></p>',
+    '<p class="motto">Keep your coffee. Keep your dignity. Keep walking.</p>',
+  ];
+  showOverlay(`
+    <h1 class="title">Canal Chaos</h1>
+    <p class="subtitle">A Hackney Towpath Survival Game</p>
+    <div class="story">${lines.map((l, i) => l.replace('<p', `<p style="animation-delay:${0.4 + i * 0.7}s"`)).join('')}</div>
+    <button class="late" style="animation-delay:${0.4 + lines.length * 0.7}s">Continue</button>
+  `, showRules, 'story-card');
+}
+
+function showRules() {
+  showOverlay(`
+    <h2>How to survive</h2>
+    <ul class="rules">
+      <li><b>← →</b> or swipe to dodge. Lime bikes, runners, run clubs, dog leads, prams, bridges.</li>
+      <li><b>🔔 Listen for bells.</b> Bikes come from behind. The red lane is where they're going.</li>
+      <li><b>☕ Your coffee is your extra life.</b> The narrowboat café pops up every 500 points with another.</li>
+    </ul>
+    <button>Start walking</button>
+  `);
 }
 
 function showReady() {
-  showOverlay(`
-    <h1>Canal Game</h1>
-    <p class="small">Prototype · Victoria Park, Saturday, 11am</p>
-    <p>Dodge runners, Lime bikes, dog leads, prams and bridges.<br>Listen for bells behind you. 🔔</p>
-    <p class="small">← → or A / D to change lane · swipe on phones<br>☕ Your coffee is your extra life. Grab a second one at the narrowboat café, every 500 points.</p>
-    <button>Start walking</button>
-  `);
+  showStory();
 }
 
 // A takeaway coffee cup: lid, cup and cardboard sleeve

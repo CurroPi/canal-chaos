@@ -1,4 +1,6 @@
-# Game Design Document: Canal Game (working title)
+# Game Design Document: Canal Chaos
+
+*A Hackney Towpath Survival Game*
 
 _Status: DRAFT v0.1. Items marked **[OPEN]** still need a decision._
 

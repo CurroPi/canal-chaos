@@ -1,4 +1,4 @@
-# Canal Game (working title)
+# Canal Chaos: A Hackney Towpath Survival Game
 
 A satirical endless-runner browser game set on the Regent's Canal towpath in London on a busy Saturday.
 Inspired by Subway Surfers, but the enemies are cyclists and runners, and the tone is MAXIMUM SATIRE.
