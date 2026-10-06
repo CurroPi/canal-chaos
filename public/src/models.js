@@ -65,38 +65,137 @@ function makePerson({ skin, shirt, legs, shoes, hair }) {
   return { group, rig, legL, legR, armL, armR, head };
 }
 
-// Oatley, the Tote Bag Classic. Faces away from the camera.
-export function makePlayer() {
-  const p = makePerson({
-    skin: 0xf1c9a5,
-    shirt: 0x6b8f71,
-    legs: 0x2d3a4f,
-    shoes: 0xf2f2f2,
-    hair: 0x5a3b25,
-  });
+// ---------- Playable hipsters ----------
+// T-shirt prints, drawn on a canvas
+const printMats = {};
+function printMat(key, draw) {
+  if (!printMats[key]) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 224;
+    draw(canvas.getContext('2d'), 256, 224);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    printMats[key] = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+  }
+  return printMats[key];
+}
+const printGeo = new THREE.PlaneGeometry(0.5, 0.44);
 
-  // Mustard beanie
-  p.head.add(box(0.4, 0.2, 0.4, 0xd9a521, 0, 0.24, 0));
-  p.head.add(box(0.42, 0.07, 0.42, 0xc08f12, 0, 0.13, 0));
+// A print on the front (+z) or back (-z) of the torso
+function addPrint(p, material, back) {
+  const plane = new THREE.Mesh(printGeo, material);
+  plane.position.set(0, 1.14, back ? -0.165 : 0.165);
+  if (back) plane.rotation.y = Math.PI;
+  p.rig.add(plane);
+}
 
-  // Tote bag on the back (local -z is the back)
-  p.rig.add(box(0.04, 0.55, 0.04, 0xefe6d2, 0.18, 1.3, -0.17));
-  p.rig.add(box(0.38, 0.42, 0.06, 0xefe6d2, 0.1, 0.95, -0.2));
+const ariesPrint = () => printMat('aries', (g, w, h) => {
+  g.fillStyle = '#f4f4f4';
+  g.font = 'bold 64px "Arial Black", Impact, sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText('ARIES', w / 2, h / 2);
+});
 
-  // Takeaway coffees: one in each hand when you have two
-  const cupGeo = new THREE.CylinderGeometry(0.075, 0.055, 0.2, 8);
-  const lidGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8);
-  p.cups = [p.armR, p.armL].map((arm) => {
-    const cup = new THREE.Mesh(cupGeo, mat(0xffffff));
-    cup.position.set(0, -0.66, 0.08);
-    const lid = new THREE.Mesh(lidGeo, mat(0x6b4a2f));
-    lid.position.set(0, -0.54, 0.08);
-    const sleeve = box(0.16, 0.08, 0.16, 0xc8a27a, 0, -0.66, 0.08);
-    arm.add(cup, lid, sleeve);
-    return [cup, lid, sleeve];
-  });
+// A made-up rock band. Any resemblance to a real band is a coincidence.
+const bandPrint = () => printMat('band', (g, w, h) => {
+  g.fillStyle = '#ffd400';
+  g.beginPath(); // lightning bolt
+  g.moveTo(140, 10); g.lineTo(90, 110); g.lineTo(128, 110); g.lineTo(104, 200); g.lineTo(170, 86); g.lineTo(132, 86); g.lineTo(160, 10);
+  g.closePath();
+  g.fill();
+  g.fillStyle = '#f4f4f4';
+  g.font = 'bold 34px "Arial Black", Impact, sans-serif';
+  g.textAlign = 'center';
+  g.fillText('DOOM', w / 2, 60);
+  g.fillText('PIGEONS', w / 2, 190);
+});
 
-  p.group.rotation.y = Math.PI; // walk away from the camera
+const LOOKS = {
+  // Beanie, long hair, sage overshirt, tote bag
+  sophie: {
+    body: { skin: 0xf1c9a5, shirt: 0x6b8f71, legs: 0x2d3a4f, shoes: 0xf2f2f2, hair: 0x5a3b25 },
+    dress(p) {
+      p.head.add(box(0.4, 0.2, 0.4, 0xd9a521, 0, 0.24, 0));        // mustard beanie
+      p.head.add(box(0.42, 0.07, 0.42, 0xc08f12, 0, 0.13, 0));
+      p.head.add(box(0.4, 0.42, 0.1, 0x5a3b25, 0, -0.12, -0.19));  // long hair down the back
+      p.rig.add(box(0.04, 0.55, 0.04, 0xefe6d2, 0.18, 1.3, -0.17)); // tote strap
+      p.rig.add(box(0.38, 0.42, 0.06, 0xefe6d2, 0.1, 0.95, -0.2));  // tote bag
+    },
+  },
+  // Black Aries tee, black jeans, white trainers
+  alex: {
+    body: { skin: 0xd8a47f, shirt: 0x111111, legs: 0x1b1b1b, shoes: 0xf5f5f5, hair: 0x1b1b1b },
+    dress(p) {
+      p.head.add(box(0.4, 0.14, 0.4, 0x1b1b1b, 0, 0.22, 0));      // short dark hair
+      addPrint(p, ariesPrint(), true);
+      addPrint(p, ariesPrint(), false);
+    },
+  },
+  // Corduroy jacket, flat cap, moustache, headphones round the neck, record bag
+  joe: {
+    body: { skin: 0xe8b894, shirt: 0x8b5a2b, legs: 0x3b5b8a, shoes: 0x3f2a1d, hair: 0x6b4a2f },
+    dress(p) {
+      p.head.add(box(0.42, 0.1, 0.42, 0x4a4a3a, 0, 0.23, 0));     // flat cap
+      p.head.add(box(0.36, 0.04, 0.16, 0x4a4a3a, 0, 0.19, 0.24)); // cap peak
+      p.head.add(box(0.22, 0.05, 0.03, 0x6b4a2f, 0, -0.08, 0.19)); // moustache
+      p.rig.add(box(0.5, 0.06, 0.06, 0x111111, 0, 1.48, 0.12));    // headphones round the neck
+      for (const x of [-0.22, 0.22]) p.rig.add(box(0.1, 0.14, 0.14, 0x111111, x, 1.42, 0.12));
+      p.rig.add(box(0.05, 0.75, 0.04, 0x3a2a1a, 0, 1.15, -0.17));  // bag strap across the back
+      p.rig.add(box(0.08, 0.44, 0.44, 0x3a2a1a, -0.36, 0.9, 0));   // record bag on the hip
+      const record = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.02, 16), mat(0x111111));
+      record.rotation.z = Math.PI / 2;
+      record.position.set(-0.36, 1.12, 0);
+      p.rig.add(record);                                            // a record poking out
+    },
+  },
+  // Bleached hair, made-up rock band tee, cross-body bum bag, sunglasses on the head
+  josh: {
+    body: { skin: 0xf1c9a5, shirt: 0x1b1b1b, legs: 0x111111, shoes: 0x111111, hair: 0xf0e2a0 },
+    dress(p) {
+      for (const [x, z] of [[-0.1, 0.05], [0.08, -0.05], [0, 0.1], [0.12, 0.1], [-0.12, -0.1]]) {
+        p.head.add(box(0.12, 0.16, 0.12, 0xf0e2a0, x, 0.3, z));     // messy bleached spikes
+      }
+      p.head.add(box(0.36, 0.06, 0.08, 0x111111, 0, 0.21, 0.12));  // sunglasses pushed up
+      addPrint(p, bandPrint(), true);
+      addPrint(p, bandPrint(), false);
+      const strap = box(0.05, 0.85, 0.36, 0x2b2b2b, 0, 1.15, 0);   // bum bag strap, worn across
+      strap.rotation.z = 0.7;
+      p.rig.add(strap);
+      p.rig.add(box(0.3, 0.16, 0.12, 0xff3d7f, 0.12, 1.25, 0.2));  // neon bum bag on the chest
+    },
+  },
+};
+
+const drinkCupGeo = new THREE.CylinderGeometry(0.075, 0.055, 0.2, 8);
+const drinkLidGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8);
+const drinkCanGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.22, 10);
+
+// The character's drink, held in one hand
+function drinkInHand(arm, d) {
+  const parts = [];
+  const add = (mesh) => { arm.add(mesh); parts.push(mesh); return mesh; };
+  if (d.kind === 'can') {
+    add(new THREE.Mesh(drinkCanGeo, mat(d.body))).position.set(0, -0.64, 0.08);
+    add(box(0.125, 0.06, 0.125, d.band, 0, -0.64, 0.08));
+    add(box(0.1, 0.02, 0.1, d.lid, 0, -0.52, 0.08));
+  } else {
+    add(new THREE.Mesh(drinkCupGeo, mat(d.body))).position.set(0, -0.66, 0.08);
+    add(new THREE.Mesh(drinkLidGeo, mat(d.lid))).position.set(0, -0.54, 0.08);
+    if (d.sleeve) add(box(0.16, 0.08, 0.16, d.sleeve, 0, -0.66, 0.08));
+    if (d.straw) add(box(0.025, 0.16, 0.025, d.straw, 0.03, -0.46, 0.08));
+  }
+  return parts;
+}
+
+// A playable hipster, facing away from the camera
+export function makePlayer(character) {
+  const look = LOOKS[character.id] || LOOKS.sophie;
+  const p = makePerson(look.body);
+  look.dress(p);
+  p.cups = [p.armR, p.armL].map((arm) => drinkInHand(arm, character.drink));
+  p.group.rotation.y = Math.PI;
   return p;
 }
 

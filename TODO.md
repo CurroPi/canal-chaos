@@ -33,6 +33,7 @@
 - [ ] M4 Zones: Victoria Park → Camden progression and banners
 - [ ] M5 Art: canal, towpath, characters
 - [ ] M6 Satire and juice: sounds, death messages, power-ups
+- [x] Character select: Sophie, Alex, Joe, Josh (all unlocked for testing; unlocks by score later?), own drinks, 3D turntable preview
 - [ ] M7 Menus, mobile controls, polish
 - [ ] M8 Online leaderboard
 - [ ] M9 Playtesting with friends and fixes

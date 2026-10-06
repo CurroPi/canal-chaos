@@ -66,7 +66,10 @@ export const CONFIG = {
     seconds: 2,      // how long a line stays on screen (fade in, hold, fade out)
   },
 
-  officeEvery: 100, // points between sightings of our office // grabbing a coffee when you already have one
+  officeEvery: 100, // points between sightings of our office
+
+  // Character select preview: where the hipster stands and how big
+  select: { previewZ: -5, previewScale: 2.2 },
 
   // Lime riders overtaking you from behind, with a bell and a warning
   overtaking: {

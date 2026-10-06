@@ -4,6 +4,7 @@ import { CONFIG } from './config.js';
 import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box } from './models.js';
 import { ENEMIES } from './enemies.js';
+import { CHARACTERS, characterById, drinkSvg } from './characters.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute,
@@ -43,8 +44,23 @@ window.addEventListener('resize', resize);
 resize();
 
 const world = createWorld(scene, CONFIG);
-const player = makePlayer();
+// ---------- Your hipster ----------
+function loadCharacter() {
+  try { return characterById(localStorage.getItem('canal-hipster')); } catch { return CHARACTERS[0]; }
+}
+let character = loadCharacter();
+let player = makePlayer(character);
 scene.add(player.group);
+
+function setCharacter(c) {
+  character = c;
+  try { localStorage.setItem('canal-hipster', c.id); } catch { /* storage unavailable */ }
+  scene.remove(player.group);
+  player = makePlayer(c);
+  scene.add(player.group);
+  setCoffee(player, coffees);
+  updateHud();
+}
 
 // ---------- Game state ----------
 let state = 'ready'; // 'ready' | 'playing' | 'over'
@@ -97,8 +113,8 @@ const warningEl = document.getElementById('warning');
 
 function showOverlay(html, onButton = start, cls = '') {
   overlay.innerHTML = `<div class="card ${cls}">${html}</div>`;
-  overlay.classList.remove('hidden');
-  overlay.querySelector('button')?.addEventListener('click', onButton);
+  overlay.classList.remove('hidden', 'clear');
+  if (onButton) overlay.querySelector('button')?.addEventListener('click', onButton);
 }
 
 // The intro story: lines fade in one by one
@@ -127,29 +143,64 @@ function showRules() {
       <li><b>☕ Your coffee is your extra life.</b> The narrowboat café pops up every 500 points with another.</li>
     </ul>
     <p class="small music-hint">♪ Music on: tap ♪ or press M to mute.</p>
-    <button>Start walking</button>
-  `);
+    <button>Choose your hipster</button>
+  `, showSelect);
+}
+
+// Choose your hipster: they turn slowly in front of you while you browse
+function showSelect() {
+  if (state === 'over' && performance.now() - overAt < 900) return;
+  clearTimeout(overlayTimer);
+  reset();
+  state = 'select';
+  showOverlay(`
+    <p class="small label">Choose your hipster</p>
+    <div class="picker">
+      <button class="arrow" data-dir="-1" aria-label="Previous">◀</button>
+      <div class="who">
+        <h2 id="pickName"></h2>
+        <p class="small" id="pickDrink"></p>
+      </div>
+      <button class="arrow" data-dir="1" aria-label="Next">▶</button>
+    </div>
+    <p class="dots" id="pickDots"></p>
+    <button class="go">Start walking</button>
+  `, null, 'select-card');
+  overlay.classList.add('clear');
+  overlay.querySelectorAll('.arrow').forEach((b) => b.addEventListener('click', () => browse(Number(b.dataset.dir))));
+  overlay.querySelector('.go').addEventListener('click', start);
+  showPick();
+}
+
+function browse(dir) {
+  const i = CHARACTERS.indexOf(character);
+  setCharacter(CHARACTERS[(i + dir + CHARACTERS.length) % CHARACTERS.length]);
+  showPick();
+}
+
+function showPick() {
+  document.getElementById('pickName').textContent = character.name;
+  document.getElementById('pickDrink').innerHTML = `<span class="pick-drink">${drinkSvg(character.drink)}</span> ${character.drink.name}`;
+  document.getElementById('pickDots').textContent = CHARACTERS.map((c) => (c === character ? '■' : '□')).join(' ');
+  // Face the camera for the preview
+  player.group.position.set(0, 0, CONFIG.select.previewZ);
+  player.group.scale.setScalar(CONFIG.select.previewScale);
 }
 
 function showReady() {
   showStory();
 }
 
-// A takeaway coffee cup: lid, cup and cardboard sleeve
-const CUP_SVG = `<svg viewBox="0 0 24 32" aria-hidden="true">
-  <rect x="2.5" y="3" width="19" height="5" rx="1.5" fill="#6b4a2f"/>
-  <path d="M4 8h16l-2 22H6z" fill="#fff"/>
-  <path d="M4.6 13h14.8l-0.8 9H5.4z" fill="#c8a27a"/>
-</svg>`;
-
 function updateHud() {
   scoreEl.textContent = Math.floor(score);
   bestEl.textContent = best ? `Best ${best}` : '';
-  let cups = '';
-  for (let i = 0; i < CONFIG.coffee.max; i++) cups += `<span class="cup ${i < coffees ? 'full' : 'empty'}">${CUP_SVG}</span>`;
-  if (livesEl.dataset.count !== String(coffees)) {
+  const key = `${character.id}-${coffees}`;
+  if (livesEl.dataset.key !== key) {
+    let cups = '';
+    const icon = drinkSvg(character.drink);
+    for (let i = 0; i < CONFIG.coffee.max; i++) cups += `<span class="cup ${i < coffees ? 'full' : 'empty'}">${icon}</span>`;
     livesEl.innerHTML = cups;
-    livesEl.dataset.count = String(coffees);
+    livesEl.dataset.key = key;
   }
 }
 
@@ -462,7 +513,7 @@ function spillCoffee() {
   // Splash of coffee
   const pos = player.group.position;
   for (let i = 0; i < 12; i++) {
-    const drop = box(0.1, 0.1, 0.1, 0x6b4a2f, pos.x + 0.3, 1.1, pos.z - 0.2);
+    const drop = box(0.1, 0.1, 0.1, character.drink.splash, pos.x + 0.3, 1.1, pos.z - 0.2);
     drop.userData.v = new THREE.Vector3((Math.random() - 0.5) * 4, 2 + Math.random() * 3, (Math.random() - 0.5) * 4);
     drop.userData.life = 1;
     scene.add(drop);
@@ -517,6 +568,7 @@ function reset() {
   specialsPool = [];
   player.group.position.set(CONFIG.lanes[1], 0, 0);
   player.group.rotation.set(0, Math.PI, 0);
+  player.group.scale.setScalar(1);
   player.group.visible = true;
   warningEl.classList.add('hidden');
   clearBubbles();
@@ -574,7 +626,9 @@ function gameOver(e) {
     <p class="big">${final}</p>
     <p class="small">${isRecord ? '🎉 New personal best!' : `Best ${best}`}</p>
     <button>Try again</button>
+    <button class="secondary">Change hipster</button>
   `), 700);
+  setTimeout(() => overlay.querySelector('.secondary')?.addEventListener('click', showSelect), 710);
 }
 
 // ---------- Input ----------
@@ -607,6 +661,12 @@ showMute();
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
   if (e.key === 'm' || e.key === 'M') { toggleMute(); showMute(); return; }
+  if (state === 'select') {
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') browse(-1);
+    else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') browse(1);
+    else if (e.key === ' ' || e.key === 'Enter') start();
+    return;
+  }
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move(-1);
   else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move(1);
   else if ((e.key === ' ' || e.key === 'Enter') && state !== 'playing') start();
@@ -622,7 +682,10 @@ window.addEventListener('touchend', (e) => {
   const t = e.changedTouches[0];
   const dx = t.clientX - touchStart.x;
   const dy = t.clientY - touchStart.y;
-  if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 1 : -1);
+  if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy)) {
+    if (state === 'select') browse(dx > 0 ? 1 : -1);
+    else move(dx > 0 ? 1 : -1);
+  }
   touchStart = null;
 }, { passive: true });
 
@@ -750,6 +813,9 @@ function tick() {
   } else if (state === 'over') {
     // Topple over backwards
     player.group.rotation.x += (-1.4 - player.group.rotation.x) * Math.min(1, dt * 8);
+  } else if (state === 'select') {
+    player.group.rotation.y += dt * 0.9; // slow turntable
+    animateWalk(player, t, 3);
   } else {
     animateWalk(player, t, 3);
   }
