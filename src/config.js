@@ -10,24 +10,53 @@ export const CONFIG = {
   // How snappy lane changes are (higher = faster)
   laneChangeSharpness: 14,
 
+  // Where things appear ahead, and when they're cleaned up
+  spawnZ: -110,
+  despawnZ: 12,
+
   runner: {
-    speed: 4,         // how fast runners jog towards you, on top of your walking speed
-    spawnZ: -110,     // how far ahead they appear
-    despawnZ: 12,     // removed once they're behind the camera
+    speed: 4,     // jogging speed towards you, on top of your walking speed
+    hitZ: 0.7,    // collision length
+  },
+
+  cyclist: {
+    startAfter: 6,        // seconds into the run before cyclists show up
+    speedAhead: 9,        // oncoming cyclists, on top of your walking speed
+    speedBehind: 18,      // overtaking cyclists' real speed (you walk at 9, so they gain 9/s)
+    hitZ: 1.1,            // bikes are longer than people
+    aheadChanceMax: 0.35, // share of oncoming traffic that's cyclists at max busyness
+    behindGapStart: 6,    // seconds between overtaking cyclists at the start...
+    behindGapMin: 2.5,    // ...and at max busyness
+    warnStart: 1.3,       // seconds of warning before an overtaking bike reaches you...
+    warnMin: 0.75,        // ...and at max busyness
+    sameLaneAsYou: 0.6,   // chance an overtaking bike targets the lane you're in
   },
 
   spawn: {
-    startGap: 1.6,             // seconds between waves at the start
-    minGap: 0.6,               // seconds between waves at max busyness
-    rampSeconds: 90,           // how long until max busyness
-    doubleChanceStart: 0.0,    // chance of two runners side by side at the start
+    startGap: 1.1,             // seconds between oncoming waves at the start
+    minGap: 0.55,              // seconds between waves at max busyness
+    rampSeconds: 100,          // how long until max busyness
+    doubleChanceStart: 0.1,    // chance of two side by side at the start
     doubleChanceMax: 0.45,     // ...and at max busyness
-    extraGapAfterDouble: 0.35, // breathing room after a two-runner wave
-    firstWaveDelay: 1.2,
+    extraGapAfterDouble: 0.35, // breathing room after a two-wide wave
+    firstWaveDelay: 0.6,
   },
 
-  // Collision box: how close (front/back and sideways) counts as a hit
-  hit: { zRange: 0.7, xRange: 1.0 },
+  // Fairness rule: never block all 3 lanes at once
+  fairness: {
+    window: 0.7,       // things arriving within this many seconds of each other count as "at once"
+    sameLaneGap: 0.8,  // min seconds between two oncoming things in the same lane
+  },
+
+  coffee: {
+    spillPenalty: 50,  // points lost when you spill
+    invulnerable: 1.5, // seconds of safety after a spill
+    slowFactor: 0.5,   // you stumble to this fraction of your speed...
+    slowRecover: 1.2,  // ...and recover over this many seconds
+  },
+
+  // Sideways distance that counts as a hit
+  hitX: 1.0,
 
   // Scenery is built from repeating tiles
   tile: { length: 20, count: 8 },

@@ -88,6 +88,7 @@ export function makePlayer() {
   const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8), mat(0x6b4a2f));
   lid.position.set(0, -0.54, 0.08);
   p.armR.add(cup, lid);
+  p.cup = [cup, lid];
   p.holdingRight = true;
 
   p.group.rotation.y = Math.PI; // walk away from the camera
@@ -111,6 +112,58 @@ export function makeRunner() {
   r.rig.rotation.x = 0.15; // lean into it
   r.phase = Math.random() * 10;
   return r;
+}
+
+// Show or hide the player's coffee
+export function setCoffee(player, on) {
+  for (const part of player.cup) part.visible = on;
+  player.holdingRight = on;
+}
+
+const wheelGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.07, 14);
+const LYCRA = [0x1d4ed8, 0xdc2626, 0x111111, 0xfacc15, 0x0d9488, 0x7c3aed];
+
+// A road cyclist in Lycra, facing +z.
+export function makeCyclist() {
+  const group = new THREE.Group();
+  const frame = pick([0xe11d48, 0x111111, 0xf5f5f5, 0x0ea5e9, 0x84cc16]);
+
+  for (const z of [0.6, -0.6]) {
+    const wheel = new THREE.Mesh(wheelGeo, mat(0x1b1b1b));
+    wheel.rotation.z = Math.PI / 2;
+    wheel.position.set(0, 0.36, z);
+    group.add(wheel);
+  }
+  group.add(box(0.06, 0.06, 1.0, frame, 0, 0.66, 0));         // top tube
+  group.add(box(0.06, 0.5, 0.06, frame, 0, 0.55, -0.3));       // seat tube
+  group.add(box(0.06, 0.5, 0.06, frame, 0, 0.55, 0.58));       // fork
+  group.add(box(0.06, 0.06, 0.75, frame, 0, 0.42, 0.12));      // down tube
+  group.add(box(0.5, 0.05, 0.05, 0x222222, 0, 0.86, 0.55));    // handlebar
+  group.add(box(0.12, 0.05, 0.26, 0x222222, 0, 0.86, -0.32));  // saddle
+
+  const skin = pick(SKIN_TONES);
+  const rider = makePerson({
+    skin,
+    shirt: pick(LYCRA),
+    legs: 0x1b1b1b,
+    shoes: 0xf5f5f5,
+    hair: 0x222222,
+  });
+  rider.group.position.set(0, 0.08, -0.3);
+  rider.rig.rotation.x = 0.55;     // hunched aero position
+  rider.armL.rotation.x = -1.1;    // hands on the bars
+  rider.armR.rotation.x = -1.1;
+  rider.head.add(box(0.42, 0.18, 0.46, pick([0xffffff, 0x111111, 0xf97316]), 0, 0.24, -0.02)); // helmet
+  rider.head.add(box(0.34, 0.07, 0.03, 0x111111, 0, 0.04, 0.2)); // sunglasses
+  group.add(rider.group);
+
+  return { group, rider, phase: Math.random() * 10 };
+}
+
+export function animatePedal(c, t) {
+  const s = Math.sin(t * 11) * 0.55;
+  c.rider.legL.rotation.x = -0.7 + s;
+  c.rider.legR.rotation.x = -0.7 - s;
 }
 
 // Swing arms and legs; `freq` controls stride speed.
