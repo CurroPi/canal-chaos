@@ -186,3 +186,63 @@ html, body {
 
 .rules { text-align: left; padding-left: 18px; margin: 12px 0; line-height: 1.4; }
 .rules li { margin: 8px 0; }
+
+/* ---------- 8-bit look ---------- */
+:root {
+  --pixel: "Press Start 2P", monospace;
+  --pixel-body: "VT323", monospace;
+}
+
+.card {
+  border-radius: 0;
+  border: 4px solid #1b1b1b;
+  box-shadow: 8px 8px 0 #1b1b1b;
+  font-family: var(--pixel-body);
+  font-size: 21px;
+  image-rendering: pixelated;
+}
+.card h1, .card h2, .card .title, .card .big, .card .label {
+  font-family: var(--pixel);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.card .title { font-size: clamp(26px, 8vw, 36px); line-height: 1.2; text-shadow: 3px 3px 0 #b6d7a8; }
+.card h2 { font-size: 15px; line-height: 1.5; }
+.card .big { font-size: 28px; margin: 14px 0; }
+.card .label { font-size: 10px; }
+.card .subtitle { font-family: var(--pixel); font-size: 8px; font-weight: 400; letter-spacing: 0.05em; line-height: 1.6; }
+.card p, .card li { font-family: var(--pixel-body); }
+.story p { font-size: 21px; line-height: 1.15; }
+.story .when, .story .motto { font-weight: 400; }
+.story .motto { font-size: 22px; }
+.card .small { font-size: 18px; }
+.rules { line-height: 1.15; }
+
+.card button {
+  border-radius: 0;
+  border: 3px solid #1b1b1b;
+  box-shadow: 4px 4px 0 #1b1b1b;
+  font-family: var(--pixel);
+  font-size: 12px;
+  font-weight: 400;
+  padding: 12px 18px;
+}
+.card button:active { transform: translate(4px, 4px); box-shadow: none; }
+
+#score { font-family: var(--pixel); font-size: 22px; font-weight: 400; text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5); }
+#best  { font-family: var(--pixel); font-size: 10px; font-weight: 400; }
+
+#warning {
+  border-radius: 0;
+  border: 3px solid #1b1b1b;
+  font-family: var(--pixel);
+  font-size: clamp(12px, 3.6vw, 20px);
+  font-weight: 400;
+  padding: 10px 14px;
+  box-shadow: 5px 5px 0 #1b1b1b;
+}
+
+.float { font-family: var(--pixel); font-size: clamp(12px, 3.4vw, 18px); font-weight: 400; text-shadow: 3px 3px 0 #1b1b1b; }
+
+.bubble { font-family: var(--pixel-body); font-size: 24px; font-weight: 400; }
+.story strong { font-weight: 400; color: #b91c1c; }
