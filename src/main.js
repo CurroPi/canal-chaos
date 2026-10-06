@@ -1,10 +1,9 @@
-// M2a: runners, cyclists (oncoming and from behind), coffee lives.
+// The game: walking, dodging, spilling, dying.
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { createWorld } from './world.js';
-import {
-  makePlayer, makeRunner, makeCyclist, animateWalk, animatePedal, setCoffee, box,
-} from './models.js';
+import { makePlayer, animateWalk, setCoffee, box } from './models.js';
+import { ENEMIES } from './enemies.js';
 import { initAudio, bell, spillSound, crashSound } from './sound.js';
 
 // ---------- Scene setup ----------
@@ -43,35 +42,6 @@ const world = createWorld(scene, CONFIG);
 const player = makePlayer();
 scene.add(player.group);
 
-// ---------- Enemy types ----------
-const ENEMIES = {
-  runner: {
-    make: makeRunner,
-    animate: (m, t) => animateWalk(m, t + m.phase, 13),
-    deaths: [
-      'Flattened by a jogger. Strava will remember.',
-      'Run over mid-tempo. They didn\'t even pause their watch.',
-      'Collided with a marathon trainee. It\'s their taper week.',
-      'Jogged into oblivion. They said "sorry" without stopping.',
-    ],
-  },
-  cyclist: {
-    make: makeCyclist,
-    animate: (m, t) => animatePedal(m, t + m.phase),
-    deaths: [
-      'Hit by a cyclist doing 25 in a "shared space".',
-      'Run down by Lycra. The bell was more of a suggestion.',
-      'Mown down by a road bike. They\'re already tweeting about "pedestrian hazards".',
-      'Cycled over. They shouted "MOVE!" which technically counts as a warning.',
-    ],
-    behindDeaths: [
-      '"ON YOUR LEFT!" You went left.',
-      'The bell rang. Twice. You chose violence.',
-      'Overtaken, literally, through you.',
-    ],
-  },
-};
-
 // ---------- Game state ----------
 let state = 'ready'; // 'ready' | 'playing' | 'over'
 let lane = 1;
@@ -79,6 +49,7 @@ let elapsed = 0;
 let score = 0;
 let spawnTimer = 0;
 let behindTimer = 0;
+let bridgeTimer = 0;
 let entities = [];
 let particles = [];
 let hasCoffee = true;
@@ -124,7 +95,7 @@ function showReady() {
   showOverlay(`
     <h1>Canal Game</h1>
     <p class="small">Prototype · Victoria Park, Saturday, 11am</p>
-    <p>Dodge the runners and cyclists.<br>Listen for bells behind you. 🔔</p>
+    <p>Dodge runners, Lime bikes, dog leads, prams, influencers and bridges.<br>Listen for bells behind you. 🔔</p>
     <p class="small">← → or A / D to change lane · swipe on phones<br>☕ Your coffee is your extra life.</p>
     <button>Start walking</button>
   `);
@@ -145,69 +116,108 @@ function floatText(text, cls = '') {
 }
 
 // ---------- Spawning ----------
+// Each entity knows the time window in which it occupies the spot where you stand.
+function spanFor(arrival, hitZ, closingSpeed) {
+  const half = hitZ / closingSpeed + CONFIG.fairness.window / 2;
+  return [arrival - half, arrival + half];
+}
+
 // Fairness rule: never let all 3 lanes be blocked at the same moment.
-function canPlace(laneIdx, arrival, fromAhead) {
-  const f = CONFIG.fairness;
-  const blocked = new Set([laneIdx]);
+function canPlace(lanes, span, arrival, fromAhead) {
+  const blocked = new Set(lanes);
   for (const e of entities) {
-    if (Math.abs(e.arrival - arrival) < f.window) blocked.add(e.lane);
-    // Don't let a fast bike catch up with (and pass through) someone in its lane
-    if (fromAhead && !e.fromBehind && e.lane === laneIdx && e.arrival > arrival - f.sameLaneGap) return false;
+    const overlaps = e.span[0] < span[1] && span[0] < e.span[1];
+    const sharesLane = e.lanes.some((l) => lanes.includes(l));
+    if (overlaps) e.lanes.forEach((l) => blocked.add(l));
+    if (fromAhead) {
+      // Don't let something faster catch up with (and pass through) something in its lane
+      if (!e.fromBehind && sharesLane && e.arrival > arrival - CONFIG.fairness.sameLaneGap) return false;
+    } else if (overlaps && sharesLane) {
+      return false; // overtaking bikes need a clear lane
+    }
   }
   return blocked.size < 3;
 }
 
-function addEntity(kind, laneIdx, z, own, hitZ, arrival, fromBehind) {
-  const model = ENEMIES[kind].make();
-  model.group.position.set(CONFIG.lanes[laneIdx], 0, z);
+function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = false }) {
+  const model = ENEMIES[kind].build(lanes);
+  model.group.position.z = z;
   if (fromBehind) model.group.rotation.y = Math.PI;
   scene.add(model.group);
-  const e = { kind, model, lane: laneIdx, own, hitZ, arrival, fromBehind, flash: null };
+  const e = { kind, model, lanes, own, hitZ, arrival, span, fromBehind, flash: null };
   entities.push(e);
   return e;
 }
 
-function spawnAhead(kind, laneIdx) {
-  const own = kind === 'cyclist' ? CONFIG.cyclist.speedAhead : CONFIG.runner.speed;
-  const hitZ = kind === 'cyclist' ? CONFIG.cyclist.hitZ : CONFIG.runner.hitZ;
-  const arrival = elapsed + -CONFIG.spawnZ / (own + CONFIG.walkSpeed);
-  if (!canPlace(laneIdx, arrival, true)) return false;
-  addEntity(kind, laneIdx, CONFIG.spawnZ, own, hitZ, arrival, false);
-  return true;
+// Try to place an oncoming thing; returns how many lanes it took (0 if it didn't fit)
+function spawnAhead(kind) {
+  const cfg = CONFIG.enemies[kind];
+  const closing = cfg.speed + CONFIG.walkSpeed;
+  const arrival = elapsed + -CONFIG.spawnZ / closing;
+  const span = spanFor(arrival, cfg.hitZ, closing);
+  const options = ENEMIES[kind].width === 2 ? [[0, 1], [1, 2]] : [[0], [1], [2]];
+
+  for (const lanes of shuffle(options)) {
+    if (canPlace(lanes, span, arrival, true)) {
+      addEntity(kind, lanes, { own: cfg.speed, hitZ: cfg.hitZ, arrival, span, z: CONFIG.spawnZ });
+      return lanes.length;
+    }
+  }
+  return 0;
+}
+
+function pickKind() {
+  const available = Object.entries(CONFIG.enemies).filter(([, c]) => elapsed >= c.from);
+  let roll = Math.random() * available.reduce((sum, [, c]) => sum + c.weight, 0);
+  for (const [kind, c] of available) {
+    roll -= c.weight;
+    if (roll <= 0) return kind;
+  }
+  return available[0][0];
 }
 
 function spawnWave() {
   const s = CONFIG.spawn;
-  const c = CONFIG.cyclist;
   const p = progress();
-  const count = Math.random() < lerp(s.doubleChanceStart, s.doubleChanceMax, p) ? 2 : 1;
-  const cyclistChance = elapsed > c.startAfter ? lerp(0.1, c.aheadChanceMax, p) : 0;
+  const wanted = Math.random() < lerp(s.doubleChanceStart, s.doubleChanceMax, p) ? 2 : 1;
 
-  let placed = 0;
-  for (const l of shuffle([0, 1, 2])) {
-    if (placed >= count) break;
-    const kind = Math.random() < cyclistChance ? 'cyclist' : 'runner';
-    if (spawnAhead(kind, l)) placed++;
+  let lanesUsed = 0;
+  for (let tries = 0; tries < 3 && lanesUsed < wanted; tries++) {
+    const kind = pickKind();
+    if (ENEMIES[kind].width > wanted - lanesUsed) continue;
+    lanesUsed += spawnAhead(kind);
   }
 
   const gap = lerp(s.startGap, s.minGap, p);
-  spawnTimer = gap * (0.8 + Math.random() * 0.4) + (placed === 2 ? s.extraGapAfterDouble : 0);
+  spawnTimer = gap * (0.8 + Math.random() * 0.4) + (lanesUsed >= 2 ? s.extraGapAfterDouble : 0);
 }
 
-// An overtaking cyclist: starts behind you, with a warning
-function spawnBehind() {
-  const c = CONFIG.cyclist;
+function spawnBridge() {
+  const b = CONFIG.bridge;
   const p = progress();
-  const warn = lerp(c.warnStart, c.warnMin, p);
-  const gain = c.speedBehind - CONFIG.walkSpeed;
-  const arrival = elapsed + warn;
+  const lanes = Math.random() < lerp(b.twoLaneChanceStart, b.twoLaneChanceMax, p) ? [1, 2] : [2];
+  const arrival = elapsed + -CONFIG.spawnZ / CONFIG.walkSpeed;
+  const span = spanFor(arrival, b.hitZ, CONFIG.walkSpeed);
+  if (!canPlace(lanes, span, arrival, true)) return false;
+  addEntity('bridge', lanes, { own: 0, hitZ: b.hitZ, arrival, span, z: CONFIG.spawnZ });
+  return true;
+}
 
-  const preferred = Math.random() < c.sameLaneAsYou ? [lane] : [];
-  const choices = [...preferred, ...shuffle([0, 1, 2])];
-  const laneIdx = choices.find((l) => canPlace(l, arrival, false));
+// A Lime rider overtaking you: starts behind you, with a warning
+function spawnBehind() {
+  const o = CONFIG.overtaking;
+  const warn = lerp(o.warnStart, o.warnMin, progress());
+  const gain = o.speed - CONFIG.walkSpeed;
+  const arrival = elapsed + warn;
+  const span = spanFor(arrival, o.hitZ, gain);
+
+  const preferred = Math.random() < o.sameLaneAsYou ? [lane] : [];
+  const laneIdx = [...preferred, ...shuffle([0, 1, 2])].find((l) => canPlace([l], span, arrival, false));
   if (laneIdx === undefined) return;
 
-  const e = addEntity('cyclist', laneIdx, gain * warn + 0.5, -c.speedBehind, c.hitZ, arrival, true);
+  const e = addEntity('lime', [laneIdx], {
+    own: -o.speed, hitZ: o.hitZ, arrival, span, z: gain * warn + 0.5, fromBehind: true,
+  });
 
   // Flashing red strip on the lane they'll come through
   e.flash = new THREE.Mesh(
@@ -232,6 +242,20 @@ function removeFlash(e) {
 function removeEntity(e) {
   scene.remove(e.model.group);
   removeFlash(e);
+  e.model.dispose?.();
+}
+
+// Once an overtaking bike has passed you, it weaves around whatever is ahead of it
+function steerOvertaker(e, dt) {
+  const z = e.model.group.position.z;
+  const blockedAhead = (l) => entities.some((o) => o !== e && o.lanes.includes(l)
+    && o.model.group.position.z < z && o.model.group.position.z > z - 10);
+  if (z < -1.5 && blockedAhead(e.lanes[0])) {
+    const free = [0, 1, 2].find((l) => !blockedAhead(l));
+    if (free !== undefined) e.lanes = [free];
+  }
+  const x = e.model.group.position.x;
+  e.model.group.position.x += (CONFIG.lanes[e.lanes[0]] - x) * Math.min(1, dt * 6);
 }
 
 // ---------- Hits ----------
@@ -276,12 +300,30 @@ function reset() {
   spilledAt = -99;
   setCoffee(player, true);
   spawnTimer = CONFIG.spawn.firstWaveDelay;
-  behindTimer = CONFIG.cyclist.startAfter;
+  behindTimer = CONFIG.overtaking.from;
+  bridgeTimer = CONFIG.bridge.from;
   player.group.position.set(CONFIG.lanes[1], 0, 0);
   player.group.rotation.set(0, Math.PI, 0);
   player.group.visible = true;
   warningEl.classList.add('hidden');
   updateHud();
+}
+
+// Fill the towpath before you start, so there's something to dodge straight away.
+// Runs the spawner for a few seconds of game time, then rewinds the clock.
+function prewarm(seconds) {
+  const step = 1 / 30;
+  for (let t = 0; t < seconds; t += step) {
+    elapsed += step;
+    spawnTimer -= step;
+    if (spawnTimer <= 0) spawnWave();
+    for (const e of entities) e.model.group.position.z += (e.own + CONFIG.walkSpeed) * step;
+  }
+  for (const e of entities) {
+    e.arrival -= elapsed;
+    e.span = e.span.map((v) => v - elapsed);
+  }
+  elapsed = 0;
 }
 
 function start() {
@@ -290,6 +332,7 @@ function start() {
   clearTimeout(overlayTimer);
   initAudio();
   reset();
+  prewarm(CONFIG.spawn.prewarmSeconds);
   state = 'playing';
   overlay.classList.add('hidden');
 }
@@ -350,7 +393,7 @@ function updateWarning(t) {
   // The overtaking bike closest to reaching you drives the banner
   let nearest = null;
   for (const e of entities) {
-    if (!e.fromBehind || !e.flash) continue;
+    if (!e.flash) continue;
     if (e.model.group.position.z < 0.6) {
       removeFlash(e); // it has reached you: warning over
       continue;
@@ -363,9 +406,10 @@ function updateWarning(t) {
     warningEl.classList.add('hidden');
     return;
   }
-  const side = nearest.lane < lane ? 'ON YOUR LEFT!' : nearest.lane > lane ? 'ON YOUR RIGHT!' : 'BEHIND YOU!';
+  const bikeLane = nearest.lanes[0];
+  const side = bikeLane < lane ? 'ON YOUR LEFT!' : bikeLane > lane ? 'ON YOUR RIGHT!' : 'BEHIND YOU!';
   warningEl.textContent = `🔔 ${side}`;
-  warningEl.classList.toggle('danger', nearest.lane === lane);
+  warningEl.classList.toggle('danger', bikeLane === lane);
   warningEl.classList.remove('hidden');
 }
 
@@ -395,21 +439,31 @@ function tick() {
     behindTimer -= dt;
     if (behindTimer <= 0) {
       spawnBehind();
-      const c = CONFIG.cyclist;
-      behindTimer = lerp(c.behindGapStart, c.behindGapMin, progress()) * (0.8 + Math.random() * 0.4);
+      const o = CONFIG.overtaking;
+      behindTimer = lerp(o.gapStart, o.gapMin, progress()) * (0.8 + Math.random() * 0.4);
+    }
+
+    bridgeTimer -= dt;
+    if (bridgeTimer <= 0) {
+      const b = CONFIG.bridge;
+      bridgeTimer = spawnBridge() ? lerp(b.gapStart, b.gapMin, progress()) * (0.8 + Math.random() * 0.4) : 0.5;
     }
 
     for (const e of entities) {
-      e.model.group.position.z += (e.own + walk) * dt;
+      const g = e.model.group;
+      g.position.z += (e.own + walk) * dt;
       ENEMIES[e.kind].animate(e.model, t);
+      if (e.fromBehind) steerOvertaker(e, dt);
+      // Bridges fade as they pass the camera so they don't block the view
+      if (e.model.fade) e.model.fade(Math.max(0, Math.min(1, 1 - (g.position.z - 0.5) / 3)));
     }
     updateWarning(t);
 
     if (elapsed >= invulnUntil) {
       for (const e of entities) {
         const dz = Math.abs(e.model.group.position.z - pg.position.z);
-        const dx = Math.abs(e.model.group.position.x - pg.position.x);
-        if (dz < e.hitZ && dx < CONFIG.hitX) {
+        const inLane = e.lanes.some((l) => Math.abs(CONFIG.lanes[l] - pg.position.x) < CONFIG.hitX);
+        if (dz < e.hitZ && inLane) {
           hit(e);
           break;
         }
@@ -452,3 +506,13 @@ function tick() {
 reset();
 showReady();
 tick();
+
+// Developer helper: open the game with ?debug in the URL to inspect it from the browser console
+if (new URLSearchParams(location.search).has('debug')) {
+  window.debug = {
+    get state() { return { state, elapsed, score, lane, hasCoffee }; },
+    get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z) })); },
+    skip(seconds) { elapsed += seconds; },
+    godMode() { invulnUntil = Infinity; },
+  };
+}

@@ -105,3 +105,55 @@ function decorate(tile, L) {
     decor.add(trunk, crown);
   }
 }
+
+const BRICK = 0x8f4a36;
+const BRIDGE_DEPTH = 5;
+
+// A brick bridge over the canal. Its abutment blocks `blocked` lanes on the wall side,
+// squeezing the towpath. The abutment fades out as it passes the camera.
+export function makeBridge(blocked, lanesX) {
+  const group = new THREE.Group();
+  const D = BRIDGE_DEPTH;
+
+  // Deck, high enough for the camera to pass under
+  group.add(box(22, 1.0, D, BRICK, -6.5, 5.1, 0));
+  group.add(box(22, 0.05, D, 0x2e211b, -6.5, 4.58, 0));                // dark underside
+  for (const z of [D / 2 - 0.15, -D / 2 + 0.15]) {
+    group.add(box(22, 0.6, 0.3, 0x7f3e2d, -6.5, 5.9, z));              // parapets
+    group.add(box(22, 0.16, 0.12, 0xcfc8b8, -6.5, 4.62, z > 0 ? D / 2 : -D / 2)); // stone edging
+  }
+  group.add(box(1.2, 5, D, BRICK, -15.4, 2.3, 0));                      // pier on the far bank
+  group.add(box(1, 1.4, D, BRICK, 3.6, 3.9, 0));                        // fill above the wall
+  group.add(box(6, 0.01, D, 0x968671, 0, 0.006, 0));                    // shade on the path
+
+  // Abutment over the blocked lanes
+  const minX = lanesX[Math.min(...blocked)] - 1;
+  const maxX = 3.1;
+  const geo = new THREE.BoxGeometry(maxX - minX, 4.6, D);
+  const fadeMat = new THREE.MeshLambertMaterial({ color: BRICK, flatShading: true, transparent: true });
+  const abutment = new THREE.Mesh(geo, fadeMat);
+  abutment.position.set((minX + maxX) / 2, 2.3, 0);
+  group.add(abutment);
+  const lineMat = new THREE.MeshBasicMaterial({ color: 0x6f3426, transparent: true });
+  const lines = [];
+  for (let y = 0.4; y < 4.5; y += 0.45) {
+    const line = new THREE.Mesh(new THREE.BoxGeometry(maxX - minX, 0.04, 0.02), lineMat);
+    line.position.set((minX + maxX) / 2, y, D / 2 + 0.01);
+    group.add(line);
+    lines.push(line);
+  }
+
+  return {
+    group,
+    fade(opacity) {
+      fadeMat.opacity = opacity;
+      lineMat.opacity = opacity;
+    },
+    dispose() {
+      geo.dispose();
+      fadeMat.dispose();
+      lineMat.dispose();
+      for (const line of lines) line.geometry.dispose();
+    },
+  };
+}

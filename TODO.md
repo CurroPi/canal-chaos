@@ -25,7 +25,7 @@
 - [x] M1 Prototype: square in 3 lanes, scrolling, one enemy, game over
 - [ ] M2 "Saturday on the canal" (after M1 playtest: needs variety and satire early)
   - [x] M2a: cyclists (oncoming + from behind with bell/"ON YOUR LEFT!" warning), coffee lives, death message per enemy, sounds, busier start
-  - [ ] M2b: dog walkers, Instagrammers, prams, bridges
+  - [x] M2b: Lime bikes replace Lycra cyclists, dog walkers, Instagrammers, prams, bridges, busy path from the start
   - [ ] M2c: speech bubbles, zone banners, wall jokes, CLOSE CALL pop-ups
 - [ ] M3 Enemies and obstacles: full roster with behaviours
 - [ ] M4 Zones: Victoria Park → Camden progression and banners

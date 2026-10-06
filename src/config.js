@@ -14,22 +14,36 @@ export const CONFIG = {
   spawnZ: -110,
   despawnZ: 12,
 
-  runner: {
-    speed: 4,     // jogging speed towards you, on top of your walking speed
-    hitZ: 0.7,    // collision length
+  // Oncoming traffic. speed = how fast they move towards you (on top of your walking),
+  // hitZ = collision length, weight = how common, from = seconds into the run before they appear.
+  enemies: {
+    runner:       { speed: 4,   hitZ: 0.7, weight: 3,   from: 0 },
+    instagrammer: { speed: 0,   hitZ: 0.5, weight: 1.3, from: 0 },
+    lime:         { speed: 9,   hitZ: 1.0, weight: 1.6, from: 6 },
+    pram:         { speed: 1,   hitZ: 0.9, weight: 1.1, from: 10 },
+    dogWalker:    { speed: 1.2, hitZ: 0.6, weight: 1.4, from: 16 }, // takes 2 lanes
   },
 
-  cyclist: {
-    startAfter: 6,        // seconds into the run before cyclists show up
-    speedAhead: 9,        // oncoming cyclists, on top of your walking speed
-    speedBehind: 18,      // overtaking cyclists' real speed (you walk at 9, so they gain 9/s)
-    hitZ: 1.1,            // bikes are longer than people
-    aheadChanceMax: 0.35, // share of oncoming traffic that's cyclists at max busyness
-    behindGapStart: 6,    // seconds between overtaking cyclists at the start...
-    behindGapMin: 2.5,    // ...and at max busyness
-    warnStart: 1.3,       // seconds of warning before an overtaking bike reaches you...
-    warnMin: 0.75,        // ...and at max busyness
-    sameLaneAsYou: 0.6,   // chance an overtaking bike targets the lane you're in
+  // Lime riders overtaking you from behind, with a bell and a warning
+  overtaking: {
+    from: 6,
+    speed: 18,          // their real speed (you walk at 9, so they gain 9/s on you)
+    hitZ: 1.0,
+    gapStart: 6,        // seconds between them at the start...
+    gapMin: 2.5,        // ...and at max busyness
+    warnStart: 1.3,     // seconds of warning before they reach you...
+    warnMin: 0.75,      // ...and at max busyness
+    sameLaneAsYou: 0.6, // chance they come for the lane you're in
+  },
+
+  // Bridges squeeze the path from the wall side
+  bridge: {
+    from: 12,
+    gapStart: 16,             // seconds between bridges at the start...
+    gapMin: 7,                // ...and at max busyness
+    hitZ: 2.7,
+    twoLaneChanceStart: 0.25, // chance a bridge leaves only 1 lane open
+    twoLaneChanceMax: 0.6,
   },
 
   spawn: {
@@ -40,6 +54,7 @@ export const CONFIG = {
     doubleChanceMax: 0.45,     // ...and at max busyness
     extraGapAfterDouble: 0.35, // breathing room after a two-wide wave
     firstWaveDelay: 0.6,
+    prewarmSeconds: 6,         // the path is already busy when you start
   },
 
   // Fairness rule: never block all 3 lanes at once
