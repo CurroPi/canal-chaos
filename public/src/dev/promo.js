@@ -130,16 +130,20 @@ export const LAYOUTS = {
   },
 
   // Instagram feed post: 1080 x 1350 (4:5)
-  igFeed(shot, { warning = '🔔 BEHIND YOU!', warnAt = [540, 520] } = {}) {
+  igFeed(shot, {
+    warning = '🔔 BEHIND YOU!', warnAt = [540, 520],
+    lines = ['Dodge run clubs, Lime bikes', 'and a sausage dog attacking a duck.'],
+    cta = 'PLAY FREE · LINK IN BIO',
+  } = {}) {
     const c = canvas(1080, 1350);
     const g = c.getContext('2d');
     g.drawImage(shot, 0, 0);
     shade(g, 1080, 1350, 0.35, 0.6);
     titleCard(g, 540, 60, 1, 'center');
     if (warning) banner(g, warnAt[0], warnAt[1], warning, { bg: '#e11d48', fg: '#fffaf0', size: 30 });
-    caption(g, 'Dodge run clubs, Lime bikes', 540, 1130, 54, 'center');
-    caption(g, 'and a sausage dog attacking a duck.', 540, 1182, 54, 'center');
-    button(g, 540, 1220, 'PLAY FREE · LINK IN BIO', 24, 'center');
+    caption(g, lines[0], 540, 1130, 54, 'center');
+    caption(g, lines[1], 540, 1182, 54, 'center');
+    button(g, 540, 1220, cta, 24, 'center');
     credit(g, 1050, 1330, 15);
     return c;
   },

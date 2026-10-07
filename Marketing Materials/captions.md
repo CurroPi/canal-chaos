@@ -2,7 +2,10 @@
 
 Replace [LINK] with the game's Netlify address.
 
-## LinkedIn (with linkedin-1200x627.png)
+## LinkedIn (with linkedin-post-1080x1350.png)
+
+Best practice: post the tall 4:5 image (it takes the most space in the feed, especially on phones)
+and put the link in the text or the first comment. Use linkedin-1200x627.png only as a link preview image.
 
 Anyone who's tried to walk the Regent's Canal on a Saturday knows it's less a towpath, more a survival game.
 
