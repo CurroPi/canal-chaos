@@ -167,7 +167,8 @@ function posterMaterial([title, line, paper]) {
 export function addPosters(decor, L) {
   const count = Math.floor(rand(0, 3));
   for (let i = 0; i < count; i++) {
-    const p = sign(posterMaterial(pick(POSTERS)), 0.5, 0.66, WALL - 0.025, rand(1.2, 1.8), rand(-L / 2 + 1, L / 2 - 1), false);
+    // Clearly in front of the graffiti patches (which stick out ~0.035), and never at the same depth as each other
+    const p = sign(posterMaterial(pick(POSTERS)), 0.5, 0.66, WALL - 0.06 - i * 0.01, rand(1.2, 1.8), rand(-L / 2 + 1, L / 2 - 1), false);
     p.rotation.z = rand(-0.08, 0.08);
     decor.add(p);
   }

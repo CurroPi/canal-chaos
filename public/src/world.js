@@ -133,7 +133,7 @@ export function createWorld(scene, cfg) {
       // Our tag, sprayed on the wall where you see it on the welcome screen
       const tagTile = nearest(cfg.signature.z);
       const decor = tagTile.userData.decor;
-      decor.children.filter((o) => Math.abs(o.position.x - WALL) < 0.035).forEach((o) => decor.remove(o)); // clear the wall
+      decor.children.filter((o) => Math.abs(o.position.x - WALL) < 0.08).forEach((o) => decor.remove(o)); // clear the wall (graffiti, posters)
       const tag = makeSignatureTag(cfg.signature);
       tag.position.z = cfg.signature.z - tagTile.position.z;
       tagTile.userData.decor.add(tag);
@@ -391,7 +391,8 @@ function decorate(tile, L, farBank, gag = null) {
   // Graffiti and posters on the wall
   const tags = Math.floor(rand(0, 3));
   for (let i = 0; i < tags; i++) {
-    decor.add(box(0.03, rand(0.4, 1.3), rand(1, 3.5), pick(GRAFFITI), WALL - 0.02, rand(0.6, 2.2), rand(-L / 2 + 2, L / 2 - 2)));
+    // each patch at its own depth, so overlapping ones don't flicker
+    decor.add(box(0.03, rand(0.4, 1.3), rand(1, 3.5), pick(GRAFFITI), WALL - 0.02 - i * 0.006, rand(0.6, 2.2), rand(-L / 2 + 2, L / 2 - 2)));
   }
   addPosters(decor, L);
 
