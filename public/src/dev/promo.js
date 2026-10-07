@@ -115,7 +115,7 @@ function shade(g, w, h, top = 0.35, bottom = 0.45) {
 // ---------- Layouts ----------
 export const LAYOUTS = {
   // LinkedIn link/post image: 1200 x 627
-  linkedin(shot, { warning = '🔔 ON YOUR LEFT!', warnAt = [880, 150] } = {}) {
+  linkedin(shot, { warning = '🔔 ON YOUR LEFT!', warnAt = [880, 150], showCredit = true } = {}) {
     const c = canvas(1200, 627);
     const g = c.getContext('2d');
     g.drawImage(shot, 0, 0);
@@ -125,7 +125,7 @@ export const LAYOUTS = {
     caption(g, 'Nobody has read the sign.', 40, 300, 40);
     if (warning) banner(g, warnAt[0], warnAt[1], warning, { bg: '#e11d48', fg: '#fffaf0', size: 22 });
     button(g, 40, 520, 'PLAY FREE IN YOUR BROWSER ▶', 20);
-    credit(g, 1160, 596, 15);
+    if (showCredit) credit(g, 1160, 596, 15);
     return c;
   },
 
@@ -134,6 +134,7 @@ export const LAYOUTS = {
     warning = '🔔 BEHIND YOU!', warnAt = [540, 520],
     lines = ['Dodge run clubs, Lime bikes', 'and a sausage dog attacking a duck.'],
     cta = 'PLAY FREE · LINK IN BIO',
+    showCredit = true,
   } = {}) {
     const c = canvas(1080, 1350);
     const g = c.getContext('2d');
@@ -144,7 +145,7 @@ export const LAYOUTS = {
     caption(g, lines[0], 540, 1130, 54, 'center');
     caption(g, lines[1], 540, 1182, 54, 'center');
     button(g, 540, 1220, cta, 24, 'center');
-    credit(g, 1050, 1330, 15);
+    if (showCredit) credit(g, 1050, 1330, 15);
     return c;
   },
 
