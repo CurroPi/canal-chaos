@@ -644,6 +644,12 @@ function gameOver(e) {
   const message = pick(e.fromBehind ? [...type.behindDeaths, ...type.deaths] : type.deaths);
 
   const final = Math.floor(score);
+  runLog.push({
+    score: final, kind: e.kind, behind: e.fromBehind, seconds: Math.round(elapsed), fair: autopilotFair?.(),
+    lane, px: +player.group.position.x.toFixed(2), coffees,
+    near: entities.filter((o) => Math.abs(o.model.group.position.z) < 8)
+      .map((o) => `${o.kind}${o.fromBehind ? '(behind)' : ''} L${o.lanes.join('')} z${o.model.group.position.z.toFixed(1)}`),
+  });
   const isRecord = final > best;
   if (isRecord) { best = final; saveBest(best); }
   updateHud();
@@ -806,12 +812,24 @@ function updateWarning(t) {
   warningEl.classList.remove('hidden');
 }
 
-let paused = false; // testing helper
+let paused = false;  // testing helper
+let simSpeed = 1;    // testing helper: run the game several steps per frame
+let autopilot = null; // testing helper: a bot that plays
+let autopilotFair = null;
+let autoRuns = 0;
+const runLog = [];
 
 function tick() {
   const dt = paused ? 0 : Math.min(clock.getDelta(), 0.05);
-  const t = clock.elapsedTime;
+  for (let i = 0; i < simSpeed; i++) step(dt, clock.elapsedTime + i * dt);
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
 
+function step(dt, t) {
+  if (autopilot && state === 'playing') autopilot(dt);
+  if (autopilot && state === 'over' && autoRuns > 0) { autoRuns--; overAt = 0; start(); }
+  if (autopilot && state === 'over' && autoRuns <= 0) { autopilot = null; simSpeed = 1; }
   if (state === 'playing') {
     elapsed += dt;
     setMusicIntensity(progress());
@@ -925,13 +943,63 @@ function tick() {
     return true;
   });
 
-  renderer.render(scene, camera);
-  requestAnimationFrame(tick);
 }
 
 reset();
 showReady();
 tick();
+
+// Testing bot: dodges like a decent human (sees what's coming, reacts after a short delay).
+// Also notes whether each death was avoidable, to catch unfair situations.
+function makeAutopilot({ reaction = 0.2, safe = 1.3 } = {}) {
+  let cooldown = 0;
+  const history = [];
+  function danger(l) {
+    let t = Infinity;
+    const walk = CONFIG.walkSpeed * speedFactor();
+    for (const e of entities) {
+      if (ENEMIES[e.kind].pickup || !e.lanes.includes(l)) continue;
+      const z = e.model.group.position.z;
+      if (!e.fromBehind) {
+        if (z > e.hitZ) continue;
+        t = Math.min(t, Math.max(0, (-z - e.hitZ) / (e.own + walk)));
+      } else if (z > -e.hitZ) {
+        t = Math.min(t, Math.max(0, (z - e.hitZ) / -(e.own + walk)));
+      }
+    }
+    return t;
+  }
+  autopilotFair = () => {
+    // Was there a lane with room to escape about 0.8s before the hit?
+    const then = history.find((h) => h.t >= elapsed - 0.8);
+    return then ? Math.max(...then.d) > 0.5 : true;
+  };
+  return (dt) => {
+    const d = [0, 1, 2].map(danger);
+    history.push({ t: elapsed, d });
+    while (history.length && history[0].t < elapsed - 2) history.shift();
+    cooldown -= dt;
+    if (cooldown > 0) return;
+    let target = lane;
+    if (d[lane] < safe) {
+      let bestScore = d[lane];
+      for (const l of [0, 1, 2]) {
+        if (l === lane) continue;
+        // Crossing a lane only takes a moment, so the lane in between just needs a little room
+        const mid = (l + lane) / 2;
+        const score = Number.isInteger(mid) && mid !== l && d[mid] < 0.4 ? Math.min(d[mid], d[l]) : d[l];
+        if (score > bestScore + 0.05) { target = l; bestScore = score; }
+      }
+    } else {
+      const coffee = entities.find((e) => ENEMIES[e.kind].pickup && e.model.group.position.z > -25);
+      if (coffee && coffees < CONFIG.coffee.max && d[coffee.lanes[0]] > safe) target = coffee.lanes[0];
+    }
+    if (target !== lane) {
+      move(Math.sign(target - lane));
+      cooldown = reaction;
+    }
+  };
+}
 
 // Developer helper: open the game with ?debug in the URL to inspect it from the browser console
 if (new URLSearchParams(location.search).has('debug')) {
@@ -947,6 +1015,14 @@ if (new URLSearchParams(location.search).has('debug')) {
     cafe() { nextCafeAt = score; },
     title() { nextTitleAt = Math.ceil((score + 1) / CONFIG.titles.every) * CONFIG.titles.every; score = nextTitleAt; },
     get counts() { return { ...spawnCounts }; },
+    get runs() { return runLog; },
+    // Let the bot play `runs` games at `speed`x; read the results from debug.runs
+    autoplay({ runs = 5, speed = 4, reaction = 0.2 } = {}) {
+      autopilot = makeAutopilot({ reaction });
+      autoRuns = runs - 1;
+      simSpeed = speed;
+      if (state !== 'playing') { overAt = 0; start(); }
+    },
     // Show one model on its own, straight ahead, for design reviews
     showcase(build, z = -11) {
       for (const e of entities) removeEntity(e);
