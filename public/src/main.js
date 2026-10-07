@@ -765,7 +765,7 @@ function renderBoard(top, you) {
 async function showLeaderboard(final) {
   const board = document.getElementById('board');
   board.innerHTML = `
-    <p class="small label board-title">Top 10 · Regent's Canal</p>
+    <p class="small label board-title">Top 10</p>
     <ol class="top10" id="boardList"><li class="gap">Loading…</li></ol>
     <form class="post">
       <input id="nameInput" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false" value="${esc(savedName())}">
