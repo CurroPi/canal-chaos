@@ -112,7 +112,7 @@ export const ENEMIES = {
   // ---------- Hackney specials ----------
   cargoBike: {
     width: 2,
-    build: (lanes) => at(makeCargoBike(), (X[lanes[0]] + X[lanes[1]]) / 2),
+    build: (lanes) => at(makeCargoBike(pick(['flag', 'balloons'])), (X[lanes[0]] + X[lanes[1]]) / 2), // red box or balloons, at random
     animate: (m, t) => animateCargoBike(m, t + m.phase),
     deaths: [
       'Run over by a cargo bike carrying Otto, Wren and a sourdough loaf.',
