@@ -135,8 +135,9 @@ const bestEl = document.getElementById('best');
 const livesEl = document.getElementById('lives');
 const warningEl = document.getElementById('warning');
 
-function showOverlay(html, onButton = start, cls = '') {
-  overlay.innerHTML = `<div class="card ${cls}">${html}</div>`;
+// `credit`: show "BY DUDE LONDON" under the card (only on the intro screens)
+function showOverlay(html, onButton = start, cls = '', credit = false) {
+  overlay.innerHTML = `<div class="card ${cls}">${html}</div>${credit ? '<p class="credit-line">BY DUDE LONDON</p>' : ''}`;
   overlay.classList.remove('hidden', 'clear');
   if (onButton) overlay.querySelector('button')?.addEventListener('click', onButton);
 }
@@ -155,7 +156,7 @@ function showStory() {
     <p class="subtitle">A Hackney Towpath Survival Game</p>
     <div class="story">${lines.map((l, i) => l.replace('<p', `<p style="animation-delay:${0.4 + i * 0.7}s"`)).join('')}</div>
     <button class="late" style="animation-delay:${0.4 + lines.length * 0.7}s">Continue</button>
-  `, showRules, 'story-card');
+  `, showRules, 'story-card', true);
 }
 
 function showRules() {
@@ -168,7 +169,7 @@ function showRules() {
     </ul>
     <p class="small music-hint">♪ Music on: tap ♪ or press M to mute.</p>
     <button>Choose your walker</button>
-  `, showSelect);
+  `, showSelect, '', true);
 }
 
 // Choose your walker: they turn slowly in front of you while you browse

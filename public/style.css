@@ -353,3 +353,17 @@ html, body {
 .top10 li.ghost { background: rgba(31, 95, 58, 0.15); color: #1f5f3a; }
 .top10 li.gap { display: block; text-align: center; background: none; color: #888; }
 .board-msg { text-align: center; }
+
+/* "BY DUDE LONDON" under the intro cards */
+#overlay { flex-direction: column; }
+.credit-line {
+  margin: 22px 0 0;
+  font-family: var(--pixel);
+  font-size: 12px;
+  color: #fffaf0;
+  letter-spacing: 0.05em;
+  text-shadow:
+    -2px -2px 0 #1b1b1b, 2px -2px 0 #1b1b1b, -2px 2px 0 #1b1b1b, 2px 2px 0 #1b1b1b,
+    0 3px 0 #1b1b1b;
+}
+#overlay.clear { justify-content: flex-end; align-items: center; }
