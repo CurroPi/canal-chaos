@@ -176,5 +176,5 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Ross | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
 | Tanner | 1,500 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
 
-- Selection screen: locked walkers shown as a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
+- Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
 - Game over: unlock celebration with the fanfare. Thresholds live in config.js.

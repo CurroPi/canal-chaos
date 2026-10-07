@@ -219,7 +219,7 @@ function browse(dir) {
 
 function showPick() {
   const open = isUnlocked(character);
-  document.getElementById('pickName').textContent = character.name;
+  document.getElementById('pickName').textContent = open ? character.name : '???'; // locked: name is a surprise
   document.getElementById('pickDrink').innerHTML = open
     ? `<span class="pick-drink">${drinkSvg(character.drink)}</span> ${character.drink.name}`
     : `🔒 Reach ${unlockAt(character).toLocaleString('en-GB')} points`;
