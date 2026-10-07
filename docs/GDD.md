@@ -165,3 +165,16 @@ _First draft, all open to change:_
 
 ## 11. Out of scope for v1
 Jump/duck, character customisation (outfits), accounts and logins.
+
+## Walker unlocks (agreed, not built yet)
+- Free from the start: **Sophie, Alex, Joe**.
+- Unlocked by best score (saved on the device, so players who already scored high get them automatically):
+
+| Walker | Unlocks at | Celebration line |
+|---|---|---|
+| Josh | 500 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
+| Ross | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
+| Tanner | 1,500 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
+
+- Selection screen: locked walkers shown as a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
+- Game over: unlock celebration with the fanfare. Thresholds live in config.js.
