@@ -12,6 +12,30 @@ export function initAudio() {
   }
 }
 
+// All sound effects go through one volume control, so they can be muted separately from the music
+let sfxGain = null;
+let sfxMuted = false;
+try { sfxMuted = localStorage.getItem('canal-sfx-muted') === '1'; } catch { /* storage unavailable */ }
+function sfxOut() {
+  if (!sfxGain) {
+    sfxGain = ctx.createGain();
+    sfxGain.gain.value = sfxMuted ? 0 : 1;
+    sfxGain.connect(ctx.destination);
+  }
+  return sfxGain;
+}
+
+export function isSfxMuted() {
+  return sfxMuted;
+}
+
+export function toggleSfx() {
+  sfxMuted = !sfxMuted;
+  try { localStorage.setItem('canal-sfx-muted', sfxMuted ? '1' : '0'); } catch { /* storage unavailable */ }
+  if (sfxGain) sfxGain.gain.value = sfxMuted ? 0 : 1;
+  return sfxMuted;
+}
+
 function tone(freq, start, dur, { type = 'sine', vol = 0.2, endFreq = null } = {}) {
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -20,7 +44,7 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.2, endFreq = null } = {
   if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, start + dur);
   gain.gain.setValueAtTime(vol, start);
   gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
-  osc.connect(gain).connect(ctx.destination);
+  osc.connect(gain).connect(sfxOut());
   osc.start(start);
   osc.stop(start + dur);
 }
@@ -47,7 +71,7 @@ function bellStrike(start, strength) {
       gain.gain.setValueAtTime(0, start);
       gain.gain.linearRampToValueAtTime(p.vol * strength, start + 0.002);
       gain.gain.exponentialRampToValueAtTime(0.0001, start + p.decay);
-      osc.connect(gain).connect(ctx.destination);
+      osc.connect(gain).connect(sfxOut());
       osc.start(start);
       osc.stop(start + p.decay);
     }
@@ -67,7 +91,7 @@ function bellStrike(start, strength) {
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0.12 * strength, start);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.025);
-  src.connect(filter).connect(gain).connect(ctx.destination);
+  src.connect(filter).connect(gain).connect(sfxOut());
   src.start(start);
   src.stop(start + 0.03);
 }

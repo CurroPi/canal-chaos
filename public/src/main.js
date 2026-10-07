@@ -10,6 +10,7 @@ import { titleFor } from './titles.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
+  isSfxMuted, toggleSfx,
 } from './sound.js';
 import { LINES } from './lines.js';
 import { GAGS, makeNarrowboat, addPosters } from './gags.js';
@@ -854,6 +855,18 @@ function wakeAudio() {
 }
 window.addEventListener('pointerdown', wakeAudio, { once: true });
 window.addEventListener('keydown', wakeAudio, { once: true });
+
+const sfxBtn = document.getElementById('sfx');
+function showSfx() {
+  sfxBtn.textContent = isSfxMuted() ? 'SFX OFF' : 'SFX ON';
+}
+sfxBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleSfx();
+  showSfx();
+  sfxBtn.blur();
+});
+showSfx();
 
 muteBtn.addEventListener('click', (e) => {
   e.stopPropagation();
