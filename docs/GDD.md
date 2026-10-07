@@ -166,7 +166,7 @@ _First draft, all open to change:_
 ## 11. Out of scope for v1
 Jump/duck, character customisation (outfits), accounts and logins.
 
-## Walker unlocks (agreed, not built yet)
+## Walker unlocks (built)
 - Free from the start: **Sophie, Alex, Joe**.
 - Unlocked by best score (saved on the device, so players who already scored high get them automatically):
 

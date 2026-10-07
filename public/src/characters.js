@@ -18,16 +18,19 @@ export const CHARACTERS = [
   },
   {
     id: 'josh',
+    unlockLine: 'JOSH IS FULLY CHARGED. SO IS HIS VAPE.',
     name: 'Josh',
     drink: { name: 'Energy drink', kind: 'can', body: 0x1e5bd8, lid: 0xc0c0c0, band: 0xf5d000, splash: 0xe8e05a },
   },
   {
     id: 'ross',
+    unlockLine: 'ROSS IS HERE. HE BROUGHT HIS OWN MUG.',
     name: 'Ross',
     drink: { name: 'Flat white in his own mug', kind: 'mug', body: 0xe07a5f, coffee: 0x8a5a3a, splash: 0x6b4a2f },
   },
   {
     id: 'tanner',
+    unlockLine: 'TANNER HAS HYDRATED. TANNER IS READY.',
     name: 'Tanner',
     drink: { name: 'Huge water bottle', kind: 'bottle', body: 0x7fc8ff, lid: 0x1b1b1b, splash: 0x9ad7ff },
   },

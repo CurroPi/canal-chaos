@@ -52,8 +52,20 @@ resize();
 
 const world = createWorld(scene, CONFIG);
 // ---------- Your walker ----------
+// Some walkers unlock when your best score (on this device) reaches a threshold
+const unlockAt = (c) => CONFIG.unlocks[c.id] || 0;
+const isUnlocked = (c) => unlockAt(c) <= loadBest();
+
 function loadCharacter() {
-  try { return characterById(localStorage.getItem('canal-hipster')); } catch { return CHARACTERS[0]; }
+  let c = CHARACTERS[0];
+  try { c = characterById(localStorage.getItem('canal-hipster')); } catch { /* storage unavailable */ }
+  return isUnlocked(c) ? c : CHARACTERS[0];
+}
+
+// A locked walker in the preview: a dark silhouette
+const silhouetteMat = new THREE.MeshBasicMaterial({ color: 0x1b1b1b });
+function silhouette(p) {
+  p.group.traverse((o) => { if (o.isMesh) o.material = silhouetteMat; });
 }
 let character = loadCharacter();
 let player = makePlayer(character);
@@ -66,6 +78,7 @@ function setCharacter(c) {
   scene.remove(player.group);
   player = makePlayer(c);
   player.group.scale.setScalar(CONFIG.playerScale);
+  if (!isUnlocked(c)) silhouette(player);
   scene.add(player.group);
   setCoffee(player, coffees);
   updateHud();
@@ -205,8 +218,16 @@ function browse(dir) {
 }
 
 function showPick() {
+  const open = isUnlocked(character);
   document.getElementById('pickName').textContent = character.name;
-  document.getElementById('pickDrink').innerHTML = `<span class="pick-drink">${drinkSvg(character.drink)}</span> ${character.drink.name}`;
+  document.getElementById('pickDrink').innerHTML = open
+    ? `<span class="pick-drink">${drinkSvg(character.drink)}</span> ${character.drink.name}`
+    : `🔒 Reach ${unlockAt(character).toLocaleString('en-GB')} points`;
+  const go = overlay.querySelector('.go');
+  if (go) {
+    go.disabled = !open;
+    go.textContent = open ? 'Start walking' : 'Locked';
+  }
   document.getElementById('pickDots').textContent = CHARACTERS.map((c) => (c === character ? '■' : '□')).join(' ');
   // Face the camera for the preview
   player.group.position.set(0, 0, CONFIG.select.previewZ);
@@ -220,9 +241,11 @@ function showReady() {
 function updateHud() {
   scoreEl.textContent = Math.floor(score);
   bestEl.textContent = best ? `Best ${best}` : '';
-  const key = `${character.id}-${coffees}`;
+  const open = unlockAt(character) <= best;
+  const key = `${character.id}-${coffees}-${open}`;
   if (livesEl.dataset.key !== key) {
     let cups = '';
+    if (!open) { livesEl.innerHTML = ''; livesEl.dataset.key = key; return; } // locked: drink stays a secret
     const icon = drinkSvg(character.drink);
     for (let i = 0; i < CONFIG.coffee.max; i++) cups += `<span class="cup ${i < coffees ? 'full' : 'empty'}">${icon}</span>`;
     livesEl.innerHTML = cups;
@@ -676,6 +699,10 @@ function prewarm(seconds) {
 
 function start() {
   if (state === 'playing') return;
+  if (!isUnlocked(character)) {
+    if (state === 'select') return; // the button says Locked
+    setCharacter(CHARACTERS.find(isUnlocked));
+  }
   if (state === 'over' && performance.now() - overAt < 900) return; // no accidental instant restarts
   clearTimeout(overlayTimer);
   initAudio();
@@ -707,10 +734,13 @@ function gameOver(e) {
       .map((o) => `${o.kind}${o.fromBehind ? '(behind)' : ''} L${o.lanes.join('')} z${o.model.group.position.z.toFixed(1)}`),
   });
   const isRecord = final > best;
+  const before = best;
   if (isRecord) { best = final; saveBest(best); }
+  const unlocked = CHARACTERS.filter((c) => unlockAt(c) > before && unlockAt(c) <= best);
   updateHud();
   overlayTimer = setTimeout(() => {
     showOverlay(`
+      ${unlocked.map((c) => `<p class="unlock">🎉 ${c.unlockLine}</p>`).join('')}
       <p class="small label">Cause of death</p>
       <h2>${message}</h2>
       <p class="big">${final}</p>
@@ -721,6 +751,7 @@ function gameOver(e) {
       <button class="secondary">Change walker</button>
     `);
     overlay.querySelector('.secondary').addEventListener('click', showSelect);
+    if (unlocked.length) fanfare();
     if (leaderboardEnabled()) showLeaderboard(final);
   }, 700);
 }

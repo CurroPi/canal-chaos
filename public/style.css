@@ -384,3 +384,16 @@ html, body {
   box-shadow: 3px 3px 0 #1b1b1b;
   cursor: pointer;
 }
+
+/* New walker unlocked (game over) */
+.card .unlock {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 3px solid #1b1b1b;
+  background: #ffd23f;
+  box-shadow: 4px 4px 0 #1b1b1b;
+  font-family: var(--pixel);
+  font-size: 11px;
+  line-height: 1.6;
+  animation: storyIn 0.4s ease-out;
+}
