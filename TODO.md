@@ -35,7 +35,7 @@
 - [ ] M6 Satire and juice: sounds, death messages, power-ups
 - [x] Character select: Sophie, Alex, Joe, Josh (all unlocked for testing; unlocks by score later?), own drinks, 3D turntable preview
 - [ ] M7 Menus, mobile controls, polish
-- [ ] M8 Online leaderboard
+- [x] M8 Online leaderboard
 - [ ] M9 Playtesting with friends and fixes
 - [ ] M10 Launch 🚀
 
@@ -45,7 +45,7 @@
 
 ## Next session (as of 2026-10-07)
 - [ ] Check the live Netlify site (re-upload `public/` to Deploys first)
-- [ ] Leaderboard (Supabase): need Project URL + public anon key from the owner
+- [x] Leaderboard (Supabase): live. Table `scores` in CurroPi's Project; publishable key in public/src/leaderboard.js
 - [ ] Share button on game over
 - [ ] Maybe: pixel-style DOOM PIGEONS print for Josh to match Alex's ARIES
 - [ ] Maybe: unlock walkers by score; walker-specific lines

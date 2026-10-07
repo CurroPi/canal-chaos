@@ -25,5 +25,5 @@ Inspired by Subway Surfers, but the enemies are cyclists and runners, and the to
   with no external art files needed. 2D overlays (speech bubbles, banners, signs) carry the jokes.
 - **Engine:** Three.js, using plain JavaScript in the browser.
 - **Hosting:** Netlify. Publish by uploading the `public/` folder (Netlify Drop / Deploys tab).
-- **Leaderboard backend:** Supabase (account created by owner). Set up at milestone M8.
+- **Leaderboard backend:** Supabase, project "CurroPi's Project", table `public.scores` (name, score, walker). Code in `public/src/leaderboard.js` (REST API, no SDK). RLS: anon can select + insert only; deleting/editing needs the Supabase dashboard.
   Only the public "anon/publishable" key goes in the game code. Never secret keys or passwords.

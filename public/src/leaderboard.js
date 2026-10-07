@@ -2,14 +2,16 @@
 // The URL and key below are the project's PUBLIC values: they're meant to live in website code.
 // Security comes from the database rules (anyone can read and add scores; nobody can edit or delete).
 
-const SUPABASE_URL = '';      // e.g. 'https://abcdefgh.supabase.co'
-const SUPABASE_ANON_KEY = ''; // the "anon" / "publishable" key, never the secret one
+const SUPABASE_URL = 'https://vqbdhewgjdqpdipzuhoq.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_3-pxFuYA0YGiKwz0M31_CQ_sbSWKBzw'; // public "publishable" key, never the secret one
 
 export const leaderboardEnabled = () => Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+// Older "anon" keys are JWTs (start with eyJ) and also go in the Authorization header;
+// newer "sb_publishable_..." keys only go in the apikey header.
 const headers = () => ({
   apikey: SUPABASE_ANON_KEY,
-  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+  ...(SUPABASE_ANON_KEY.startsWith('eyJ') ? { Authorization: `Bearer ${SUPABASE_ANON_KEY}` } : {}),
   'Content-Type': 'application/json',
 });
 
