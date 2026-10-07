@@ -435,6 +435,51 @@ function bin(z) {
   return g;
 }
 
+// 15. The Community Canoe: a teal canoe chained to the wall under a hand-painted sign
+const canoeGeo = new THREE.SphereGeometry(1, 16, 8);
+function communityCanoe(z) {
+  const g = new THREE.Group();
+  const hull = new THREE.Mesh(canoeGeo, mat(0x3fb8b0));
+  hull.scale.set(0.5, 0.3, 2.8);   // long, pointed, shallow
+  hull.rotation.z = 0.75;          // tipped on its side against the wall
+  hull.rotation.y = 0.04;
+  hull.position.set(WALL - 0.32, 0.22, z);
+  g.add(hull);
+  g.add(box(0.05, 0.05, 4.4, 0x2a8f88, WALL - 0.12, 0.5, z)); // gunwale
+  const board = textMaterial('canoe', 360, 480, (c, w, h) => {
+    c.fillStyle = '#2346b8';
+    c.fillRect(0, 0, w, h);
+    c.fillStyle = '#f7f1d8';
+    c.textAlign = 'center';
+    c.font = 'bold 52px "Marker Felt", "Comic Sans MS", cursive';
+    c.fillText('COMMUNITY', w / 2, 80);
+    c.fillText('CANOE', w / 2, 145);
+    c.strokeStyle = '#e63946'; // crossed paddles
+    c.lineWidth = 9;
+    c.beginPath(); c.moveTo(110, 190); c.lineTo(250, 320); c.moveTo(250, 190); c.lineTo(110, 320); c.stroke();
+    c.fillStyle = '#e63946';
+    for (const [x, y] of [[104, 184], [256, 184]]) { c.beginPath(); c.ellipse(x, y, 18, 26, 0, 0, Math.PI * 2); c.fill(); }
+    c.fillStyle = '#f7f1d8';
+    c.font = '26px "Marker Felt", "Comic Sans MS", cursive';
+    c.fillText('take me for a paddle', w / 2, 360);
+    c.font = 'bold 40px "Marker Felt", "Comic Sans MS", cursive';
+    c.fillText('FREE of CHARGE', w / 2, 425);
+  });
+  g.add(sign(board, 1.05, 1.4, WALL - 0.04, 1.65, z + 0.4, false));
+  for (let i = 0; i < 8; i++) { // the chain, from the sign down to the canoe
+    g.add(box(0.03, 0.09, 0.05, 0xc0c0c0, WALL - 0.08 - i * 0.012, 1.0 - i * 0.07, z + 0.4 + (i % 2) * 0.03));
+  }
+  const tag = textMaterial('canoe-tag', 512, 160, (c, w, h) => {
+    c.strokeStyle = 'rgba(240,240,240,0.85)';
+    c.lineWidth = 12;
+    c.lineCap = 'round';
+    c.font = 'bold 110px "Marker Felt", cursive';
+    c.strokeText('YOZK', 40, 120);
+  });
+  g.add(sign(tag, 1.6, 0.5, WALL - 0.03, 0.5, z - 0.9, false)); // white graffiti behind it
+  return g;
+}
+
 // The one-off gags. `boat: true` ones replace that stretch's normal moored boat.
 export const GAGS = {
   tarot: { boat: true, build: tarotBoat },
@@ -448,4 +493,5 @@ export const GAGS = {
   magnet: { boat: true, build: magnetFisher },
   angler: { boat: true, build: angler },
   bin: { boat: false, build: bin },
+  canoe: { boat: false, build: communityCanoe },
 };
