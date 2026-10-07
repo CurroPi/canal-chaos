@@ -26,7 +26,7 @@ const SKIN_TONES = [0xf1c9a5, 0xe8b894, 0xd8a47f, 0xa86b45, 0x6b4029];
 const NEON = [0xff3d7f, 0x39ff88, 0xffe14a, 0x31c8ff, 0xff7a1a];
 
 // A generic person, facing +z. The group's origin is at their feet.
-function makePerson({ skin, shirt, legs, shoes, hair }) {
+export function makePerson({ skin, shirt, legs, shoes, hair }) {
   const group = new THREE.Group();
   const rig = new THREE.Group();
   group.add(rig);

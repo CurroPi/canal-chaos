@@ -89,6 +89,10 @@ export const CONFIG = {
 
   officeEvery: 100, // points between sightings of our office
 
+  // One-off visual gags (tarot boat, heron, magnet fisher...): one every this many stretches of
+  // towpath (~10s), each once per run. See src/gags.js
+  gags: { everyTiles: 5 },
+
   // The "BY DUDE LONDON" tag on the wall at the start (where along the path, its size and height)
   signature: { z: -4, length: 4.5, height: 2.25, y: 1.7, paint: '0,0,0' }, // paint: '255,255,255' = white, '0,0,0' = black
 

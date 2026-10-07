@@ -12,6 +12,7 @@ import {
   startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
 } from './sound.js';
 import { LINES } from './lines.js';
+import { GAGS, makeNarrowboat, addPosters } from './gags.js';
 
 // ---------- Scene setup ----------
 const canvas = document.getElementById('game');
@@ -1127,13 +1128,14 @@ function makeAutopilot({ reaction = 0.2, safe = 1.3 } = {}) {
 
 // Developer helper: open the game with ?debug in the URL to inspect it from the browser console
 if (new URLSearchParams(location.search).has('debug')) {
-  window.models = { makeCargoBike, ENEMIES };
+  window.models = { makeCargoBike, ENEMIES, GAGS, makeNarrowboat, addPosters };
   window.debug = {
     get state() { return { state, elapsed, score, lane, coffees }; },
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z) })); },
     skip(seconds) { elapsed += seconds; },
     godMode() { invulnUntil = Infinity; },
     landmark(kind) { world.forceNext = kind; },
+    gag(kind) { world.forceGag = kind; },
     special(kind) { specialsPool = [kind]; specialTimer = 0; },
     delivery() { deliveryTimer = 0; },
     cafe() { nextCafeAt = score; },

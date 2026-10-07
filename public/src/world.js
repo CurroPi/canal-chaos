@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { box, mat, makeLimeBike } from './models.js';
 import { FRONT_X, makeBuilding, makeOffice, makeGasholder, makeContainerville, makeSharks } from './buildings.js';
 import { CONFIG } from './config.js';
+import { makeNarrowboat, addPosters, GAGS, animateGags, BOAT_X } from './gags.js';
 
 // Towpath geometry, all derived from the lane spacing in config.js, so narrowing the path
 // moves the wall, the canal edge and everything along them together.
@@ -73,11 +74,29 @@ export function createWorld(scene, cfg) {
   let nextOffice = 0;
   const trackPos = (tile) => walked - tile.position.z;
 
+  // One-off gags (tarot boat, heron...): each turns up once per run, in a random order
+  let gagPool = [];
+  let sinceGag = 0;
+  function nextGag() {
+    if (world.forceGag) {
+      const kind = world.forceGag;
+      world.forceGag = null;
+      return kind;
+    }
+    sinceGag++;
+    if (sinceGag < cfg.gags.everyTiles) return null;
+    if (!gagPool.length) gagPool = Object.keys(GAGS).sort(() => Math.random() - 0.5);
+    sinceGag = 0;
+    return gagPool.pop();
+  }
+
   const world = {
     forceNext: null, // testing helper: the next tile's far bank
+    forceGag: null,  // testing helper: the next tile's gag
 
     scroll(dz) {
       walked += dz;
+      animateGags(performance.now() / 1000);
       for (const tile of tiles) {
         tile.position.z += dz;
         if (tile.position.z - L / 2 > 12) {
@@ -92,7 +111,7 @@ export function createWorld(scene, cfg) {
           } else {
             farBank = nextFarBank();
           }
-          decorate(tile, L, farBank);
+          decorate(tile, L, farBank, nextGag());
         }
       }
     },
@@ -106,13 +125,15 @@ export function createWorld(scene, cfg) {
       nextOffice = trackPos(officeTile) + cfg.officeEvery;
       sinceLandmark = 0;
       queued = null;
+      gagPool = [];
+      sinceGag = cfg.gags.everyTiles - 3; // the first one comes early
       for (const tile of tiles) {
         decorate(tile, L, tile === officeTile ? 'office' : tile === inFront ? 'gap' : nextFarBank());
       }
       // Our tag, sprayed on the wall where you see it on the welcome screen
       const tagTile = nearest(cfg.signature.z);
       const decor = tagTile.userData.decor;
-      decor.children.filter((o) => Math.abs(o.position.x - (WALL - 0.02)) < 0.01).forEach((o) => decor.remove(o)); // clear the wall
+      decor.children.filter((o) => Math.abs(o.position.x - WALL) < 0.035).forEach((o) => decor.remove(o)); // clear the wall
       const tag = makeSignatureTag(cfg.signature);
       tag.position.z = cfg.signature.z - tagTile.position.z;
       tagTile.userData.decor.add(tag);
@@ -350,35 +371,29 @@ function addTowpathDetails(decor, L) {
 }
 
 // Random bits that change every time a tile is reused
-function decorate(tile, L, farBank) {
+function decorate(tile, L, farBank, gag = null) {
   const decor = tile.userData.decor;
   decor.clear();
   addTowpathDetails(decor, L);
 
-  // Narrowboat moored at the edge
-  if (Math.random() < 0.6) {
-    const z = rand(-3, 3);
-    const colour = pick(BOAT_COLOURS);
-    const bx = CANAL - 1.3; // moored right against the edge
-    decor.add(box(1.9, 1.2, 13, colour, bx, -0.6, z));
-    decor.add(box(1.6, 0.5, 11.5, 0xe9e1cf, bx, 0.25, z));
-    decor.add(box(1.62, 0.06, 11.6, colour, bx, 0.53, z));
-    for (let wz = -4.5; wz <= 4.5; wz += 1.8) {
-      decor.add(box(0.03, 0.22, 0.6, 0x2b3a42, bx + 0.81, 0.27, z + wz));
+  // A one-off gag, or a normal moored narrowboat (with a silly name and roof clutter)
+  if (gag) decor.add(GAGS[gag].build(rand(-2, 2)));
+  if (!(gag && GAGS[gag].boat) && Math.random() < 0.6) {
+    const boat = makeNarrowboat({ z: rand(-3, 3) });
+    for (let i = 0; i < 3; i++) { // plant pots
+      const pz = rand(-5, 5) + boat.group.children[0].position.z;
+      boat.group.add(box(0.25, 0.2, 0.25, 0xb5653b, BOAT_X + 0.45, 0.66, pz));
+      boat.group.add(box(0.35, 0.3, 0.35, 0x4f8a3c, BOAT_X + 0.45, 0.9, pz));
     }
-    decor.add(box(0.12, 0.45, 0.12, 0x333333, bx - 0.3, 0.78, z - 4));
-    for (let i = 0; i < 4; i++) {
-      const pz = z + rand(-5, 5);
-      decor.add(box(0.25, 0.2, 0.25, 0xb5653b, bx + 0.2, 0.66, pz));
-      decor.add(box(0.35, 0.3, 0.35, 0x4f8a3c, bx + 0.2, 0.9, pz));
-    }
+    decor.add(boat.group);
   }
 
-  // Graffiti on the wall
+  // Graffiti and posters on the wall
   const tags = Math.floor(rand(0, 3));
   for (let i = 0; i < tags; i++) {
     decor.add(box(0.03, rand(0.4, 1.3), rand(1, 3.5), pick(GRAFFITI), WALL - 0.02, rand(0.6, 2.2), rand(-L / 2 + 2, L / 2 - 2)));
   }
+  addPosters(decor, L);
 
   addRubbish(decor, L);
 
