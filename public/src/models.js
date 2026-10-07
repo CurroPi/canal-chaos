@@ -97,7 +97,34 @@ const PIXEL_LETTERS = {
   I: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '#####'],
   E: ['#####', '#....', '#....', '####.', '#....', '#....', '#####'],
   S: ['.####', '#....', '#....', '.###.', '....#', '....#', '####.'],
+  N: ['#...#', '##..#', '#.#.#', '#..##', '#...#', '#...#', '#...#'],
+  O: ['.###.', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.'],
+  P: ['####.', '#...#', '#...#', '####.', '#....', '#....', '#....'],
+  B: ['####.', '#...#', '#...#', '####.', '#...#', '#...#', '####.'],
+  L: ['#....', '#....', '#....', '#....', '#....', '#....', '#####'],
+  M: ['#...#', '##.##', '#.#.#', '#...#', '#...#', '#...#', '#...#'],
 };
+
+// Lines of chunky pixel text, centred, slightly wonky
+function pixelTextPrint(key, lines, colour) {
+  const w = 52;
+  const h = 46;
+  return pixelMat(key, w, h, (g) => {
+    let seed = 3;
+    const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+    g.fillStyle = colour;
+    const top = Math.round((h - lines.length * 9) / 2);
+    lines.forEach((text, row) => {
+      const x0 = Math.round((w - (text.length * 6 - 1)) / 2);
+      [...text].forEach((ch, i) => {
+        const y0 = top + row * 9 + (rnd() < 0.3 ? 1 : 0);
+        PIXEL_LETTERS[ch].forEach((r, y) => [...r].forEach((cell, x) => {
+          if (cell === '#' && rnd() > 0.04) g.fillRect(x0 + i * 6 + x, y0 + y, 1, 1);
+        }));
+      });
+    });
+  });
+}
 
 function pixelMat(key, w, h, draw) {
   if (!printMats[key]) {
@@ -177,16 +204,23 @@ const LOOKS = {
       addPrint(p, ariesPrint(), false);
     },
   },
-  // Corduroy jacket, flat cap, moustache, headphones round the neck, record bag
+  // NO PROBLEMO tee, denim shorts, white socks, green cap, moustache, headphones, record bag
   joe: {
-    body: { skin: 0xe8b894, shirt: 0x8b5a2b, legs: 0x3b5b8a, shoes: 0x3f2a1d, hair: 0x6b4a2f },
+    body: { skin: 0xe8b894, shirt: 0x6fb7e9, legs: 0xe8b894, shoes: 0x3f2a1d, hair: 0x6b4a2f },
     dress(p) {
+      for (const leg of [p.legL, p.legR]) {
+        leg.add(box(0.23, 0.32, 0.25, 0x3b5b8a, 0, -0.15, 0)); // denim shorts
+        leg.add(box(0.21, 0.14, 0.23, 0xf5f5f5, 0, -0.62, 0)); // white socks
+      }
+      const tee = pixelTextPrint('noproblemo', ['NO', 'PROBLEMO'], '#ffffff');
+      addPrint(p, tee, true);
+      addPrint(p, tee, false);
       p.head.add(box(0.42, 0.16, 0.42, 0x2f7d3a, 0, 0.24, 0));    // green cap
       p.head.add(box(0.36, 0.04, 0.22, 0x2f7d3a, 0, 0.17, 0.28)); // cap peak
       p.head.add(box(0.22, 0.05, 0.03, 0x6b4a2f, 0, -0.08, 0.19)); // moustache
       p.rig.add(box(0.5, 0.06, 0.06, 0x111111, 0, 1.48, 0.12));    // headphones round the neck
       for (const x of [-0.22, 0.22]) p.rig.add(box(0.1, 0.14, 0.14, 0x111111, x, 1.42, 0.12));
-      p.rig.add(box(0.05, 0.75, 0.04, 0x3a2a1a, 0, 1.15, -0.17));  // bag strap across the back
+      p.rig.add(box(0.05, 0.75, 0.04, 0x3a2a1a, -0.25, 1.15, -0.17)); // bag strap, at the side so the tee shows
       p.rig.add(box(0.08, 0.44, 0.44, 0x3a2a1a, -0.36, 0.9, 0));   // record bag on the hip
       const record = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.02, 16), mat(0x111111));
       record.rotation.z = Math.PI / 2;
