@@ -9,7 +9,7 @@ export const CHARACTERS = [
   {
     id: 'alex',
     name: 'Alex',
-    drink: { name: 'Iced matcha', kind: 'cup', body: 0xa8d08d, lid: 0xf5f5f5, straw: 0x2e7d32, splash: 0x7cb342 },
+    drink: { name: 'Builder\'s tea', kind: 'cup', body: 0xffffff, lid: 0xffffff, tag: 0xffd23f, splash: 0xa0662e },
   },
   {
     id: 'joe',
@@ -20,6 +20,16 @@ export const CHARACTERS = [
     id: 'josh',
     name: 'Josh',
     drink: { name: 'Energy drink', kind: 'can', body: 0x1e5bd8, lid: 0xc0c0c0, band: 0xf5d000, splash: 0xe8e05a },
+  },
+  {
+    id: 'ross',
+    name: 'Ross',
+    drink: { name: 'Flat white in his own mug', kind: 'mug', body: 0xe07a5f, coffee: 0x8a5a3a, splash: 0x6b4a2f },
+  },
+  {
+    id: 'tanner',
+    name: 'Tanner',
+    drink: { name: 'Huge water bottle', kind: 'bottle', body: 0x7fc8ff, lid: 0x1b1b1b, splash: 0x9ad7ff },
   },
 ];
 
@@ -36,10 +46,25 @@ export function drinkSvg(d) {
       <rect x="5" y="15" width="14" height="5" fill="${css(d.band)}"/>
     </svg>`;
   }
+  if (d.kind === 'mug') {
+    return `<svg viewBox="0 0 24 32" aria-hidden="true">
+      <path d="M17 13h3a3 3 0 0 1 0 8h-3" fill="none" stroke="${css(d.body)}" stroke-width="2.5"/>
+      <rect x="3" y="10" width="15" height="18" rx="2" fill="${css(d.body)}"/>
+      <rect x="4.5" y="10" width="12" height="3" fill="${css(d.coffee)}"/>
+    </svg>`;
+  }
+  if (d.kind === 'bottle') {
+    return `<svg viewBox="0 0 24 32" aria-hidden="true">
+      <rect x="8" y="1" width="8" height="5" rx="1" fill="${css(d.lid)}"/>
+      <rect x="5" y="6" width="14" height="25" rx="3" fill="${css(d.body)}" stroke="#1b1b1b" stroke-width="0.6"/>
+      <rect x="5" y="14" width="14" height="2" fill="#ffffff" opacity="0.6"/>
+    </svg>`;
+  }
   return `<svg viewBox="0 0 24 32" aria-hidden="true">
     ${d.straw ? `<rect x="13" y="0" width="2.5" height="6" fill="${css(d.straw)}"/>` : ''}
-    <rect x="2.5" y="3" width="19" height="5" rx="1.5" fill="${css(d.lid)}"/>
+    <rect x="2.5" y="3" width="19" height="5" rx="1.5" fill="${css(d.lid)}" stroke="#1b1b1b" stroke-width="0.6"/>
     <path d="M4 8h16l-2 22H6z" fill="${css(d.body)}" stroke="#1b1b1b" stroke-width="0.6"/>
     ${d.sleeve ? `<path d="M4.6 13h14.8l-0.8 9H5.4z" fill="${css(d.sleeve)}"/>` : ''}
+    ${d.tag ? `<path d="M15 8v8" stroke="#888" stroke-width="0.8"/><rect x="13" y="16" width="5" height="5" fill="${css(d.tag)}"/>` : ''}
   </svg>`;
 }

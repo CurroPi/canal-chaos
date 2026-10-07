@@ -132,6 +132,14 @@ const ariesPrint = () => pixelMat('aries', 38, 33, (g) => {
   });
 });
 
+// A pixel mushroom: red cap with white spots, cream stem
+const mushroomPrint = () => pixelMat('mushroom', 20, 18, (g) => {
+  const px = (x, y, c) => { g.fillStyle = c; g.fillRect(x, y, 1, 1); };
+  const cap = ['....RRRRRR....', '..RRWWRRRRRR..', '.RRRWWRRRWWRR.', 'RRRRRRRRRWWRRR', 'RWWRRRRRRRRRRR', 'RWWRRRWWRRRRRR', 'RRRRRRWWRRRRRR'];
+  cap.forEach((row, y) => [...row].forEach((c, x) => { if (c !== '.') px(x + 3, y + 3, c === 'R' ? '#e63946' : '#ffffff'); }));
+  for (let y = 10; y < 16; y++) for (let x = 8; x < 13; x++) px(x, y, '#f1e3c6');
+});
+
 // A made-up rock band. Any resemblance to a real band is a coincidence.
 const bandPrint = () => printMat('band', (g, w, h) => {
   g.fillStyle = '#ffd400';
@@ -158,11 +166,13 @@ const LOOKS = {
       p.rig.add(box(0.38, 0.42, 0.06, 0xefe6d2, 0.1, 0.95, -0.2));  // tote bag
     },
   },
-  // Black Aries tee, black jeans, white trainers
+  // Blonde bob, black Aries tee, black jeans, white trainers
   alex: {
-    body: { skin: 0xd8a47f, shirt: 0x111111, legs: 0x1b1b1b, shoes: 0xf5f5f5, hair: 0x1b1b1b },
+    body: { skin: 0xf1d0b5, shirt: 0x111111, legs: 0x1b1b1b, shoes: 0xf5f5f5, hair: 0xe8d28a },
     dress(p) {
-      p.head.add(box(0.4, 0.14, 0.4, 0x1b1b1b, 0, 0.22, 0));      // short dark hair
+      p.head.add(box(0.42, 0.14, 0.42, 0xe8d28a, 0, 0.22, 0));     // blonde bob: top...
+      p.head.add(box(0.42, 0.34, 0.1, 0xe8d28a, 0, -0.02, -0.19));  // ...back...
+      for (const x of [-0.2, 0.2]) p.head.add(box(0.06, 0.32, 0.36, 0xe8d28a, x, 0, -0.01)); // ...and sides
       addPrint(p, ariesPrint(), true);
       addPrint(p, ariesPrint(), false);
     },
@@ -171,8 +181,8 @@ const LOOKS = {
   joe: {
     body: { skin: 0xe8b894, shirt: 0x8b5a2b, legs: 0x3b5b8a, shoes: 0x3f2a1d, hair: 0x6b4a2f },
     dress(p) {
-      p.head.add(box(0.42, 0.1, 0.42, 0x4a4a3a, 0, 0.23, 0));     // flat cap
-      p.head.add(box(0.36, 0.04, 0.16, 0x4a4a3a, 0, 0.19, 0.24)); // cap peak
+      p.head.add(box(0.42, 0.16, 0.42, 0x2f7d3a, 0, 0.24, 0));    // green cap
+      p.head.add(box(0.36, 0.04, 0.22, 0x2f7d3a, 0, 0.17, 0.28)); // cap peak
       p.head.add(box(0.22, 0.05, 0.03, 0x6b4a2f, 0, -0.08, 0.19)); // moustache
       p.rig.add(box(0.5, 0.06, 0.06, 0x111111, 0, 1.48, 0.12));    // headphones round the neck
       for (const x of [-0.22, 0.22]) p.rig.add(box(0.1, 0.14, 0.14, 0x111111, x, 1.42, 0.12));
@@ -188,10 +198,14 @@ const LOOKS = {
   josh: {
     body: { skin: 0xf1c9a5, shirt: 0x1b1b1b, legs: 0x111111, shoes: 0x111111, hair: 0xf0e2a0 },
     dress(p) {
-      for (const [x, z] of [[-0.1, 0.05], [0.08, -0.05], [0, 0.1], [0.12, 0.1], [-0.12, -0.1]]) {
-        p.head.add(box(0.12, 0.16, 0.12, 0xf0e2a0, x, 0.3, z));     // messy bleached spikes
+      for (const [x, z] of [[-0.2, -0.1], [0.2, -0.1], [-0.18, 0.08], [0.18, 0.08], [0, -0.2]]) {
+        p.head.add(box(0.1, 0.12, 0.1, 0xf0e2a0, x, 0.14, z));      // bleached hair poking out
       }
-      p.head.add(box(0.36, 0.06, 0.08, 0x111111, 0, 0.21, 0.12));  // sunglasses pushed up
+      p.head.add(box(0.42, 0.16, 0.42, 0x8a8a8a, 0, 0.24, 0));    // grey punk cap
+      p.head.add(box(0.36, 0.04, 0.22, 0x6f6f6f, 0, 0.17, 0.28)); // peak
+      p.head.add(box(0.1, 0.1, 0.02, 0xd62828, 0, 0.25, 0.215));  // red patch
+      for (const x of [-0.15, -0.08, 0.08, 0.15]) p.head.add(box(0.035, 0.035, 0.03, 0xe0e0e0, x, 0.29, 0.215)); // studs
+      p.head.add(box(0.34, 0.06, 0.06, 0x111111, 0, 0.21, 0.36));  // sunglasses on the peak
       addPrint(p, bandPrint(), true);
       addPrint(p, bandPrint(), false);
       const strap = box(0.05, 0.85, 0.36, 0x2b2b2b, 0, 1.15, 0);   // bum bag strap, worn across
@@ -200,11 +214,40 @@ const LOOKS = {
       p.rig.add(box(0.3, 0.16, 0.12, 0xff3d7f, 0.12, 1.25, 0.2));  // neon bum bag on the chest
     },
   },
+  // Colourful: light orange beanie, mushroom tee, mustard cords, blue trainers, big tote
+  ross: {
+    body: { skin: 0xe8b894, shirt: 0xc39bd3, legs: 0xd9a521, shoes: 0x3fb6ff, hair: 0x8a3b1f },
+    dress(p) {
+      p.head.add(box(0.4, 0.22, 0.4, 0xffb366, 0, 0.25, 0));       // light orange beanie
+      p.head.add(box(0.42, 0.07, 0.42, 0xff9a3c, 0, 0.13, 0));
+      p.head.add(box(0.4, 0.12, 0.08, 0x8a3b1f, 0, 0.0, -0.19));   // ginger hair at the back
+      addPrint(p, mushroomPrint(), true);
+      addPrint(p, mushroomPrint(), false);
+      p.rig.add(box(0.05, 0.6, 0.05, 0xefe6d2, -0.18, 1.3, -0.18)); // tote strap
+      p.rig.add(box(0.52, 0.56, 0.08, 0xefe6d2, -0.08, 0.86, -0.22)); // big tote bag
+      p.rig.add(box(0.53, 0.1, 0.09, 0x2a9d8f, -0.08, 0.92, -0.22));  // with a colourful stripe
+    },
+  },
+  // Mountain gear: orange shell jacket, hiking trousers, boots, small backpack, half-blond hair
+  tanner: {
+    body: { skin: 0xf1c9a5, shirt: 0xff6b1a, legs: 0x5c5c5c, shoes: 0x6b4a2f, hair: 0x5a3b25 },
+    dress(p) {
+      p.head.add(box(0.21, 0.12, 0.4, 0xf0e2a0, -0.1, 0.22, 0));   // half blond...
+      p.head.add(box(0.21, 0.12, 0.4, 0x5a3b25, 0.1, 0.22, 0));    // ...half not
+      p.rig.add(box(0.03, 0.6, 0.02, 0x1b1b1b, 0, 1.12, 0.165));   // jacket zip
+      p.rig.add(box(0.58, 0.08, 0.34, 0xd9561a, 0, 1.43, 0));      // collar
+      p.rig.add(box(0.42, 0.5, 0.2, 0x1e3a5f, 0, 1.1, -0.26));     // small backpack
+      for (const x of [-0.17, 0.17]) p.rig.add(box(0.05, 0.6, 0.04, 0x1e3a5f, x, 1.15, 0.17)); // straps
+      p.rig.add(box(0.06, 0.1, 0.03, 0xc0c0c0, 0.24, 0.85, 0.17)); // carabiner
+    },
+  },
 };
 
 const drinkCupGeo = new THREE.CylinderGeometry(0.075, 0.055, 0.2, 8);
 const drinkLidGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8);
 const drinkCanGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.22, 10);
+const drinkMugGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.14, 10);
+const drinkBottleGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.36, 10);
 
 // The character's drink, held in one hand
 function drinkInHand(arm, d) {
@@ -214,11 +257,22 @@ function drinkInHand(arm, d) {
     add(new THREE.Mesh(drinkCanGeo, mat(d.body))).position.set(0, -0.64, 0.08);
     add(box(0.125, 0.06, 0.125, d.band, 0, -0.64, 0.08));
     add(box(0.1, 0.02, 0.1, d.lid, 0, -0.52, 0.08));
+  } else if (d.kind === 'mug') {
+    add(new THREE.Mesh(drinkMugGeo, mat(d.body))).position.set(0, -0.63, 0.08);
+    add(box(0.13, 0.01, 0.13, d.coffee, 0, -0.555, 0.08));        // coffee, no lid
+    add(box(0.03, 0.09, 0.07, d.body, 0, -0.62, 0.18));          // handle
+  } else if (d.kind === 'bottle') {
+    add(new THREE.Mesh(drinkBottleGeo, mat(d.body))).position.set(0, -0.62, 0.08);
+    add(box(0.11, 0.07, 0.11, d.lid, 0, -0.42, 0.08));           // cap
   } else {
     add(new THREE.Mesh(drinkCupGeo, mat(d.body))).position.set(0, -0.66, 0.08);
     add(new THREE.Mesh(drinkLidGeo, mat(d.lid))).position.set(0, -0.54, 0.08);
     if (d.sleeve) add(box(0.16, 0.08, 0.16, d.sleeve, 0, -0.66, 0.08));
     if (d.straw) add(box(0.025, 0.16, 0.025, d.straw, 0.03, -0.46, 0.08));
+    if (d.tag) {
+      add(box(0.006, 0.12, 0.006, 0x999999, 0.075, -0.56, 0.08)); // teabag string...
+      add(box(0.05, 0.05, 0.01, d.tag, 0.08, -0.63, 0.09));      // ...and tag
+    }
   }
   return parts;
 }

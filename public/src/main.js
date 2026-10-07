@@ -1111,6 +1111,23 @@ if (new URLSearchParams(location.search).has('debug')) {
       if (state !== 'playing') { overAt = 0; start(); }
     },
     // Show one model on its own, straight ahead, for design reviews
+    // All walkers side by side, facing the camera (front) or away (back), for design reviews
+    lineup(front = true) {
+      for (const e of entities) removeEntity(e);
+      entities = [];
+      paused = true;
+      player.group.position.x = 50;
+      scene.children.filter((o) => o.userData.lineup).forEach((o) => scene.remove(o));
+      CHARACTERS.forEach((c, i) => {
+        const p = makePlayer(c);
+        setCoffee(p, 1);
+        animateWalk(p, 0, 0);
+        p.group.userData.lineup = true;
+        p.group.position.set((i - (CHARACTERS.length - 1) / 2) * 1.25, 0, -2.5);
+        p.group.rotation.y = front ? 0.25 * Math.sign(i - 2.5) * -1 : Math.PI;
+        scene.add(p.group);
+      });
+    },
     showcase(build, z = -11) {
       for (const e of entities) removeEntity(e);
       entities = [];

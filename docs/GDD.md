@@ -39,12 +39,14 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 - **Looks only:** each character has their own appearance, lines and death messages, but they all play the same.
   This keeps the leaderboard fair. Perks may come later, after playtesting.
 
-| Character | Look |
-|---|---|
-| **Sophie**, the Tote Bag Classic | Beanie, tote bag (the current player model) |
-| **Alex** | Black Aries T-shirt |
-| **Joe**, the Vinyl Digger | Moustache, record bag, headphones round the neck |
-| **Josh**, the Ex-Raver | Rock band T-shirt, still out from Friday |
+| Character | Look | Drink (= extra life) |
+|---|---|---|
+| **Sophie** | Mustard beanie, long brown hair, sage overshirt, tote bag | Oat flat white |
+| **Alex** | Blonde bob, black punk-pixel ARIES tee | Builder's tea (teabag tag) |
+| **Joe** | Green cap, moustache, corduroy jacket, headphones, record bag | Black batch brew |
+| **Josh** | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can |
+| **Ross** | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug |
+| **Tanner** | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle |
 
 **[OPEN]** Unlock by score or all open? Own drink per character? 3D preview or flat cards?
 
