@@ -89,7 +89,7 @@ export const CONFIG = {
   officeEvery: 100, // points between sightings of our office
 
   // The "BY DUDE LONDON" tag on the wall at the start (where along the path, its size and height)
-  signature: { z: -4, length: 9, height: 3.4, y: 1.6 },
+  signature: { z: -4, length: 4.5, height: 2.25, y: 1.7 },
 
   // A Hackney title is celebrated every this many points (see src/titles.js)
   titles: { every: 250, seconds: 2.6 },

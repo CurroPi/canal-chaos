@@ -288,9 +288,27 @@ export function makeBridge(blocked, lanesX) {
   };
 }
 
-// "BY DUDE LONDON", sprayed in glowing white paint with overspray and drips
+// "BY DUDE LONDON", hand-sprayed: every letter is drawn as loose spray-can strokes
+// (soft glowing core, fuzzy halo, patchy coverage, overspray and drips), not typed in a font.
 let tagMaterial = null;
 let tagGeometry = null;
+
+// Letters as strokes in a unit box (x right, y down)
+const ellipse = (n = 14) => Array.from({ length: n + 1 }, (_, i) => {
+  const a = (i / n) * Math.PI * 2;
+  return [0.5 + Math.cos(a) * 0.38, 0.5 + Math.sin(a) * 0.48];
+});
+const LETTER_STROKES = {
+  B: [[[0.18, 0], [0.15, 1]], [[0.18, 0], [0.68, 0.05], [0.72, 0.38], [0.16, 0.48]], [[0.16, 0.48], [0.8, 0.56], [0.8, 0.94], [0.15, 1]]],
+  Y: [[[0.1, 0], [0.5, 0.52]], [[0.9, 0], [0.5, 0.52]], [[0.5, 0.52], [0.48, 1]]],
+  D: [[[0.18, 0], [0.14, 1]], [[0.18, 0], [0.6, 0.06], [0.86, 0.35], [0.84, 0.68], [0.58, 0.94], [0.14, 1]]],
+  U: [[[0.16, 0], [0.14, 0.7], [0.32, 0.98], [0.62, 0.97], [0.84, 0.7], [0.86, 0]]],
+  E: [[[0.2, 0], [0.16, 1]], [[0.2, 0], [0.86, 0.03]], [[0.18, 0.5], [0.72, 0.48]], [[0.16, 1], [0.9, 0.97]]],
+  L: [[[0.22, 0], [0.18, 1], [0.86, 0.98]]],
+  O: [ellipse()],
+  N: [[[0.16, 1], [0.18, 0], [0.82, 1], [0.84, 0]]],
+};
+
 function signatureTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
@@ -299,44 +317,64 @@ function signatureTexture() {
   let seed = 11; // the same tag every time
   const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
 
-  const spray = (text, x, y, size, font) => {
-    g.font = `${size}px ${font}`;
-    g.textBaseline = 'alphabetic';
-    // soft glow of overspray
-    g.shadowColor = 'rgba(255,255,255,0.9)';
-    g.shadowBlur = size * 0.25;
-    g.fillStyle = 'rgba(255,255,255,0.35)';
-    g.fillText(text, x, y);
-    // the paint itself, a few wobbly passes
-    g.shadowBlur = size * 0.08;
-    for (let i = 0; i < 4; i++) {
-      g.fillStyle = `rgba(255,255,255,${0.55 + rnd() * 0.3})`;
-      g.fillText(text, x + (rnd() - 0.5) * size * 0.04, y + (rnd() - 0.5) * size * 0.04);
+  // One puff of spray paint
+  const puff = (x, y, r, alpha) => {
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
+    grad.addColorStop(0.45, `rgba(255,255,255,${alpha * 0.55})`);
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  };
+
+  // A spray stroke along a path, with a wobbly hand and uneven pressure
+  const stroke = (points, width, drips) => {
+    for (let i = 0; i < points.length - 1; i++) {
+      const [x0, y0] = points[i];
+      const [x1, y1] = points[i + 1];
+      const steps = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 2);
+      for (let s = 0; s <= steps; s++) {
+        const t = s / steps;
+        const x = x0 + (x1 - x0) * t + (rnd() - 0.5) * width * 0.25;
+        const y = y0 + (y1 - y0) * t + (rnd() - 0.5) * width * 0.25;
+        const pressure = 0.55 + rnd() * 0.45;
+        puff(x, y, width * 2.4, 0.03);                 // faint halo
+        if (rnd() > 0.12) puff(x, y, width * pressure, 0.68 * pressure); // patchy core
+        if (rnd() < 0.5) {                              // overspray speckles
+          g.fillStyle = `rgba(255,255,255,${rnd() * 0.6})`;
+          g.fillRect(x + (rnd() - 0.5) * width * 4, y + (rnd() - 0.5) * width * 4, 1.5, 1.5);
+        }
+      }
     }
-    g.shadowBlur = 0;
-    const width = g.measureText(text).width;
-    // speckles of overspray
-    for (let i = 0; i < size * 6; i++) {
-      g.fillStyle = `rgba(255,255,255,${rnd() * 0.5})`;
-      g.fillRect(x - size * 0.1 + rnd() * (width + size * 0.2), y - size * 1.05 + rnd() * size * 1.25, 2, 2);
-    }
-    // drips running down
-    for (let i = 0; i < Math.round(width / size * 2.5); i++) {
-      const dx = x + rnd() * width;
-      const len = size * (0.15 + rnd() * 0.45);
-      g.fillStyle = 'rgba(255,255,255,0.8)';
-      g.fillRect(dx, y - size * 0.05, Math.max(2, size * 0.025), len);
-      g.beginPath();
-      g.arc(dx + size * 0.012, y - size * 0.05 + len, size * 0.022, 0, Math.PI * 2);
-      g.fill();
+    if (drips) {
+      const [x, y] = points[points.length - 1];
+      if (rnd() < 0.7) {
+        const len = width * (2 + rnd() * 6);
+        for (let d = 0; d < len; d += 2) puff(x + (rnd() - 0.5), y + d, width * 0.28, 0.6);
+        puff(x, y + len, width * 0.4, 0.7);
+      }
     }
   };
 
-  const chunky = '"Arial Black", Impact, sans-serif';
-  const scrawl = '"Marker Felt", "Chalkboard SE", "Comic Sans MS", cursive';
-  spray('BY', 40, 250, 90, scrawl);
-  spray('DUDE', 170, 300, 230, chunky);
-  spray('LONDON', 470, 440, 110, scrawl);
+  // Write a word letter by letter, each a bit off: height, tilt, spacing
+  const word = (text, x, y, h, w, width, gap) => {
+    let cx = x;
+    for (const ch of text) {
+      const lh = h * (0.9 + rnd() * 0.2);
+      const lw = w * (0.85 + rnd() * 0.3);
+      const tilt = (rnd() - 0.5) * 0.12;
+      const top = y - lh + (rnd() - 0.5) * h * 0.08;
+      for (const path of LETTER_STROKES[ch]) {
+        const pts = path.map(([u, v]) => [cx + u * lw + (v - 0.5) * lh * tilt, top + v * lh]);
+        stroke(pts, width, true);
+      }
+      cx += lw + gap;
+    }
+  };
+
+  word('BY', 60, 200, 70, 46, 9, 12);
+  word('DUDE', 190, 330, 250, 150, 19, 34);
+  word('LONDON', 470, 470, 92, 62, 7.5, 14);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
