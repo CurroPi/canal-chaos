@@ -17,14 +17,66 @@ const headers = () => ({
 
 async function request(path, options = {}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...options, headers: { ...headers(), ...options.headers } });
-  if (!res.ok) throw new Error(`Leaderboard error ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`Leaderboard error ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
   return res;
 }
 
-// The top scores, best first
+// "best_scores" is a database view with each name's best score. If it hasn't been created yet,
+// fall back to the raw scores and sort out the duplicates here.
+let useView = null;
+async function hasView() {
+  if (useView === null) {
+    try {
+      await request('best_scores?select=id&limit=1');
+      useView = true;
+    } catch (err) {
+      if (err.status !== 404 && err.status !== 400) throw err;
+      useView = false;
+    }
+  }
+  return useView;
+}
+
+const FIELDS = 'select=id,name,score,walker';
+
+function bestPerName(rows) {
+  const seen = new Set();
+  return rows.filter((r) => (seen.has(r.name) ? false : seen.add(r.name)));
+}
+
+// The top scores, one per name, best first
 export async function topScores(limit = 10) {
-  const res = await request(`scores?select=id,name,score,walker&order=score.desc,created_at.asc&limit=${limit}`);
-  return res.json();
+  if (await hasView()) {
+    const res = await request(`best_scores?${FIELDS}&order=score.desc,created_at.asc&limit=${limit}`);
+    return res.json();
+  }
+  const res = await request(`scores?${FIELDS}&order=score.desc,created_at.asc&limit=300`);
+  return bestPerName(await res.json()).slice(0, limit);
+}
+
+// Where a score would place: 1 + how many people's best beats it
+export async function rankOf(score) {
+  if (!(await hasView())) {
+    const res = await request(`scores?select=name,score&score=gt.${Math.floor(score)}&limit=5000`);
+    return new Set((await res.json()).map((r) => r.name)).size + 1; // one per name
+  }
+  const res = await request(`best_scores?select=id&score=gt.${Math.floor(score)}`, {
+    method: 'HEAD',
+    headers: { Prefer: 'count=exact', Range: '0-0' },
+  });
+  const total = Number((res.headers.get('content-range') || '*/0').split('/')[1]) || 0;
+  return total + 1;
+}
+
+// A name's best score (or null)
+export async function bestOf(name) {
+  const res = await request(`scores?${FIELDS}&name=eq.${encodeURIComponent(name)}&order=score.desc&limit=1`);
+  const [row] = await res.json();
+  return row || null;
 }
 
 // Save a score; returns the saved row (with its id)
@@ -36,16 +88,6 @@ export async function submitScore(name, score, walker) {
   });
   const [row] = await res.json();
   return row;
-}
-
-// Your position: 1 + how many scores beat yours
-export async function rankOf(score) {
-  const res = await request(`scores?select=id&score=gt.${score}`, {
-    method: 'HEAD',
-    headers: { Prefer: 'count=exact', Range: '0-0' },
-  });
-  const total = Number((res.headers.get('content-range') || '*/0').split('/')[1]) || 0;
-  return total + 1;
 }
 
 // Names: capitals, numbers and spaces only, 12 characters max, and nothing too rude

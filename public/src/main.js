@@ -5,7 +5,7 @@ import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box, makeCargoBike } from './models.js';
 import { ENEMIES } from './enemies.js';
 import { CHARACTERS, characterById, drinkSvg } from './characters.js';
-import { leaderboardEnabled, topScores, submitScore, rankOf, cleanName } from './leaderboard.js';
+import { leaderboardEnabled, topScores, submitScore, rankOf, bestOf, cleanName } from './leaderboard.js';
 import { titleFor } from './titles.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
@@ -718,7 +718,7 @@ function gameOver(e) {
       <button class="secondary">Change walker</button>
     `);
     overlay.querySelector('.secondary').addEventListener('click', showSelect);
-    if (leaderboardEnabled()) showPostForm(final);
+    if (leaderboardEnabled()) showLeaderboard(final);
   }, 700);
 }
 
@@ -729,9 +729,44 @@ function savedName() {
   try { return localStorage.getItem('canal-name') || ''; } catch { return ''; }
 }
 
-function showPostForm(final) {
+function boardRow(rank, name, walker, score, cls = '') {
+  return `<li class="${cls}">
+    <span class="rank">${rank}</span>
+    <span class="who">${esc(name)}</span>
+    <span class="walker">${walker ? drinkSvg(characterById(walker).drink) : ''}</span>
+    <span class="pts">${Number(score)}</span>
+  </li>`;
+}
+
+// The top 10 (one per name), plus "you": inside the list if you made it, otherwise under a "…"
+// `you` is either a preview of this run ({ preview, rank, score, walker }) or your posted best ({ name, rank, score, walker })
+function renderBoard(top, you) {
+  const list = document.getElementById('boardList');
+  if (!list) return;
+  const entries = top.map((r) => ({ ...r }));
+  if (you.preview && you.rank <= 10) {
+    entries.splice(you.rank - 1, 0, { name: 'THIS RUN', walker: you.walker, score: you.score, ghost: true });
+    entries.length = Math.min(entries.length, 10);
+  }
+  let shown = false;
+  const rows = entries.map((r, i) => {
+    const mine = !you.preview && r.name === you.name;
+    if (mine || r.ghost) shown = true;
+    return boardRow(i + 1, r.name, r.walker, r.score, r.ghost ? 'ghost' : mine ? 'me' : '');
+  });
+  if (!shown) {
+    rows.push('<li class="gap">…</li>');
+    rows.push(boardRow(you.rank, you.preview ? 'THIS RUN' : you.name, you.walker, you.score, you.preview ? 'ghost' : 'me'));
+  }
+  list.innerHTML = rows.join('');
+}
+
+// Game over: show the top 10 straight away with where this run lands, and a one-tap way to post it
+async function showLeaderboard(final) {
   const board = document.getElementById('board');
   board.innerHTML = `
+    <p class="small label board-title">Top 10 · Regent's Canal</p>
+    <ol class="top10" id="boardList"><li class="gap">Loading…</li></ol>
     <form class="post">
       <input id="nameInput" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false" value="${esc(savedName())}">
       <button type="submit" class="post-btn">Post score</button>
@@ -742,6 +777,15 @@ function showPostForm(final) {
   const input = board.querySelector('input');
   const msg = board.querySelector('.board-msg');
   input.addEventListener('input', () => { input.value = input.value.toUpperCase(); });
+
+  try {
+    const [top, rank] = await Promise.all([topScores(10), rankOf(final)]);
+    renderBoard(top, { preview: true, rank, score: final, walker: character.id });
+    msg.textContent = rank <= 10 ? `This run would be #${rank}! Post it.` : `This run would be #${rank}.`;
+  } catch {
+    const list = document.getElementById('boardList');
+    if (list) list.innerHTML = '<li class="gap">Couldn\'t load the leaderboard.</li>';
+  }
 
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
@@ -754,29 +798,19 @@ function showPostForm(final) {
     msg.textContent = 'Posting…';
     try {
       try { localStorage.setItem('canal-name', name); } catch { /* storage unavailable */ }
-      const row = await submitScore(name, final, character.id);
-      const [rank, top] = await Promise.all([rankOf(final), topScores(10)]);
-      showBoard(top, row.id, rank);
+      await submitScore(name, final, character.id);
+      const mine = (await bestOf(name)) || { score: final, walker: character.id };
+      const [rank, top] = await Promise.all([rankOf(mine.score), topScores(10)]);
+      renderBoard(top, { name, rank, score: mine.score, walker: mine.walker });
+      form.remove();
+      msg.textContent = mine.score > final
+        ? `Posted! Your best is still ${mine.score} (#${rank}).`
+        : rank <= 10 ? `🏆 You're #${rank}!` : `You're #${rank}. Keep walking.`;
     } catch {
       msg.textContent = 'Couldn\'t reach the leaderboard. Try again?';
       form.querySelector('button').disabled = false;
     }
   });
-}
-
-function showBoard(top, myId, myRank) {
-  const rows = top.map((r, i) => `
-    <li class="${r.id === myId ? 'me' : ''}">
-      <span class="rank">${i + 1}</span>
-      <span class="who">${esc(r.name)}</span>
-      <span class="walker">${drinkSvg(characterById(r.walker).drink)}</span>
-      <span class="pts">${Number(r.score)}</span>
-    </li>`).join('');
-  document.getElementById('board').innerHTML = `
-    <p class="small label board-title">Top 10 · Regent's Canal</p>
-    <ol class="top10">${rows}</ol>
-    <p class="small">${myRank <= 10 ? `🏆 You're #${myRank}!` : `You're #${myRank}. Keep walking.`}</p>
-  `;
 }
 
 // ---------- Input ----------
