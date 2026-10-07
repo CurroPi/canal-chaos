@@ -5,6 +5,7 @@ import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box } from './models.js';
 import { ENEMIES } from './enemies.js';
 import { CHARACTERS, characterById, drinkSvg } from './characters.js';
+import { leaderboardEnabled, topScores, submitScore, rankOf, cleanName } from './leaderboard.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute,
@@ -622,15 +623,76 @@ function gameOver(e) {
   const isRecord = final > best;
   if (isRecord) { best = final; saveBest(best); }
   updateHud();
-  overlayTimer = setTimeout(() => showOverlay(`
-    <p class="small label">Cause of death</p>
-    <h2>${message}</h2>
-    <p class="big">${final}</p>
-    <p class="small">${isRecord ? '🎉 New personal best!' : `Best ${best}`}</p>
-    <button>Try again</button>
-    <button class="secondary">Change walker</button>
-  `), 700);
-  setTimeout(() => overlay.querySelector('.secondary')?.addEventListener('click', showSelect), 710);
+  overlayTimer = setTimeout(() => {
+    showOverlay(`
+      <p class="small label">Cause of death</p>
+      <h2>${message}</h2>
+      <p class="big">${final}</p>
+      <p class="small">${isRecord ? '🎉 New personal best!' : `Best ${best}`}</p>
+      <div id="board"></div>
+      <button>Try again</button>
+      <button class="secondary">Change walker</button>
+    `);
+    overlay.querySelector('.secondary').addEventListener('click', showSelect);
+    if (leaderboardEnabled()) showPostForm(final);
+  }, 700);
+}
+
+// ---------- Leaderboard ----------
+const esc = (text) => String(text).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+function savedName() {
+  try { return localStorage.getItem('canal-name') || ''; } catch { return ''; }
+}
+
+function showPostForm(final) {
+  const board = document.getElementById('board');
+  board.innerHTML = `
+    <form class="post">
+      <input id="nameInput" maxlength="12" placeholder="YOUR NAME" autocomplete="off" spellcheck="false" value="${esc(savedName())}">
+      <button type="submit" class="post-btn">Post score</button>
+    </form>
+    <p class="small board-msg"></p>
+  `;
+  const form = board.querySelector('form');
+  const input = board.querySelector('input');
+  const msg = board.querySelector('.board-msg');
+  input.addEventListener('input', () => { input.value = input.value.toUpperCase(); });
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const name = cleanName(input.value);
+    if (!name) {
+      msg.textContent = 'Try another name.';
+      return;
+    }
+    form.querySelector('button').disabled = true;
+    msg.textContent = 'Posting…';
+    try {
+      try { localStorage.setItem('canal-name', name); } catch { /* storage unavailable */ }
+      const row = await submitScore(name, final, character.id);
+      const [rank, top] = await Promise.all([rankOf(final), topScores(10)]);
+      showBoard(top, row.id, rank);
+    } catch {
+      msg.textContent = 'Couldn\'t reach the leaderboard. Try again?';
+      form.querySelector('button').disabled = false;
+    }
+  });
+}
+
+function showBoard(top, myId, myRank) {
+  const rows = top.map((r, i) => `
+    <li class="${r.id === myId ? 'me' : ''}">
+      <span class="rank">${i + 1}</span>
+      <span class="who">${esc(r.name)}</span>
+      <span class="walker">${drinkSvg(characterById(r.walker).drink)}</span>
+      <span class="pts">${Number(r.score)}</span>
+    </li>`).join('');
+  document.getElementById('board').innerHTML = `
+    <p class="small label board-title">Top 10 · Regent's Canal</p>
+    <ol class="top10">${rows}</ol>
+    <p class="small">${myRank <= 10 ? `🏆 You're #${myRank}!` : `You're #${myRank}. Keep walking.`}</p>
+  `;
 }
 
 // ---------- Input ----------
@@ -661,7 +723,7 @@ muteBtn.addEventListener('click', (e) => {
 showMute();
 
 window.addEventListener('keydown', (e) => {
-  if (e.repeat) return;
+  if (e.repeat || e.target.tagName === 'INPUT') return; // typing your name isn't playing
   if (e.key === 'm' || e.key === 'M') { toggleMute(); showMute(); return; }
   if (state === 'select') {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') browse(-1);
