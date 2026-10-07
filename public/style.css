@@ -349,3 +349,8 @@ html, body {
 
 #milestone .rush { display: block; margin-top: 8px; font-family: var(--pixel); font-size: 11px; color: #ff7a1a; }
 .float.close { color: #7cff6b; }
+
+/* On wider screens, the story sits to the left so the BY DUDE LONDON tag on the wall shows */
+@media (min-width: 600px) {
+  .story-card { margin-left: max(16px, 5vw); margin-right: auto; }
+}

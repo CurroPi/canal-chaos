@@ -101,6 +101,13 @@ export function createWorld(scene, cfg) {
       for (const tile of tiles) {
         decorate(tile, L, tile === officeTile ? 'office' : tile === inFront ? 'gap' : nextFarBank());
       }
+      // Our tag, sprayed on the wall where you see it on the welcome screen
+      const tagTile = nearest(cfg.signature.z);
+      const decor = tagTile.userData.decor;
+      decor.children.filter((o) => Math.abs(o.position.x - 3.08) < 0.01).forEach((o) => decor.remove(o)); // clear the wall
+      const tag = makeSignatureTag(cfg.signature);
+      tag.position.z = cfg.signature.z - tagTile.position.z;
+      tagTile.userData.decor.add(tag);
     },
   };
   world.reset();
@@ -279,4 +286,68 @@ export function makeBridge(blocked, lanesX) {
       for (const line of lines) line.geometry.dispose();
     },
   };
+}
+
+// "BY DUDE LONDON", sprayed in glowing white paint with overspray and drips
+let tagMaterial = null;
+let tagGeometry = null;
+function signatureTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 512;
+  const g = canvas.getContext('2d');
+  let seed = 11; // the same tag every time
+  const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+
+  const spray = (text, x, y, size, font) => {
+    g.font = `${size}px ${font}`;
+    g.textBaseline = 'alphabetic';
+    // soft glow of overspray
+    g.shadowColor = 'rgba(255,255,255,0.9)';
+    g.shadowBlur = size * 0.25;
+    g.fillStyle = 'rgba(255,255,255,0.35)';
+    g.fillText(text, x, y);
+    // the paint itself, a few wobbly passes
+    g.shadowBlur = size * 0.08;
+    for (let i = 0; i < 4; i++) {
+      g.fillStyle = `rgba(255,255,255,${0.55 + rnd() * 0.3})`;
+      g.fillText(text, x + (rnd() - 0.5) * size * 0.04, y + (rnd() - 0.5) * size * 0.04);
+    }
+    g.shadowBlur = 0;
+    const width = g.measureText(text).width;
+    // speckles of overspray
+    for (let i = 0; i < size * 6; i++) {
+      g.fillStyle = `rgba(255,255,255,${rnd() * 0.5})`;
+      g.fillRect(x - size * 0.1 + rnd() * (width + size * 0.2), y - size * 1.05 + rnd() * size * 1.25, 2, 2);
+    }
+    // drips running down
+    for (let i = 0; i < Math.round(width / size * 2.5); i++) {
+      const dx = x + rnd() * width;
+      const len = size * (0.15 + rnd() * 0.45);
+      g.fillStyle = 'rgba(255,255,255,0.8)';
+      g.fillRect(dx, y - size * 0.05, Math.max(2, size * 0.025), len);
+      g.beginPath();
+      g.arc(dx + size * 0.012, y - size * 0.05 + len, size * 0.022, 0, Math.PI * 2);
+      g.fill();
+    }
+  };
+
+  const chunky = '"Arial Black", Impact, sans-serif';
+  const scrawl = '"Marker Felt", "Chalkboard SE", "Comic Sans MS", cursive';
+  spray('BY', 40, 250, 90, scrawl);
+  spray('DUDE', 170, 300, 230, chunky);
+  spray('LONDON', 470, 440, 110, scrawl);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function makeSignatureTag({ length, height, y }) {
+  tagMaterial ||= new THREE.MeshBasicMaterial({ map: signatureTexture(), transparent: true, depthWrite: false });
+  tagGeometry ||= new THREE.PlaneGeometry(length, height);
+  const tag = new THREE.Mesh(tagGeometry, tagMaterial);
+  tag.rotation.y = -Math.PI / 2; // face the towpath
+  tag.position.set(3.07, y, 0);
+  return tag;
 }
