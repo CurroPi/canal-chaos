@@ -309,7 +309,7 @@ const LETTER_STROKES = {
   N: [[[0.16, 1], [0.18, 0], [0.82, 1], [0.84, 0]]],
 };
 
-function signatureTexture() {
+function signatureTexture(paint) {
   const canvas = document.createElement('canvas');
   canvas.width = 1024;
   canvas.height = 512;
@@ -320,9 +320,9 @@ function signatureTexture() {
   // One puff of spray paint
   const puff = (x, y, r, alpha) => {
     const grad = g.createRadialGradient(x, y, 0, x, y, r);
-    grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
-    grad.addColorStop(0.45, `rgba(255,255,255,${alpha * 0.55})`);
-    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    grad.addColorStop(0, `rgba(${paint},${alpha})`);
+    grad.addColorStop(0.45, `rgba(${paint},${alpha * 0.55})`);
+    grad.addColorStop(1, `rgba(${paint},0)`);
     g.fillStyle = grad;
     g.fillRect(x - r, y - r, r * 2, r * 2);
   };
@@ -341,7 +341,7 @@ function signatureTexture() {
         puff(x, y, width * 2.4, 0.03);                 // faint halo
         if (rnd() > 0.12) puff(x, y, width * pressure, 0.68 * pressure); // patchy core
         if (rnd() < 0.5) {                              // overspray speckles
-          g.fillStyle = `rgba(255,255,255,${rnd() * 0.6})`;
+          g.fillStyle = `rgba(${paint},${rnd() * 0.6})`;
           g.fillRect(x + (rnd() - 0.5) * width * 4, y + (rnd() - 0.5) * width * 4, 1.5, 1.5);
         }
       }
@@ -381,8 +381,8 @@ function signatureTexture() {
   return tex;
 }
 
-function makeSignatureTag({ length, height, y }) {
-  tagMaterial ||= new THREE.MeshBasicMaterial({ map: signatureTexture(), transparent: true, depthWrite: false });
+function makeSignatureTag({ length, height, y, paint }) {
+  tagMaterial ||= new THREE.MeshBasicMaterial({ map: signatureTexture(paint), transparent: true, depthWrite: false });
   tagGeometry ||= new THREE.PlaneGeometry(length, height);
   const tag = new THREE.Mesh(tagGeometry, tagMaterial);
   tag.rotation.y = -Math.PI / 2; // face the towpath
