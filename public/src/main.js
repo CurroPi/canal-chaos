@@ -146,7 +146,7 @@ function showStory() {
   const lines = [
     '<p class="when">Saturday, 11am. Regent\'s Canal.</p>',
     '<p>All you want is to walk to Broadway Market with your oat flat white.</p>',
-    '<p>Run clubs hunt in packs. Lime bikes don\'t brake. Biscuit the sausage dog is on a six-metre lead.</p>',
+    '<p>Run clubs hunt in packs. Lime bikes don\'t brake. A sausage dog is attacking a duck.</p>',
     '<p>The sign says <em>Share the Space</em>.<br><strong>Nobody has read the sign.</strong></p>',
     '<p class="motto">Keep your coffee. Keep your dignity. Keep walking.</p>',
   ];
@@ -164,7 +164,7 @@ function showRules() {
     <ul class="rules">
       <li><b>← →</b> or swipe to dodge. Lime bikes, runners, run clubs, dog leads, prams, bridges.</li>
       <li><b>🔔 Listen for bells.</b> Bikes come from behind. The red lane is where they're going.</li>
-      <li><b>☕ Your coffee is your extra life.</b> The narrowboat café pops up every 500 points with another.</li>
+      <li><b>☕ Your coffee is your extra life.</b> The narrowboat café pops up every now and then with another.</li>
     </ul>
     <p class="small music-hint">♪ Music on: tap ♪ or press M to mute.</p>
     <button>Choose your walker</button>
