@@ -791,7 +791,7 @@ function move(dir) {
 
 // Got out of someone's way at the very last moment? That's a close call.
 function checkCloseCall(e) {
-  if (e.passed || ENEMIES[e.kind].pickup) return;
+  if (e.passed || ENEMIES[e.kind].pickup || e.own === 0) return; // only moving things count (not bridges or queues)
   const z = e.model.group.position.z;
   const passed = e.fromBehind ? z < -e.hitZ : z > e.hitZ;
   if (!passed) return;
