@@ -24,6 +24,6 @@ Inspired by Subway Surfers, but the enemies are cyclists and runners, and the to
 - **Art style:** low-poly "toy" 3D (think Crossy Road). All models are built in code from simple shapes,
   with no external art files needed. 2D overlays (speech bubbles, banners, signs) carry the jokes.
 - **Engine:** Three.js, using plain JavaScript in the browser.
-- **Hosting:** Netlify. Publish by uploading the `public/` folder (Netlify Drop / Deploys tab).
+- **Hosting:** GitHub Pages (moving from Netlify, whose free plan charges credits per deploy). `.github/workflows/publish.yml` publishes `public/` automatically on every push to main. Domain: playcanalchaos.com (Squarespace DNS).
 - **Leaderboard backend:** Supabase, project "CurroPi's Project", table `public.scores` (name, score, walker). Code in `public/src/leaderboard.js` (REST API, no SDK). RLS: anon can select + insert only; deleting/editing needs the Supabase dashboard.
   Only the public "anon/publishable" key goes in the game code. Never secret keys or passwords.
