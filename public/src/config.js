@@ -72,7 +72,7 @@ export const CONFIG = {
   },
 
   // Dodge out of someone's way at the last moment for a bonus
-  closeCall: { points: 25, window: 0.9 },
+  closeCall: { points: 25, window: 0.45, cooldown: 4 }, // window: how last-second the dodge must be (s)
 
   // People who've passed you are hidden once they get this close to the camera, so they don't block the view
   hideNearCameraZ: 1.8,

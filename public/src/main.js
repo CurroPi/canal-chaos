@@ -93,6 +93,7 @@ let bridgeHold = null;   // a bridge waiting for its lanes to clear: { lanes }
 let reservations = [];   // delivery bikes booked in advance: { lanes, span, arrival, at }
 let prevLane = 1;
 let lastMoveAt = -99;
+let lastCloseCallAt = -99;
 let nextTitleAt = CONFIG.titles.every;
 let lastTitle = null;
 const usedTitles = new Set();
@@ -628,6 +629,7 @@ function reset() {
   reservations = [];
   prevLane = 1;
   lastMoveAt = -99;
+  lastCloseCallAt = -99;
   nextTitleAt = CONFIG.titles.every;
   lastTitle = null;
   usedTitles.clear();
@@ -795,7 +797,9 @@ function checkCloseCall(e) {
   if (!passed) return;
   e.passed = true;
   const c = CONFIG.closeCall;
-  if (elapsed - lastMoveAt < c.window && e.lanes.includes(prevLane) && !e.lanes.includes(lane) && elapsed >= invulnUntil) {
+  if (elapsed - lastMoveAt < c.window && e.lanes.includes(prevLane) && !e.lanes.includes(lane)
+      && elapsed >= invulnUntil && elapsed - lastCloseCallAt > c.cooldown) {
+    lastCloseCallAt = elapsed;
     score += c.points;
     floatText(`+${c.points} CLOSE CALL!`, 'close');
     closeCallSound();
