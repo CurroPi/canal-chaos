@@ -1142,6 +1142,35 @@ if (new URLSearchParams(location.search).has('debug')) {
     get rush() { return { rushLevel, speed: rushSpeed(), nextCafeAt }; },
     title() { nextTitleAt = Math.ceil((score + 1) / CONFIG.titles.every) * CONFIG.titles.every; score = nextTitleAt; },
     get counts() { return { ...spawnCounts }; },
+    // ---- Promo stills (dev only) ----
+    // Everything a staging script needs: the scene, the walker, the builders
+    get rig() { return { scene, camera, player, CONFIG, ENEMIES, GAGS, CHARACTERS, setCharacter, makePlayer, setCoffee, animateWalk }; },
+    clearPath() {
+      for (const e of entities) removeEntity(e);
+      entities = [];
+      clearBubbles();
+      warningEl.classList.add('hidden');
+    },
+    // Render the 3D scene at an exact size (no HUD), with an optional camera override
+    capture(w, h, cameraOverride) {
+      const pixelRatio = renderer.getPixelRatio();
+      renderer.setPixelRatio(1);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      const c = cameraOverride || (camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam);
+      camera.position.set(c.x, c.y, c.z);
+      camera.lookAt(c.lookX ?? 0, c.lookY, c.lookZ);
+      camera.fov = c.fov;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+      const out = document.createElement('canvas');
+      out.width = w;
+      out.height = h;
+      out.getContext('2d').drawImage(renderer.domElement, 0, 0);
+      renderer.setPixelRatio(pixelRatio);
+      resize();
+      return out;
+    },
     get runs() { return runLog; },
     bell() { initAudio(); bell(); },
     // Let the bot play `runs` games at `speed`x; read the results from debug.runs
