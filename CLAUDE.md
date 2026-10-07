@@ -5,7 +5,7 @@ Inspired by Subway Surfers, but the enemies are cyclists and runners, and the to
 
 ## Where things are
 - `public/`: the game itself (this is the folder that gets published online). Code is in `public/src/`; all tuning numbers in `public/src/config.js`; speech lines in `public/src/lines.js`.
-- Preview locally: `python3 -m http.server 8000 --directory public`, then open http://localhost:8000 (add `?debug` for test helpers).
+- Preview locally: `python3 serve.py` (no-cache server for public/), then open http://localhost:8000 (add `?debug` for test helpers).
 
 ## Key documents
 - `docs/GDD.md`: Game Design Document. The source of truth for what the game is.

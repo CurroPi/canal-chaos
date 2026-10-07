@@ -68,6 +68,9 @@ export const CONFIG = {
 
   officeEvery: 100, // points between sightings of our office
 
+  // A Hackney title is celebrated every this many points (see src/titles.js)
+  titles: { every: 250, seconds: 2.6 },
+
   playerScale: 0.89, // size of your walker (1 = same as everyone else)
 
   // Character select preview: where the walker stands and how big

@@ -206,3 +206,10 @@ export function toggleMute() {
   if (musicGain) musicGain.gain.value = muted ? 0 : 0.5;
   return muted;
 }
+
+// Rising little fanfare for a milestone title
+export function fanfare() {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  ['C5', 'E5', 'G5', 'C6'].forEach((n, i) => blip(freq(n), t + i * 0.09, i === 3 ? 0.4 : 0.12, 'square', 0.09));
+}

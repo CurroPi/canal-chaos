@@ -305,3 +305,44 @@ html, body {
 .top10 li.me { background: #ffd23f; }
 .top10 .pts { text-align: right; }
 .top10 .walker svg { width: 12px; height: 16px; display: block; }
+
+/* ---------- Milestone titles ---------- */
+#milestone {
+  position: fixed;
+  top: 26%;
+  left: 50%;
+  transform: translate(-50%, -30px);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 10px 14px;
+  border: 3px solid #1b1b1b;
+  background: #1f5f3a;
+  color: #fffaf0;
+  text-align: center;
+  box-shadow: 5px 5px 0 #1b1b1b;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+#milestone.show { animation: milestoneIn 0.35s steps(4) forwards; visibility: visible; }
+#milestone .pts { display: block; font-family: var(--pixel); font-size: 9px; color: #ffd23f; margin-bottom: 6px; }
+#milestone strong { display: block; font-family: var(--pixel); font-size: clamp(11px, 3.4vw, 17px); font-weight: 400; color: #ffd23f; line-height: 1.4; }
+#milestone .line { display: block; font-family: var(--pixel-body); font-size: 20px; margin-top: 4px; }
+@keyframes milestoneIn {
+  from { opacity: 0; transform: translate(-50%, -30px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+.card .last-title b { font-weight: 400; color: #1f5f3a; }
+/* Milestones: pixel text only, no box */
+#milestone {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  text-shadow:
+    -3px 0 0 #1b1b1b, 3px 0 0 #1b1b1b, 0 -3px 0 #1b1b1b, 0 3px 0 #1b1b1b,
+    -3px -3px 0 #1b1b1b, 3px 3px 0 #1b1b1b, -3px 3px 0 #1b1b1b, 3px -3px 0 #1b1b1b;
+}
+#milestone strong { font-size: clamp(14px, 4.2vw, 24px); }
+#milestone .pts { font-size: 11px; }
+#milestone .line { font-size: 24px; color: #fffaf0; }

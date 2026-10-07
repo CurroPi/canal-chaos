@@ -6,9 +6,10 @@ import { makePlayer, animateWalk, setCoffee, box } from './models.js';
 import { ENEMIES } from './enemies.js';
 import { CHARACTERS, characterById, drinkSvg } from './characters.js';
 import { leaderboardEnabled, topScores, submitScore, rankOf, cleanName } from './leaderboard.js';
+import { titleFor } from './titles.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
-  startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute,
+  startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare,
 } from './sound.js';
 import { LINES } from './lines.js';
 
@@ -82,6 +83,9 @@ let entities = [];
 let particles = [];
 let coffees = CONFIG.coffee.start;
 let nextCafeAt = CONFIG.cafe.every;
+let nextTitleAt = CONFIG.titles.every;
+let lastTitle = null;
+const usedTitles = new Set();
 let invulnUntil = 0;
 let spilledAt = -99;
 let best = loadBest();
@@ -270,6 +274,21 @@ function updateBubbles() {
 function playerSays(list) {
   const pg = player.group.position;
   say(pickLine(list), toScreen(pg.x, 2.4, pg.z), 'player');
+}
+
+// Milestone banner: drops in, holds, leaves
+const milestoneEl = document.getElementById('milestone');
+let milestoneTimer = null;
+function celebrate(points) {
+  const m = titleFor(points, usedTitles);
+  lastTitle = m.title;
+  milestoneEl.innerHTML = `<span class="pts">${points}</span><strong>${m.title}</strong><span class="line">${m.line}</span>`;
+  milestoneEl.classList.remove('show');
+  void milestoneEl.offsetWidth; // restart the animation
+  milestoneEl.classList.add('show');
+  clearTimeout(milestoneTimer);
+  milestoneTimer = setTimeout(() => milestoneEl.classList.remove('show'), CONFIG.titles.seconds * 1000);
+  fanfare();
 }
 
 function floatText(text, cls = '') {
@@ -558,6 +577,10 @@ function reset() {
   score = 0;
   coffees = CONFIG.coffee.start;
   nextCafeAt = CONFIG.cafe.every;
+  nextTitleAt = CONFIG.titles.every;
+  lastTitle = null;
+  usedTitles.clear();
+  milestoneEl.classList.remove('show');
   invulnUntil = 0;
   spilledAt = -99;
   setCoffee(player, coffees);
@@ -613,6 +636,7 @@ function gameOver(e) {
   stopMusic();
   gameOverJingle();
   clearBubbles();
+  milestoneEl.classList.remove('show');
   crashSound();
   player.group.visible = true;
   warningEl.classList.add('hidden');
@@ -628,6 +652,7 @@ function gameOver(e) {
       <p class="small label">Cause of death</p>
       <h2>${message}</h2>
       <p class="big">${final}</p>
+      ${lastTitle ? `<p class="small last-title">Last title: <b>${lastTitle}</b></p>` : ''}
       <p class="small">${isRecord ? '🎉 New personal best!' : `Best ${best}`}</p>
       <div id="board"></div>
       <button>Try again</button>
@@ -831,6 +856,10 @@ function tick() {
     }
 
     if (score >= nextCafeAt && spawnCafe()) nextCafeAt += CONFIG.cafe.every;
+    if (score >= nextTitleAt) {
+      celebrate(nextTitleAt);
+      nextTitleAt += CONFIG.titles.every;
+    }
 
     specialTimer -= dt;
     if (specialTimer <= 0) {
@@ -915,6 +944,7 @@ if (new URLSearchParams(location.search).has('debug')) {
     special(kind) { specialsPool = [kind]; specialTimer = 0; },
     delivery() { deliveryTimer = 0; },
     cafe() { nextCafeAt = score; },
+    title() { nextTitleAt = Math.ceil((score + 1) / CONFIG.titles.every) * CONFIG.titles.every; score = nextTitleAt; },
     get counts() { return { ...spawnCounts }; },
     pause(on = true) { paused = on; clock.getDelta(); },
   };
