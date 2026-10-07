@@ -25,14 +25,58 @@ function tone(freq, start, dur, { type = 'sine', vol = 0.2, endFreq = null } = {
   osc.stop(start + dur);
 }
 
-// "Ding ding!"
+// A real bicycle bell: "ding-ding"
+// Each ding = a metallic strike click + inharmonic overtones (higher ones fade faster),
+// each paired with a slightly detuned twin so the dome shimmers.
+const BELL_PARTIALS = [
+  { ratio: 1, vol: 0.09, decay: 1.1 },
+  { ratio: 2.32, vol: 0.05, decay: 0.45 },
+  { ratio: 4.25, vol: 0.025, decay: 0.2 },
+  { ratio: 6.63, vol: 0.012, decay: 0.1 },
+];
+let sfxNoise = null;
+
+function bellStrike(start, strength) {
+  const base = 2150;
+  for (const p of BELL_PARTIALS) {
+    for (const detune of [1, 1.0035]) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(base * p.ratio * detune, start);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(p.vol * strength, start + 0.002);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + p.decay);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + p.decay);
+    }
+  }
+  // The click of the striker hitting the dome
+  if (!sfxNoise) {
+    sfxNoise = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate);
+    const data = sfxNoise.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = sfxNoise;
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 5000;
+  filter.Q.value = 2;
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.12 * strength, start);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.025);
+  src.connect(filter).connect(gain).connect(ctx.destination);
+  src.start(start);
+  src.stop(start + 0.03);
+}
+
 export function bell() {
   if (!ctx) return;
-  const t = ctx.currentTime;
-  for (const offset of [0, 0.17]) {
-    tone(2350, t + offset, 0.5, { vol: 0.12 });
-    tone(3520, t + offset, 0.3, { vol: 0.05 });
-  }
+  const t = ctx.currentTime + 0.01;
+  bellStrike(t, 1);
+  bellStrike(t + 0.16, 0.8); // thumb flicks it again, a touch softer
 }
 
 // Sad slosh

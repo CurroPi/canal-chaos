@@ -1107,6 +1107,7 @@ if (new URLSearchParams(location.search).has('debug')) {
     title() { nextTitleAt = Math.ceil((score + 1) / CONFIG.titles.every) * CONFIG.titles.every; score = nextTitleAt; },
     get counts() { return { ...spawnCounts }; },
     get runs() { return runLog; },
+    bell() { initAudio(); bell(); },
     // Let the bot play `runs` games at `speed`x; read the results from debug.runs
     autoplay({ runs = 5, speed = 4, reaction = 0.2, safe = 1.3 } = {}) {
       autopilot = makeAutopilot({ reaction, safe });
