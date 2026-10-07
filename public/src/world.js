@@ -2,6 +2,14 @@
 import * as THREE from 'three';
 import { box, mat, makeLimeBike } from './models.js';
 import { FRONT_X, makeBuilding, makeOffice, makeGasholder, makeContainerville, makeSharks } from './buildings.js';
+import { CONFIG } from './config.js';
+
+// Towpath geometry, all derived from the lane spacing in config.js, so narrowing the path
+// moves the wall, the canal edge and everything along them together.
+export const LANE_W = CONFIG.lanes[2];   // distance between lanes
+export const EDGE = 1.5 * LANE_W;        // half the towpath's width
+export const WALL = EDGE + 0.1;          // face of the brick wall (right)
+export const CANAL = -EDGE - 0.2;        // middle of the coping stones (left)
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 const rand = (min, max) => min + Math.random() * (max - min);
@@ -104,7 +112,7 @@ export function createWorld(scene, cfg) {
       // Our tag, sprayed on the wall where you see it on the welcome screen
       const tagTile = nearest(cfg.signature.z);
       const decor = tagTile.userData.decor;
-      decor.children.filter((o) => Math.abs(o.position.x - 3.08) < 0.01).forEach((o) => decor.remove(o)); // clear the wall
+      decor.children.filter((o) => Math.abs(o.position.x - (WALL - 0.02)) < 0.01).forEach((o) => decor.remove(o)); // clear the wall
       const tag = makeSignatureTag(cfg.signature);
       tag.position.z = cfg.signature.z - tagTile.position.z;
       tagTile.userData.decor.add(tag);
@@ -114,61 +122,262 @@ export function createWorld(scene, cfg) {
   return world;
 }
 
+// ---------- Towpath surfaces, drawn on canvases ----------
+// Each texture covers 2 units across (one lane) and 8 units along the path.
+function surfaceTexture(draw, seed) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 512;
+  const g = canvas.getContext('2d');
+  let s = seed;
+  const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+  draw(g, rnd, 128, 512);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+const shade = (base, rnd, spread) => {
+  const v = Math.round((rnd() - 0.5) * spread);
+  return `rgb(${base[0] + v},${base[1] + v},${base[2] + v + Math.round(rnd() * 4)})`;
+};
+
+// Grey-blue brick pavers in a staggered pattern, the odd one patched with tarmac
+function paverTexture() {
+  return surfaceTexture((g, rnd, w, h) => {
+    g.fillStyle = '#4f5560';
+    g.fillRect(0, 0, w, h);
+    const bw = 16;
+    const bh = 9;
+    for (let row = 0; row * bh < h; row++) {
+      const offset = row % 2 ? bw / 2 : 0;
+      for (let x = -offset; x < w; x += bw) {
+        g.fillStyle = rnd() < 0.04 ? '#3e4148' : shade([112, 119, 130], rnd, 22);
+        g.fillRect(x + 1, row * bh + 1, bw - 2, bh - 2);
+      }
+    }
+    for (let i = 0; i < 6; i++) { // dark patched bits and dirt
+      g.fillStyle = rnd() < 0.5 ? 'rgba(40,40,44,0.6)' : 'rgba(110,90,60,0.35)';
+      g.beginPath();
+      g.ellipse(rnd() * w, rnd() * h, 6 + rnd() * 18, 6 + rnd() * 26, rnd() * 3, 0, Math.PI * 2);
+      g.fill();
+    }
+  }, 5);
+}
+
+// Big worn concrete slabs: joints, cracks, stains, moss in the gaps
+function slabTexture() {
+  return surfaceTexture((g, rnd, w, h) => {
+    g.fillStyle = '#867f73';
+    g.fillRect(0, 0, w, h);
+    const size = 58;
+    for (let y = 0; y < h; y += size) {
+      const offset = (y / size) % 2 ? size / 2 : 0;
+      for (let x = -offset; x < w; x += size) {
+        g.fillStyle = shade([186, 179, 166], rnd, 26);
+        g.fillRect(x + 2, y + 2, size - 4, size - 4);
+        if (rnd() < 0.4) { // stain
+          g.fillStyle = `rgba(90,80,60,${0.1 + rnd() * 0.15})`;
+          g.beginPath();
+          g.ellipse(x + rnd() * size, y + rnd() * size, 6 + rnd() * 14, 4 + rnd() * 10, rnd() * 3, 0, Math.PI * 2);
+          g.fill();
+        }
+        if (rnd() < 0.3) { // crack
+          g.strokeStyle = 'rgba(70,64,56,0.7)';
+          g.lineWidth = 1;
+          g.beginPath();
+          let cx = x + rnd() * size;
+          let cy = y + 4;
+          g.moveTo(cx, cy);
+          for (let k = 0; k < 4; k++) { cx += (rnd() - 0.5) * 18; cy += size / 4; g.lineTo(cx, cy); }
+          g.stroke();
+        }
+      }
+      g.fillStyle = 'rgba(80,110,50,0.45)'; // moss in the joint
+      g.fillRect(0, y, w, 2);
+    }
+  }, 9);
+}
+
+// Packed dirt and gravel
+function dirtTexture() {
+  return surfaceTexture((g, rnd, w, h) => {
+    g.fillStyle = '#8f7a5c';
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 30; i++) { // lighter and darker worn patches
+      g.fillStyle = rnd() < 0.5 ? 'rgba(170,150,115,0.35)' : 'rgba(95,78,55,0.35)';
+      g.beginPath();
+      g.ellipse(rnd() * w, rnd() * h, 8 + rnd() * 30, 8 + rnd() * 40, rnd() * 3, 0, Math.PI * 2);
+      g.fill();
+    }
+    for (let i = 0; i < 1400; i++) { // gravel
+      g.fillStyle = shade([150, 136, 112], rnd, 70);
+      g.fillRect(rnd() * w, rnd() * h, 1 + rnd() * 2, 1 + rnd() * 2);
+    }
+    for (let i = 0; i < 40; i++) { // grass creeping in from the wall side
+      g.fillStyle = `rgba(${70 + rnd() * 30},${110 + rnd() * 40},50,0.8)`;
+      g.fillRect(w - 4 - rnd() * 22, rnd() * h, 2 + rnd() * 3, 3 + rnd() * 8);
+    }
+  }, 13);
+}
+
+// Pale stone coping slabs along the water's edge, with moss
+function copingTexture() {
+  return surfaceTexture((g, rnd, w, h) => {
+    g.fillStyle = '#9d978a';
+    g.fillRect(0, 0, w, h);
+    const len = 76;
+    for (let y = 0; y < h; y += len) {
+      g.fillStyle = shade([212, 206, 192], rnd, 18);
+      g.fillRect(2, y + 2, w - 4, len - 4);
+      g.fillStyle = `rgba(90,120,55,${0.25 + rnd() * 0.3})`; // moss on the water side
+      g.fillRect(2, y + 2, 10 + rnd() * 16, len - 4);
+    }
+  }, 21);
+}
+
+let surfaces = null;
+function surfaceMaterials(L) {
+  if (!surfaces) {
+    const make = (tex) => {
+      tex.repeat.set(1, L / 8);
+      return new THREE.MeshLambertMaterial({ map: tex });
+    };
+    surfaces = { pavers: make(paverTexture()), slabs: make(slabTexture()), dirt: make(dirtTexture()), coping: make(copingTexture()) };
+  }
+  return surfaces;
+}
+
+function surface(tile, material, width, L, x, y) {
+  const plane = new THREE.Mesh(new THREE.PlaneGeometry(width, L), material);
+  plane.rotation.x = -Math.PI / 2;
+  plane.position.set(x, y, 0);
+  tile.add(plane);
+}
+
 // Things that look the same on every tile
 function buildStatic(tile, L) {
-  // Towpath (x from -3 to 3)
-  tile.add(box(6, 0.2, L, 0xb8a689, 0, -0.1, 0));
-  for (const x of [-1, 1]) {
-    for (let z = -L / 2 + 1; z < L / 2; z += 4) {
-      tile.add(box(0.06, 0.01, 1.6, 0xd8cbb2, x, 0.005, z));
-    }
-  }
+  // Towpath: a different surface per lane, like the real thing
+  const s = surfaceMaterials(L);
+  tile.add(box(2 * EDGE, 0.2, L, 0x6f675b, 0, -0.1, 0));
+  surface(tile, s.pavers, LANE_W, L, -LANE_W, 0.001);
+  surface(tile, s.slabs, LANE_W, L, 0, 0.001);
+  surface(tile, s.dirt, LANE_W, L, LANE_W, 0.001);
 
   // Canal edge, canal and far bank (left)
-  tile.add(box(0.5, 0.12, L, 0xcfc8b8, -3.2, 0.0, 0));
-  tile.add(box(0.4, 2.1, L, 0x7d7468, -3.25, -1.05, 0));
+  tile.add(box(0.5, 0.12, L, 0xcfc8b8, CANAL, 0.0, 0));
+  surface(tile, s.coping, 0.5, L, CANAL, 0.061);
+  tile.add(box(0.4, 2.1, L, 0x7d7468, CANAL - 0.05, -1.05, 0));
   tile.add(box(0.4, 2.1, L, 0x6e675e, FRONT_X + 0.2, -1.05, 0)); // far canal edge
-  tile.add(box(12, 0.1, L, 0x2a3326, -9.5, -2.0, 0));            // murky canal bed
-  const water = new THREE.Mesh(new THREE.BoxGeometry(12, 0.1, L), waterMat);
-  water.position.set(-9.5, WATER_Y - 0.05, 0);
+  const nearWater = CANAL - 0.25;
+  const farWater = FRONT_X - 0.2;
+  tile.add(box(nearWater - farWater, 0.1, L, 0x2a3326, (nearWater + farWater) / 2, -2.0, 0)); // murky canal bed
+  const water = new THREE.Mesh(new THREE.BoxGeometry(nearWater - farWater, 0.1, L), waterMat);
+  water.position.set((nearWater + farWater) / 2, WATER_Y - 0.05, 0);
   tile.add(water);
   tile.add(box(16, 0.8, L, 0x5c5650, FRONT_X - 8, -0.4, 0));  // far bank ground
 
   // Brick wall (right) with brick courses and coping stones
-  tile.add(box(1, 3.2, L, 0x9b4f3a, 3.6, 1.6, 0));
+  tile.add(box(1, 3.2, L, 0x9b4f3a, WALL + 0.5, 1.6, 0));
   for (let y = 0.4; y < 3.1; y += 0.45) {
-    tile.add(box(0.02, 0.04, L, 0x7f3e2d, 3.09, y, 0));
+    tile.add(box(0.02, 0.04, L, 0x7f3e2d, WALL - 0.01, y, 0));
   }
-  tile.add(box(1.2, 0.15, L, 0x8b8378, 3.6, 3.25, 0));
+  tile.add(box(1.2, 0.15, L, 0x8b8378, WALL + 0.5, 3.25, 0));
+}
+
+// Shared shapes for the towpath's irregular bits
+const blobGeo = new THREE.CircleGeometry(1, 7);       // flat, slightly lumpy patch
+const clumpGeo = new THREE.IcosahedronGeometry(1, 0); // weed clump
+const PLANT_GREENS = [0x4f7d32, 0x5f8f3a, 0x3f6b2a, 0x6f9a45, 0x587a3a];
+
+function flatPatch(decor, colour, x, z, rx, rz, y) {
+  const patch = new THREE.Mesh(blobGeo, mat(colour));
+  patch.rotation.set(-Math.PI / 2, 0, rand(0, Math.PI));
+  patch.scale.set(rx, rz, 1);
+  patch.position.set(x, y, z);
+  decor.add(patch);
+}
+
+// Plants that come and go along the edges, plus dirt, puddles, patches and leaves on the path.
+// Everything on the path itself stays flat, so it never looks like something to dodge.
+function addTowpathDetails(decor, L) {
+  // Weeds and little bushes along the canal edge, some hanging over the water
+  const clumps = Math.floor(rand(3, 9));
+  for (let i = 0; i < clumps; i++) {
+    const z = rand(-L / 2, L / 2);
+    const overWater = Math.random() < 0.35;
+    const size = overWater ? rand(0.25, 0.5) : rand(0.12, 0.28);
+    const clump = new THREE.Mesh(clumpGeo, mat(pick(PLANT_GREENS)));
+    clump.scale.set(size * rand(0.8, 1.4), size * rand(0.6, 1), size * rand(0.8, 1.6));
+    clump.position.set(overWater ? rand(CANAL - 0.5, CANAL - 0.2) : rand(CANAL - 0.15, CANAL + 0.15), overWater ? 0 : 0.08 + size * 0.4, z);
+    decor.add(clump);
+    if (Math.random() < 0.3) { // a few flowers
+      for (let f = 0; f < 3; f++) {
+        decor.add(box(0.05, 0.05, 0.05, pick([0xffd23f, 0xb07cc6, 0xffffff]), clump.position.x + rand(-size, size) * 0.6, clump.position.y + size * 0.8, z + rand(-size, size)));
+      }
+    }
+  }
+
+  // Grass and weeds along the bottom of the wall, in uneven tufts
+  for (let z = -L / 2; z < L / 2; z += rand(0.6, 2.2)) {
+    const len = rand(0.3, 1.4);
+    const width = rand(0.08, 0.3);
+    decor.add(box(width, rand(0.04, 0.16), len, pick(PLANT_GREENS), WALL - 0.02 - width / 2, 0.03, z));
+  }
+
+  // Weeds poking out of the joints on the path (flat, not obstacles)
+  for (let i = 0; i < Math.floor(rand(2, 7)); i++) {
+    flatPatch(decor, pick(PLANT_GREENS), rand(-EDGE + 0.1, EDGE - 0.1), rand(-L / 2, L / 2), rand(0.06, 0.16), rand(0.1, 0.3), 0.004);
+  }
+
+  // Dirt spilling across, puddles, patched tarmac and fallen leaves
+  for (let i = 0; i < Math.floor(rand(1, 4)); i++) {
+    flatPatch(decor, pick([0x7d6a4f, 0x8a7558, 0x6f5d44]), rand(-EDGE + 0.5, EDGE - 0.5), rand(-L / 2, L / 2), rand(0.3, 0.8), rand(0.5, 1.6), 0.005);
+  }
+  if (Math.random() < 0.35) {
+    flatPatch(decor, 0x46525c, rand(-EDGE + 0.6, EDGE - 0.6), rand(-L / 2, L / 2), rand(0.3, 0.55), rand(0.5, 1.1), 0.006); // puddle
+  }
+  if (Math.random() < 0.3) {
+    decor.add(box(rand(0.5, 1.0), 0.01, rand(0.6, 1.6), 0x3b3d42, -LANE_W + rand(-0.5, 0.5), 0.005, rand(-L / 2, L / 2))); // tarmac patch on the pavers
+  }
+  for (let i = 0; i < Math.floor(rand(0, 8)); i++) {
+    const leaf = box(0.09, 0.008, 0.06, pick([0xc9822a, 0xa8641e, 0xd8b04a, 0x8a5a2b]), rand(-EDGE, EDGE), 0.007, rand(-L / 2, L / 2));
+    leaf.rotation.y = rand(0, Math.PI);
+    decor.add(leaf);
+  }
 }
 
 // Random bits that change every time a tile is reused
 function decorate(tile, L, farBank) {
   const decor = tile.userData.decor;
   decor.clear();
+  addTowpathDetails(decor, L);
 
   // Narrowboat moored at the edge
   if (Math.random() < 0.6) {
     const z = rand(-3, 3);
     const colour = pick(BOAT_COLOURS);
-    decor.add(box(1.9, 1.2, 13, colour, -4.5, -0.6, z));
-    decor.add(box(1.6, 0.5, 11.5, 0xe9e1cf, -4.5, 0.25, z));
-    decor.add(box(1.62, 0.06, 11.6, colour, -4.5, 0.53, z));
+    const bx = CANAL - 1.3; // moored right against the edge
+    decor.add(box(1.9, 1.2, 13, colour, bx, -0.6, z));
+    decor.add(box(1.6, 0.5, 11.5, 0xe9e1cf, bx, 0.25, z));
+    decor.add(box(1.62, 0.06, 11.6, colour, bx, 0.53, z));
     for (let wz = -4.5; wz <= 4.5; wz += 1.8) {
-      decor.add(box(0.03, 0.22, 0.6, 0x2b3a42, -3.69, 0.27, z + wz));
+      decor.add(box(0.03, 0.22, 0.6, 0x2b3a42, bx + 0.81, 0.27, z + wz));
     }
-    decor.add(box(0.12, 0.45, 0.12, 0x333333, -4.8, 0.78, z - 4));
+    decor.add(box(0.12, 0.45, 0.12, 0x333333, bx - 0.3, 0.78, z - 4));
     for (let i = 0; i < 4; i++) {
       const pz = z + rand(-5, 5);
-      decor.add(box(0.25, 0.2, 0.25, 0xb5653b, -4.3, 0.66, pz));
-      decor.add(box(0.35, 0.3, 0.35, 0x4f8a3c, -4.3, 0.9, pz));
+      decor.add(box(0.25, 0.2, 0.25, 0xb5653b, bx + 0.2, 0.66, pz));
+      decor.add(box(0.35, 0.3, 0.35, 0x4f8a3c, bx + 0.2, 0.9, pz));
     }
   }
 
   // Graffiti on the wall
   const tags = Math.floor(rand(0, 3));
   for (let i = 0; i < tags; i++) {
-    decor.add(box(0.03, rand(0.4, 1.3), rand(1, 3.5), pick(GRAFFITI), 3.08, rand(0.6, 2.2), rand(-L / 2 + 2, L / 2 - 2)));
+    decor.add(box(0.03, rand(0.4, 1.3), rand(1, 3.5), pick(GRAFFITI), WALL - 0.02, rand(0.6, 2.2), rand(-L / 2 + 2, L / 2 - 2)));
   }
 
   addRubbish(decor, L);
@@ -253,12 +462,12 @@ export function makeBridge(blocked, lanesX) {
     group.add(box(22, 0.16, 0.12, 0x6f6a63, -6.5, 4.62, z > 0 ? D / 2 : -D / 2)); // stone edging
   }
   group.add(box(1.2, 5, D, BRICK, -15.4, 2.3, 0));                      // pier on the far bank
-  group.add(box(1, 1.4, D, BRICK, 3.6, 3.9, 0));                        // fill above the wall
-  group.add(box(6, 0.01, D, 0x5e5246, 0, 0.006, 0));                    // deep shade on the path
+  group.add(box(1, 1.4, D, BRICK, WALL + 0.5, 3.9, 0));                 // fill above the wall
+  group.add(box(2 * EDGE, 0.01, D, 0x5e5246, 0, 0.006, 0));             // deep shade on the path
 
   // Abutment over the blocked lanes
-  const minX = lanesX[Math.min(...blocked)] - 1;
-  const maxX = 3.1;
+  const minX = lanesX[Math.min(...blocked)] - LANE_W / 2;
+  const maxX = WALL;
   const geo = new THREE.BoxGeometry(maxX - minX, 4.6, D);
   const fadeMat = new THREE.MeshLambertMaterial({ color: BRICK, flatShading: true, transparent: true });
   const abutment = new THREE.Mesh(geo, fadeMat);
@@ -386,6 +595,6 @@ function makeSignatureTag({ length, height, y, paint }) {
   tagGeometry ||= new THREE.PlaneGeometry(length, height);
   const tag = new THREE.Mesh(tagGeometry, tagMaterial);
   tag.rotation.y = -Math.PI / 2; // face the towpath
-  tag.position.set(3.07, y, 0);
+  tag.position.set(WALL - 0.03, y, 0);
   return tag;
 }

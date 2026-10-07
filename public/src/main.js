@@ -495,7 +495,7 @@ function spawnBehind(kind, { speed, hitZ, warn, sameLaneAsYou = 0.6 }, bookedLan
 
   // Flashing red strip on the lane they'll come through
   e.flash = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.8, 18),
+    new THREE.PlaneGeometry(CONFIG.lanes[2] * 0.9, 18),
     new THREE.MeshBasicMaterial({ color: 0xff2d2d, transparent: true, opacity: 0.35, depthWrite: false }),
   );
   e.flash.rotation.x = -Math.PI / 2;
@@ -1093,7 +1093,7 @@ function makeAutopilot({ reaction = 0.2, safe = 1.3 } = {}) {
 
 // Developer helper: open the game with ?debug in the URL to inspect it from the browser console
 if (new URLSearchParams(location.search).has('debug')) {
-  window.models = { makeCargoBike };
+  window.models = { makeCargoBike, ENEMIES };
   window.debug = {
     get state() { return { state, elapsed, score, lane, coffees }; },
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z) })); },

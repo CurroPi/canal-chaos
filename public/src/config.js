@@ -1,8 +1,9 @@
 // All tuning numbers live here. Tweak these to change how the game feels.
 
 export const CONFIG = {
-  // x position of each lane: 0 = canal side (left), 1 = middle, 2 = wall side (right)
-  lanes: [-2, 0, 2],
+  // x position of each lane: 0 = canal side (left), 1 = middle, 2 = wall side (right).
+  // The towpath's width, wall, canal edge and tunnels all follow this spacing (was 2; 1.7 = 15% narrower).
+  lanes: [-1.7, 0, 1.7],
 
   // Your walking speed (world units per second). It stays constant; the towpath gets busier instead.
   walkSpeed: 9,
@@ -148,8 +149,8 @@ export const CONFIG = {
     slowRecover: 1.2,  // ...and recover over this many seconds
   },
 
-  // Sideways distance that counts as a hit
-  hitX: 1.0,
+  // Sideways distance that counts as a hit (half the lane spacing)
+  hitX: 0.85,
 
   // Scenery is built from repeating tiles
   tile: { length: 20, count: 8 },

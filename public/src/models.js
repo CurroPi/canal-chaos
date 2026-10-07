@@ -1,5 +1,6 @@
 // Low-poly "toy" characters, built from simple boxes.
 import * as THREE from 'three';
+import { CONFIG } from './config.js';
 
 const materials = new Map();
 export function mat(color) {
@@ -749,7 +750,8 @@ const signGeo = new THREE.PlaneGeometry(3.2, 0.8);
 // `queueX` is where the queue stands (lane 0's x); the boat sits in the water beside it.
 export function makeCafeQueue(queueX) {
   const group = new THREE.Group();
-  const boatX = -6.6 - queueX; // moored alongside the boats at the edge ("breasted up"), relative to the queue
+  const canalEdge = -1.5 * CONFIG.lanes[2] - 0.2;
+  const boatX = canalEdge - 3.4 - queueX; // moored alongside the boats at the edge ("breasted up"), relative to the queue
   group.add(box(1.9, 1.2, 12, 0x1f5f3a, boatX, -0.6, -1));
   group.add(box(1.6, 0.9, 10.5, 0xe9e1cf, boatX, 0.45, -1));
   group.add(box(1.62, 0.06, 10.6, 0x1f5f3a, boatX, 0.92, -1));
