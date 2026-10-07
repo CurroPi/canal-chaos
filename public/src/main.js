@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { createWorld } from './world.js';
-import { makePlayer, animateWalk, setCoffee, box } from './models.js';
+import { makePlayer, animateWalk, setCoffee, box, makeCargoBike } from './models.js';
 import { ENEMIES } from './enemies.js';
 import { CHARACTERS, characterById, drinkSvg } from './characters.js';
 import { leaderboardEnabled, topScores, submitScore, rankOf, cleanName } from './leaderboard.js';
@@ -935,6 +935,7 @@ tick();
 
 // Developer helper: open the game with ?debug in the URL to inspect it from the browser console
 if (new URLSearchParams(location.search).has('debug')) {
+  window.models = { makeCargoBike };
   window.debug = {
     get state() { return { state, elapsed, score, lane, coffees }; },
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z) })); },
@@ -946,6 +947,17 @@ if (new URLSearchParams(location.search).has('debug')) {
     cafe() { nextCafeAt = score; },
     title() { nextTitleAt = Math.ceil((score + 1) / CONFIG.titles.every) * CONFIG.titles.every; score = nextTitleAt; },
     get counts() { return { ...spawnCounts }; },
+    // Show one model on its own, straight ahead, for design reviews
+    showcase(build, z = -11) {
+      for (const e of entities) removeEntity(e);
+      entities = [];
+      paused = true;
+      player.group.position.x = 50; // out of shot
+      const m = build();
+      m.group.position.set(0, 0, z);
+      scene.add(m.group);
+      return m;
+    },
     pause(on = true) { paused = on; clock.getDelta(); },
   };
 }

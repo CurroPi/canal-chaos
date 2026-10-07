@@ -485,35 +485,92 @@ export function animateWalk(model, t, freq) {
 
 const cargoWheelGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.08, 12);
 
-// A cargo bike: a parent pedalling a huge wooden box with two toddlers and a sourdough loaf.
-// Built enormous on purpose: it takes up two lanes.
-export function makeCargoBike() {
+// A cargo bike: a parent pedalling a big box with two waving toddlers and a sourdough loaf.
+// It takes up two lanes. `style`: 'canopy' (Dutch rain tent), 'flag' (red box + safety flag),
+// 'balloons' (wooden box, flag and party balloons).
+const balloonGeo = new THREE.SphereGeometry(0.22, 8, 6);
+const canopyMat = new THREE.MeshLambertMaterial({ color: 0xcfe9ff, transparent: true, opacity: 0.35, depthWrite: false });
+
+function makeToddler(group, x, helmet, shirt) {
+  const kid = new THREE.Group();
+  kid.position.set(x, 0.95, 1.0);
+  kid.add(box(0.36, 0.32, 0.28, shirt, 0, 0.12, 0));                   // body
+  kid.add(box(0.34, 0.32, 0.32, pick(SKIN_TONES), 0, 0.44, 0));         // big toddler head
+  kid.add(box(0.06, 0.06, 0.02, 0x222222, -0.08, 0.46, 0.17));          // eyes
+  kid.add(box(0.06, 0.06, 0.02, 0x222222, 0.08, 0.46, 0.17));
+  kid.add(box(0.4, 0.16, 0.38, helmet, 0, 0.66, 0));                    // helmet
+  const arms = [-1, 1].map((side) => {
+    const arm = new THREE.Group();
+    arm.position.set(side * 0.2, 0.24, 0);
+    arm.add(box(0.09, 0.34, 0.09, shirt, 0, 0.17, 0));                  // arm up, waving
+    arm.rotation.z = -side * 0.5;
+    kid.add(arm);
+    return arm;
+  });
+  group.add(kid);
+  return arms;
+}
+
+export function makeCargoBike(style = 'canopy') {
   const group = new THREE.Group();
-  const wood = 0xb08a5a;
-  group.add(box(2.4, 0.7, 1.3, wood, 0, 0.75, 0.9));          // the box
-  group.add(box(2.5, 0.08, 1.4, 0x8a6a40, 0, 1.12, 0.9));     // rim
-  for (const x of [-1.0, 1.0]) {
+  const boxColour = style === 'flag' ? 0xd62828 : 0xb08a5a;
+  const W = 1.9;
+
+  // The box, with plank lines (or a white stripe on the red one)
+  group.add(box(W, 0.55, 1.15, boxColour, 0, 0.62, 0.95));
+  group.add(box(W + 0.08, 0.06, 1.2, 0x5c4630, 0, 0.92, 0.95));         // rim
+  if (style === 'flag') group.add(box(W + 0.01, 0.1, 1.16, 0xffffff, 0, 0.66, 0.95));
+  else for (const y of [0.5, 0.68]) group.add(box(W + 0.01, 0.03, 1.16, 0x8a6a40, 0, y, 0.95));
+
+  // Two front wheels either side of the box, one behind: it's clearly a bike
+  for (const [x, z] of [[-(W / 2 + 0.08), 0.95], [W / 2 + 0.08, 0.95], [0, -0.9]]) {
     const wheel = new THREE.Mesh(cargoWheelGeo, mat(0x1b1b1b));
     wheel.rotation.z = Math.PI / 2;
-    wheel.position.set(x, 0.3, 0.9);
+    wheel.position.set(x, 0.3, z);
     group.add(wheel);
   }
-  const rear = new THREE.Mesh(cargoWheelGeo, mat(0x1b1b1b));
-  rear.rotation.z = Math.PI / 2;
-  rear.position.set(0, 0.3, -0.9);
-  group.add(rear);
-  group.add(box(0.12, 0.12, 1.6, 0x2b2b2b, 0, 0.45, -0.1));   // frame
+  group.add(box(0.12, 0.12, 1.6, 0x2b2b2b, 0, 0.42, -0.1));   // frame
   group.add(box(0.7, 0.06, 0.06, 0x222222, 0, 1.2, 0.2));     // handlebar
 
-  // Two toddlers in tiny helmets, and the sourdough
-  for (const [x, helmet] of [[-0.55, 0xff6b9a], [0.0, 0x3fb6ff]]) {
-    group.add(box(0.36, 0.34, 0.3, pick([0xffd23f, 0x7cff6b, 0xffffff]), x, 1.25, 0.95)); // body
-    group.add(box(0.28, 0.28, 0.28, pick(SKIN_TONES), x, 1.55, 0.95));                    // head
-    group.add(box(0.32, 0.12, 0.32, helmet, x, 1.73, 0.95));                              // helmet
-  }
-  const loaf = box(0.45, 0.26, 0.3, 0xc68a4a, 0.65, 1.25, 0.95);
+  // Two toddlers waving, and the sourdough
+  const wavers = [
+    ...makeToddler(group, -0.48, 0xff6b9a, 0xffd23f),
+    ...makeToddler(group, 0.3, 0x3fb6ff, 0x7cff6b),
+  ];
+  const loaf = box(0.4, 0.24, 0.28, 0xc68a4a, 0.75, 1.02, 0.95);
   loaf.rotation.y = 0.4;
   group.add(loaf);
+
+  if (style === 'canopy') {
+    // Clear rain tent over the kids
+    const frame = 0x2b2b2b;
+    for (const x of [-W / 2, W / 2]) {
+      group.add(box(0.05, 1.0, 0.05, frame, x, 1.42, 1.5));
+      group.add(box(0.05, 1.0, 0.05, frame, x, 1.42, 0.4));
+    }
+    group.add(box(W, 0.05, 0.05, frame, 0, 1.92, 1.5));
+    group.add(box(W, 0.05, 0.05, frame, 0, 1.92, 0.4));
+    for (const [w, h, d, x, y, z] of [[W, 0.02, 1.1, 0, 1.93, 0.95], [W, 1.0, 0.02, 0, 1.42, 1.5], [0.02, 1.0, 1.1, -W / 2, 1.42, 0.95], [0.02, 1.0, 1.1, W / 2, 1.42, 0.95]]) {
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), canopyMat);
+      panel.position.set(x, y, z);
+      group.add(panel);
+    }
+  }
+  if (style === 'flag' || style === 'balloons') {
+    // Tall orange safety flag
+    group.add(box(0.03, 2.2, 0.03, 0xdddddd, W / 2 - 0.05, 1.95, 0.45));
+    const flag = box(0.03, 0.35, 0.5, 0xff7a00, W / 2 - 0.05, 2.9, 0.7);
+    group.add(flag);
+  }
+  if (style === 'balloons') {
+    for (const [x, h, c] of [[-0.6, 2.5, 0xff3d7f], [-0.3, 2.8, 0xffd23f], [-0.85, 2.7, 0x3fb6ff]]) {
+      group.add(box(0.015, h - 0.95, 0.015, 0xeeeeee, x, (h + 0.95) / 2, 1.3)); // string
+      const balloon = new THREE.Mesh(balloonGeo, mat(c));
+      balloon.scale.y = 1.2;
+      balloon.position.set(x, h + 0.2, 1.3);
+      group.add(balloon);
+    }
+  }
 
   const rider = makePerson({
     skin: pick(SKIN_TONES),
@@ -528,13 +585,14 @@ export function makeCargoBike() {
   rider.head.add(box(0.42, 0.16, 0.44, 0x2b2b2b, 0, 0.24, 0)); // sensible helmet
   group.add(rider.group);
 
-  return { group, rider, phase: Math.random() * 10 };
+  return { group, rider, wavers, phase: Math.random() * 10 };
 }
 
 export function animateCargoBike(m, t) {
   const s = Math.sin(t * 7) * 0.5;
   m.rider.legL.rotation.x = -0.8 + s;
   m.rider.legR.rotation.x = -0.8 - s;
+  m.wavers.forEach((arm, i) => { arm.rotation.x = Math.sin(t * 9 + i) * 0.5; }); // waving at you
 }
 
 const potGeo = new THREE.CylinderGeometry(0.32, 0.24, 0.45, 8);
