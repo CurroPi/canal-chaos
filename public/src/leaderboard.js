@@ -80,12 +80,20 @@ export async function bestOf(name) {
 }
 
 // Save a score; returns the saved row (with its id)
-export async function submitScore(name, score, walker) {
-  const res = await request('scores', {
+// `seconds` (how long the run lasted) lets the database reject impossible scores
+export async function submitScore(name, score, walker, seconds) {
+  const post = (body) => request('scores', {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ name, score, walker }),
+    body: JSON.stringify(body),
   });
+  let res;
+  try {
+    res = await post({ name, score, walker, seconds });
+  } catch (err) {
+    if (err.status !== 400) throw err;
+    res = await post({ name, score, walker }); // database not updated with the "seconds" column yet
+  }
   const [row] = await res.json();
   return row;
 }

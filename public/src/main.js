@@ -800,7 +800,7 @@ async function showLeaderboard(final) {
     msg.textContent = 'Posting…';
     try {
       try { localStorage.setItem('canal-name', name); } catch { /* storage unavailable */ }
-      await submitScore(name, final, character.id);
+      await submitScore(name, final, character.id, Math.max(1, Math.round(elapsed)));
       const mine = (await bestOf(name)) || { score: final, walker: character.id };
       const [rank, top] = await Promise.all([rankOf(mine.score), topScores(10)]);
       renderBoard(top, { name, rank, score: mine.score, walker: mine.walker });
@@ -1127,8 +1127,10 @@ function makeAutopilot({ reaction = 0.2, safe = 1.3 } = {}) {
   };
 }
 
-// Developer helper: open the game with ?debug in the URL to inspect it from the browser console
-if (new URLSearchParams(location.search).has('debug')) {
+// Developer helper: open the game with ?debug in the URL to inspect it from the browser console.
+// Only on this computer (localhost), never on the live site, so nobody can cheat with it.
+const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+if (isLocal && new URLSearchParams(location.search).has('debug')) {
   window.models = { makeCargoBike, ENEMIES, GAGS, makeNarrowboat, addPosters };
   window.debug = {
     get state() { return { state, elapsed, score, lane, coffees }; },
