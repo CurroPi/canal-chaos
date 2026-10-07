@@ -213,3 +213,10 @@ export function fanfare() {
   const t = ctx.currentTime;
   ['C5', 'E5', 'G5', 'C6'].forEach((n, i) => blip(freq(n), t + i * 0.09, i === 3 ? 0.4 : 0.12, 'square', 0.09));
 }
+
+// Quick "whoosh-ding" for a close call
+export function closeCallSound() {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  tone(1200, t, 0.12, { type: 'square', vol: 0.06, endFreq: 1800 });
+}

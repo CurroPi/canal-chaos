@@ -346,3 +346,6 @@ html, body {
 #milestone strong { font-size: clamp(14px, 4.2vw, 24px); }
 #milestone .pts { font-size: 11px; }
 #milestone .line { font-size: 24px; color: #fffaf0; }
+
+#milestone .rush { display: block; margin-top: 8px; font-family: var(--pixel); font-size: 11px; color: #ff7a1a; }
+.float.close { color: #7cff6b; }

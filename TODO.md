@@ -43,6 +43,16 @@
 - Instagrammer: removed for now (design not readable). Redesign later, e.g. ring light or selfie stick, then re-enable in src/config.js.
 - Phone (portrait) view: lots of empty sky, player looks small. Tilt camera down on tall screens (M7).
 
+## Playtest round 1 (bot) - done 2026-10-07
+- [x] Rush levels every 1000 pts (faster + denser, banner line)
+- [x] Café gaps grow: 500, 1250, 2250, 3500...
+- [x] Bridges + deliveries appear as planned (bridge lane hold, deliveries booked in advance)
+- [x] Mix rebalance step 1: runner 3->2.6, dog 2.8->3.0, pram 0.5->0.7, run club 1.2->1.4
+- [x] Phone camera (lower/closer on tall screens), passers-by hidden near camera
+- [x] CLOSE CALL +25 (window 0.9s)
+- [ ] Human playtest needed: the bot has perfect perception and never dies late game, so tune rush by real play
+- [ ] Mix rebalance step 2 after playtest
+
 ## Next session (as of 2026-10-07)
 - [ ] Check the live Netlify site (re-upload `public/` to Deploys first)
 - [x] Leaderboard (Supabase): live. Table `scores` in CurroPi's Project; publishable key in public/src/leaderboard.js

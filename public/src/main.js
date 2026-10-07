@@ -9,7 +9,7 @@ import { leaderboardEnabled, topScores, submitScore, rankOf, cleanName } from '.
 import { titleFor } from './titles.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
-  startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare,
+  startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
 } from './sound.js';
 import { LINES } from './lines.js';
 
@@ -38,8 +38,11 @@ function resize() {
   const h = window.innerHeight;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
-  // Widen the view on tall phone screens so all three lanes fit
-  camera.fov = Math.min(95, cam.fov * Math.max(1, 0.75 / camera.aspect));
+  // On tall phone screens: camera lower and closer (less sky, bigger walker), view widened so all lanes fit
+  const c = camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam;
+  camera.position.set(c.x, c.y, c.z);
+  camera.lookAt(0, c.lookY, c.lookZ);
+  camera.fov = Math.min(95, c.fov * Math.max(1, 0.75 / camera.aspect));
   camera.updateProjectionMatrix();
 }
 window.addEventListener('resize', resize);
@@ -82,7 +85,14 @@ let specialsPool = [];
 let entities = [];
 let particles = [];
 let coffees = CONFIG.coffee.start;
-let nextCafeAt = CONFIG.cafe.every;
+let nextCafeAt = CONFIG.cafe.first;
+let cafesServed = 0;
+let rushLevel = 0;
+let nextRushAt = CONFIG.rush.every;
+let bridgeHold = null;   // a bridge waiting for its lanes to clear: { lanes }
+let reservations = [];   // delivery bikes booked in advance: { lanes, span, arrival, at }
+let prevLane = 1;
+let lastMoveAt = -99;
 let nextTitleAt = CONFIG.titles.every;
 let lastTitle = null;
 const usedTitles = new Set();
@@ -96,6 +106,11 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 const shuffle = (list) => list.sort(() => Math.random() - 0.5);
 const progress = () => Math.min(1, elapsed / CONFIG.spawn.rampSeconds);
+
+// Rush levels: faster walking and tighter gaps the further you get
+const rushSpeed = () => Math.min(CONFIG.rush.maxSpeed, 1 + CONFIG.rush.speedStep * rushLevel);
+const walkNow = () => CONFIG.walkSpeed * rushSpeed();
+const rushGap = (seconds) => Math.max(CONFIG.rush.minGap, seconds * CONFIG.rush.gapStep ** rushLevel);
 
 function loadBest() {
   try { return Number(localStorage.getItem('canal-best')) || 0; } catch { return 0; }
@@ -282,7 +297,9 @@ let milestoneTimer = null;
 function celebrate(points) {
   const m = titleFor(points, usedTitles);
   lastTitle = m.title;
-  milestoneEl.innerHTML = `<span class="pts">${points}</span><strong>${m.title}</strong><span class="line">${m.line}</span>`;
+  const rush = points % CONFIG.rush.every === 0
+    ? `<span class="rush">🔥 ${CONFIG.rush.names[(points / CONFIG.rush.every - 1) % CONFIG.rush.names.length]}: everyone speeds up</span>` : '';
+  milestoneEl.innerHTML = `<span class="pts">${points}</span><strong>${m.title}</strong><span class="line">${m.line}</span>${rush}`;
   milestoneEl.classList.remove('show');
   void milestoneEl.offsetWidth; // restart the animation
   milestoneEl.classList.add('show');
@@ -311,6 +328,15 @@ function spanFor(arrival, hitZ, closingSpeed) {
 function canPlace(lanes, span, arrival, fromAhead, closing = 0) {
   const f = CONFIG.fairness;
   const blocked = new Set(lanes);
+  // A waiting bridge keeps its lanes free of anything that would walk through it
+  if (fromAhead && bridgeHold && closing > walkNow() + 0.01 && lanes.some((l) => bridgeHold.lanes.includes(l))) return false;
+  // Delivery bikes booked in advance count as already there
+  for (const r of reservations) {
+    const overlaps = r.span[0] < span[1] && span[0] < r.span[1];
+    if (!overlaps) continue;
+    if (r.lanes.some((l) => lanes.includes(l))) return false;
+    r.lanes.forEach((l) => blocked.add(l));
+  }
   for (const e of entities) {
     if (ENEMIES[e.kind].pickup) continue; // coffees don't block anything
     const overlaps = e.span[0] < span[1] && span[0] < e.span[1];
@@ -344,7 +370,7 @@ function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = fals
   if (fromBehind) model.group.rotation.y = Math.PI;
   scene.add(model.group);
   const e = { kind, model, lanes, own, hitZ, arrival, span, fromBehind, flash: null, said: false };
-  e.closing = own + CONFIG.walkSpeed;
+  e.closing = own + walkNow();
   spawnCounts[kind] = (spawnCounts[kind] || 0) + 1;
   const lines = LINES[fromBehind ? `${kind}Overtake` : kind];
   e.line = lines && Math.random() < CONFIG.bubbles.chance ? pickLine(lines) : null;
@@ -354,7 +380,7 @@ function addEntity(kind, lanes, { own, hitZ, arrival, span, z, fromBehind = fals
 
 // Try to place an oncoming thing; returns how many lanes it took (0 if it didn't fit)
 function spawnAhead(kind, cfg = CONFIG.enemies[kind], options = null) {
-  const closing = cfg.speed + CONFIG.walkSpeed;
+  const closing = cfg.speed + walkNow();
   const arrival = elapsed + CONFIG.travelTime;
   const span = spanFor(arrival, cfg.hitZ, closing);
   options ||= ENEMIES[kind].width === 2 ? [[0, 1], [1, 2]] : [[0], [1], [2]];
@@ -384,7 +410,7 @@ function spawnSpecial() {
 function spawnCafe() {
   if (!spawnAhead('cafe', CONFIG.cafe, [[0]])) return false;
   const arrival = elapsed + CONFIG.travelTime;
-  addEntity('coffee', [1], { own: 0, hitZ: 0.6, arrival, span: [arrival, arrival], z: spawnDistance(CONFIG.walkSpeed) + 0.5 });
+  addEntity('coffee', [1], { own: 0, hitZ: 0.6, arrival, span: [arrival, arrival], z: spawnDistance(walkNow()) + 0.5 });
   return true;
 }
 
@@ -401,7 +427,9 @@ function pickKind() {
 function spawnWave() {
   const s = CONFIG.spawn;
   const p = progress();
-  const wanted = Math.random() < lerp(s.doubleChanceStart, s.doubleChanceMax, p) ? 2 : 1;
+  const r = CONFIG.rush;
+  const double = Math.min(r.maxDouble, lerp(s.doubleChanceStart, s.doubleChanceMax, p) + r.doubleStep * rushLevel);
+  const wanted = Math.random() < double ? 2 : 1;
 
   let lanesUsed = 0;
   for (let tries = 0; tries < 3 && lanesUsed < wanted; tries++) {
@@ -437,22 +465,26 @@ function maybeStartConvoy() {
 function spawnBridge() {
   const b = CONFIG.bridge;
   const p = progress();
-  const lanes = Math.random() < lerp(b.twoLaneChanceStart, b.twoLaneChanceMax, p) ? [1, 2] : [2];
+  const lanes = bridgeHold?.lanes ?? (Math.random() < lerp(b.twoLaneChanceStart, b.twoLaneChanceMax, p) ? [1, 2] : [2]);
   const arrival = elapsed + CONFIG.travelTime;
-  const span = spanFor(arrival, b.hitZ, CONFIG.walkSpeed);
-  if (!canPlace(lanes, span, arrival, true, CONFIG.walkSpeed)) return false;
-  addEntity('bridge', lanes, { own: 0, hitZ: b.hitZ, arrival, span, z: spawnDistance(CONFIG.walkSpeed) });
+  const span = spanFor(arrival, b.hitZ, walkNow());
+  if (!canPlace(lanes, span, arrival, true, walkNow())) {
+    bridgeHold = { lanes }; // keep its lanes clear of new arrivals until it fits
+    return false;
+  }
+  bridgeHold = null;
+  addEntity('bridge', lanes, { own: 0, hitZ: b.hitZ, arrival, span, z: spawnDistance(walkNow()) });
   return true;
 }
 
 // Something overtaking you from behind (a Lime or a delivery e-bike), with a warning
-function spawnBehind(kind, { speed, hitZ, warn, sameLaneAsYou = 0.6 }) {
-  const gain = speed - CONFIG.walkSpeed;
+function spawnBehind(kind, { speed, hitZ, warn, sameLaneAsYou = 0.6 }, bookedLane) {
+  const gain = speed - walkNow();
   const arrival = elapsed + warn;
   const span = spanFor(arrival, hitZ, gain);
 
   const preferred = Math.random() < sameLaneAsYou ? [lane] : [];
-  const laneIdx = [...preferred, ...shuffle([0, 1, 2])].find((l) => canPlace([l], span, arrival, false));
+  const laneIdx = bookedLane ?? [...preferred, ...shuffle([0, 1, 2])].find((l) => canPlace([l], span, arrival, false));
   if (laneIdx === undefined) return false;
 
   const e = addEntity(kind, [laneIdx], {
@@ -470,6 +502,18 @@ function spawnBehind(kind, { speed, hitZ, warn, sameLaneAsYou = 0.6 }) {
   scene.add(e.flash);
   if (kind === 'delivery') whineSound();
   else bell();
+  return true;
+}
+
+// Delivery bikes are booked a whole travel-time ahead, so everything spawned after them leaves
+// room. Otherwise, on a busy towpath, there's rarely a fair gap for the fastest thing on it.
+function bookDelivery() {
+  const d = CONFIG.delivery;
+  const arrival = elapsed + CONFIG.travelTime;
+  const span = spanFor(arrival, d.hitZ, d.speed - walkNow());
+  const l = shuffle([0, 1, 2]).find((x) => canPlace([x], span, arrival, false));
+  if (l === undefined) return false;
+  reservations.push({ lanes: [l], span, arrival, at: arrival - d.warn });
   return true;
 }
 
@@ -576,7 +620,14 @@ function reset() {
   elapsed = 0;
   score = 0;
   coffees = CONFIG.coffee.start;
-  nextCafeAt = CONFIG.cafe.every;
+  nextCafeAt = CONFIG.cafe.first;
+  cafesServed = 0;
+  rushLevel = 0;
+  nextRushAt = CONFIG.rush.every;
+  bridgeHold = null;
+  reservations = [];
+  prevLane = 1;
+  lastMoveAt = -99;
   nextTitleAt = CONFIG.titles.every;
   lastTitle = null;
   usedTitles.clear();
@@ -729,7 +780,26 @@ function showBoard(top, myId, myRank) {
 // ---------- Input ----------
 function move(dir) {
   if (state !== 'playing') return;
-  lane = Math.max(0, Math.min(2, lane + dir));
+  const to = Math.max(0, Math.min(2, lane + dir));
+  if (to === lane) return;
+  prevLane = lane;
+  lastMoveAt = elapsed;
+  lane = to;
+}
+
+// Got out of someone's way at the very last moment? That's a close call.
+function checkCloseCall(e) {
+  if (e.passed || ENEMIES[e.kind].pickup) return;
+  const z = e.model.group.position.z;
+  const passed = e.fromBehind ? z < -e.hitZ : z > e.hitZ;
+  if (!passed) return;
+  e.passed = true;
+  const c = CONFIG.closeCall;
+  if (elapsed - lastMoveAt < c.window && e.lanes.includes(prevLane) && !e.lanes.includes(lane) && elapsed >= invulnUntil) {
+    score += c.points;
+    floatText(`+${c.points} CLOSE CALL!`, 'close');
+    closeCallSound();
+  }
 }
 
 const muteBtn = document.getElementById('mute');
@@ -832,8 +902,8 @@ function step(dt, t) {
   if (autopilot && state === 'over' && autoRuns <= 0) { autopilot = null; simSpeed = 1; }
   if (state === 'playing') {
     elapsed += dt;
-    setMusicIntensity(progress());
-    const walk = CONFIG.walkSpeed * speedFactor();
+    setMusicIntensity(Math.min(1, progress() * 0.7 + rushLevel * 0.1));
+    const walk = walkNow() * speedFactor();
     score += walk * dt;
     world.scroll(walk * dt);
 
@@ -848,19 +918,26 @@ function step(dt, t) {
     pg.visible = elapsed < invulnUntil ? Math.floor(t * 12) % 2 === 0 : true;
 
     spawnTimer -= dt;
-    if (spawnTimer <= 0) spawnWave();
+    if (spawnTimer <= 0) {
+      spawnWave();
+      spawnTimer = rushGap(spawnTimer);
+    }
 
     behindTimer -= dt;
     if (behindTimer <= 0) {
       const o = CONFIG.overtaking;
       spawnBehind('lime', { speed: o.speed, hitZ: o.hitZ, warn: lerp(o.warnStart, o.warnMin, progress()), sameLaneAsYou: o.sameLaneAsYou });
-      behindTimer = lerp(o.gapStart, o.gapMin, progress()) * (0.8 + Math.random() * 0.4);
+      behindTimer = rushGap(lerp(o.gapStart, o.gapMin, progress()) * (0.8 + Math.random() * 0.4));
     }
 
     deliveryTimer -= dt;
     if (deliveryTimer <= 0) {
       const d = CONFIG.delivery;
-      deliveryTimer = spawnBehind('delivery', d) ? lerp(d.gapStart, d.gapMin, progress()) * (0.8 + Math.random() * 0.4) : 0.5;
+      deliveryTimer = bookDelivery() ? rushGap(lerp(d.gapStart, d.gapMin, progress()) * (0.8 + Math.random() * 0.4)) : 0.5;
+    }
+    for (const r of reservations.filter((x) => elapsed >= x.at)) {
+      spawnBehind('delivery', CONFIG.delivery, r.lanes[0]);
+      reservations = reservations.filter((x) => x !== r);
     }
 
     while (convoy.length && elapsed >= convoy[0].at) {
@@ -870,10 +947,17 @@ function step(dt, t) {
     bridgeTimer -= dt;
     if (bridgeTimer <= 0) {
       const b = CONFIG.bridge;
-      bridgeTimer = spawnBridge() ? lerp(b.gapStart, b.gapMin, progress()) * (0.8 + Math.random() * 0.4) : 0.5;
+      bridgeTimer = spawnBridge() ? rushGap(lerp(b.gapStart, b.gapMin, progress()) * (0.8 + Math.random() * 0.4)) : 0.5;
     }
 
-    if (score >= nextCafeAt && spawnCafe()) nextCafeAt += CONFIG.cafe.every;
+    if (score >= nextCafeAt && spawnCafe()) {
+      cafesServed++;
+      nextCafeAt += CONFIG.cafe.gap + CONFIG.cafe.growth * (cafesServed - 1);
+    }
+    if (score >= nextRushAt) {
+      rushLevel++;
+      nextRushAt += CONFIG.rush.every;
+    }
     if (score >= nextTitleAt) {
       celebrate(nextTitleAt);
       nextTitleAt += CONFIG.titles.every;
@@ -882,7 +966,7 @@ function step(dt, t) {
     specialTimer -= dt;
     if (specialTimer <= 0) {
       const sp = CONFIG.specials;
-      specialTimer = spawnSpecial() ? lerp(sp.gapStart, sp.gapMin, progress()) * (0.8 + Math.random() * 0.4) : 0.5;
+      specialTimer = spawnSpecial() ? rushGap(lerp(sp.gapStart, sp.gapMin, progress()) * (0.8 + Math.random() * 0.4)) : 0.5;
     }
 
     for (const e of entities) {
@@ -890,6 +974,8 @@ function step(dt, t) {
       g.position.z += (e.own + walk) * dt;
       ENEMIES[e.kind].animate(e.model, t);
       if (e.fromBehind) { maybeSwerve(e); steerOvertaker(e, dt); }
+      if (!e.model.fade) g.visible = g.position.z < CONFIG.hideNearCameraZ; // don't block the view
+      checkCloseCall(e);
       // Bridges fade as they pass the camera so they don't block the view
       if (e.model.fade) e.model.fade(Math.max(0, Math.min(1, 1 - (g.position.z - 0.5) / 3)));
     }
@@ -956,7 +1042,7 @@ function makeAutopilot({ reaction = 0.2, safe = 1.3 } = {}) {
   const history = [];
   function danger(l) {
     let t = Infinity;
-    const walk = CONFIG.walkSpeed * speedFactor();
+    const walk = walkNow() * speedFactor();
     for (const e of entities) {
       if (ENEMIES[e.kind].pickup || !e.lanes.includes(l)) continue;
       const z = e.model.group.position.z;
@@ -1013,12 +1099,13 @@ if (new URLSearchParams(location.search).has('debug')) {
     special(kind) { specialsPool = [kind]; specialTimer = 0; },
     delivery() { deliveryTimer = 0; },
     cafe() { nextCafeAt = score; },
+    get rush() { return { rushLevel, speed: rushSpeed(), nextCafeAt }; },
     title() { nextTitleAt = Math.ceil((score + 1) / CONFIG.titles.every) * CONFIG.titles.every; score = nextTitleAt; },
     get counts() { return { ...spawnCounts }; },
     get runs() { return runLog; },
     // Let the bot play `runs` games at `speed`x; read the results from debug.runs
-    autoplay({ runs = 5, speed = 4, reaction = 0.2 } = {}) {
-      autopilot = makeAutopilot({ reaction });
+    autoplay({ runs = 5, speed = 4, reaction = 0.2, safe = 1.3 } = {}) {
+      autopilot = makeAutopilot({ reaction, safe });
       autoRuns = runs - 1;
       simSpeed = speed;
       if (state !== 'playing') { overAt = 0; start(); }
