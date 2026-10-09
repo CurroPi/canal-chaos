@@ -46,10 +46,19 @@ function resize() {
   const c = camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam;
   camera.position.set(c.x, c.y, c.z);
   camera.lookAt(0, c.lookY, c.lookZ);
-  camera.fov = Math.min(95, c.fov * Math.max(1, 0.75 / camera.aspect));
+  camera.fov = Math.min(95, c.fov * Math.max(1, (c.widen ?? 0.75) / camera.aspect));
   camera.updateProjectionMatrix();
 }
 window.addEventListener('resize', resize);
+
+// On phones the view is narrow, so the camera drifts sideways with you (the edge lanes stay on screen)
+function followCamera() {
+  const c = camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam;
+  if (!c.follow) return;
+  const fx = (state === 'playing' || state === 'over' ? player.group.position.x : 0) * c.follow;
+  camera.position.x = c.x + fx;
+  camera.lookAt(fx, c.lookY, c.lookZ);
+}
 resize();
 
 const world = createWorld(scene, CONFIG);
@@ -1042,6 +1051,7 @@ const runLog = [];
 function tick() {
   const dt = paused ? 0 : Math.min(clock.getDelta(), 0.05);
   for (let i = 0; i < simSpeed; i++) step(dt, clock.elapsedTime + i * dt);
+  followCamera();
   renderer.render(scene, camera);
   requestAnimationFrame(tick);
 }
@@ -1253,6 +1263,7 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z), warning: Boolean(e.flash) })); },
     skip(seconds) { elapsed += seconds; },
     walker(id) { setCharacter(characterById(id)); if (state === 'select') showPick(); }, // try any walker, drafts too
+    camera(p) { Object.assign(camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam, p); resize(); followCamera(); renderer.render(scene, camera); }, // try camera settings live
     adNext(i) { gamesOver = CONFIG.ads.every - 1; if (i !== undefined) queueAd(i); }, // the next game over shows an ad (optionally which)
     // Fast-forward the game without waiting for the screen; onStep runs after every step
     simulate(seconds, onStep) {

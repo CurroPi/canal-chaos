@@ -164,5 +164,7 @@ export const CONFIG = {
   tile: { length: 20, count: 8 },
 
   camera: { fov: 60, x: 0, y: 4.2, z: 7.5, lookY: 1, lookZ: -8 },
-  cameraPortrait: { fov: 52, x: 0, y: 3.3, z: 6.2, lookY: 0.4, lookZ: -9 }, // phones held upright
+  // Phones held upright: higher and closer, tilted down (little sky, big walker near the bottom),
+  // `widen` = how much the view widens on narrow screens, `follow` = how much the camera slides with your lane
+  cameraPortrait: { fov: 52, x: 0, y: 4.6, z: 3.6, lookY: 0, lookZ: -5.1, widen: 0.68, follow: 0.7 },
 };
