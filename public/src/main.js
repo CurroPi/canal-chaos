@@ -60,7 +60,7 @@ const isUnlocked = (c) => unlockAt(c) <= loadBest();
 function loadCharacter() {
   let c = CHARACTERS[0];
   try { c = characterById(localStorage.getItem('canal-hipster')); } catch { /* storage unavailable */ }
-  return isUnlocked(c) ? c : CHARACTERS[0];
+  return isUnlocked(c) && CHARACTERS.includes(c) ? c : CHARACTERS[0];
 }
 
 // A locked walker in the preview: a dark silhouette
@@ -1235,6 +1235,7 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     get state() { return { state, elapsed, score, lane, coffees }; },
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z), warning: Boolean(e.flash) })); },
     skip(seconds) { elapsed += seconds; },
+    walker(id) { setCharacter(characterById(id)); if (state === 'select') showPick(); }, // try any walker, drafts too
     adNext(i) { gamesOver = CONFIG.ads.every - 1; if (i !== undefined) queueAd(i); }, // the next game over shows an ad (optionally which)
     // Fast-forward the game without waiting for the screen; onStep runs after every step
     simulate(seconds, onStep) {

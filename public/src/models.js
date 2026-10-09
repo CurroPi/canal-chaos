@@ -278,11 +278,68 @@ const LOOKS = {
   },
 };
 
+// David: skinny old boy, light grey hair, dirty blue boiler suit unzipped halfway, a pint in hand
+LOOKS.david = {
+  body: { skin: 0xe6b99c, shirt: 0x2f5486, legs: 0x2f5486, shoes: 0x3a2a1d, hair: 0xd2d2d2 },
+  dress(p) {
+    p.rig.scale.set(0.84, 1, 0.88);                  // skinny...
+    p.head.scale.set(1 / 0.84, 1, 1 / 0.88);         // ...but a normal-sized head
+    p.head.add(box(0.4, 0.12, 0.4, 0xd2d2d2, 0, 0.26, -0.01));    // a great head of grey hair...
+    // ...windswept: blown over to one side, puffed out, with a lock falling over his forehead
+    p.head.add(box(0.46, 0.12, 0.36, 0xe2e2e2, 0.03, 0.31, -0.03));                 // big swept-over top
+    for (const [x, y, z, rz, w, h, c] of [
+      [0.24, 0.28, -0.02, -0.5, 0.16, 0.08, 0xd2d2d2],  // blown out to the right...
+      [0.29, 0.22, 0.06, -0.8, 0.12, 0.06, 0xe2e2e2],
+      [0.27, 0.16, -0.12, -0.6, 0.12, 0.07, 0xc4c4c4],
+      [-0.25, 0.2, -0.05, 0.3, 0.1, 0.18, 0xd2d2d2],    // ...puffy on the left
+      [-0.24, 0.06, 0.02, 0.15, 0.1, 0.16, 0xe2e2e2],
+    ]) {
+      const strand = box(w, h, 0.3, c, x, y, z);
+      strand.rotation.z = rz;
+      p.head.add(strand);
+    }
+    const lock = box(0.08, 0.14, 0.04, 0xe2e2e2, 0.06, 0.2, 0.2); // the lock on his forehead
+    lock.rotation.z = -0.35;
+    p.head.add(lock);
+    for (const [x, rz] of [[-0.1, 0.5], [0.12, -0.6]]) {          // flyaways at the back
+      const fly = box(0.06, 0.16, 0.06, 0xd2d2d2, x, 0.3, -0.2);
+      fly.rotation.set(-0.6, 0, rz);
+      p.head.add(fly);
+    }
+    for (const x of [-0.19, 0.19]) p.head.add(box(0.05, 0.22, 0.32, 0xd2d2d2, x, 0.08, -0.04)); // full sides
+    p.head.add(box(0.4, 0.34, 0.06, 0xd2d2d2, 0, 0.05, -0.19)); // and the back, down to the collar
+    for (const x of [-0.08, 0.08]) p.head.add(box(0.09, 0.025, 0.02, 0xd2d2d2, x, 0.09, 0.185)); // bushy eyebrows
+    p.head.add(box(0.2, 0.02, 0.02, 0xc79b80, 0, -0.1, 0.185)); // a weathered mouth line
+
+    // Boiler suit, unzipped a little: a small V of skin with a bit of grey chest hair
+    p.rig.add(box(0.14, 0.13, 0.02, 0xe6b99c, 0, 1.38, 0.165));
+    p.rig.add(box(0.07, 0.06, 0.02, 0xe6b99c, 0, 1.29, 0.165));
+    for (const [x, y] of [[-0.03, 1.39], [0.03, 1.35], [0, 1.31]]) {
+      p.rig.add(box(0.03, 0.03, 0.025, 0xcfcfcf, x, y, 0.17));
+    }
+    p.rig.add(box(0.03, 0.5, 0.02, 0xb0b0b0, 0, 1.01, 0.165)); // the zip, the rest of the way
+    for (const x of [-0.13, 0.13]) p.rig.add(box(0.12, 0.08, 0.34, 0x264670, x, 1.42, 0)); // collar flaps
+    p.rig.add(box(0.14, 0.12, 0.02, 0x264670, 0.16, 1.2, 0.165)); // chest pocket...
+    p.rig.add(box(0.015, 0.1, 0.015, 0xd9b54a, 0.19, 1.27, 0.17)); // ...with a pencil
+    p.rig.add(box(0.58, 0.06, 0.34, 0x264670, 0, 0.82, 0));  // belt line
+
+    // Dirty: oil and plaster
+    for (const [x, y, w, h, c] of [[-0.14, 1.0, 0.12, 0.08, 0x1f3352], [0.12, 0.9, 0.1, 0.06, 0x8a7a60], [0.2, 1.05, 0.06, 0.1, 0x1f3352]]) {
+      p.rig.add(box(w, h, 0.02, c, x, y, 0.165));
+    }
+    p.legL.add(box(0.21, 0.12, 0.02, 0x1f3352, 0, -0.45, 0.115));
+    p.legR.add(box(0.21, 0.1, 0.02, 0xc8c0a8, 0, -0.25, 0.115)); // plaster dust on the knee
+    for (const leg of [p.legL, p.legR]) leg.add(box(0.24, 0.16, 0.34, 0x3a2a1d, 0, -0.7, 0.04)); // work boots
+  },
+};
+
 const drinkCupGeo = new THREE.CylinderGeometry(0.075, 0.055, 0.2, 8);
 const drinkLidGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8);
 const drinkCanGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.22, 10);
 const drinkMugGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.14, 10);
 const drinkBottleGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.36, 10);
+const drinkPintGeo = new THREE.CylinderGeometry(0.085, 0.065, 0.26, 10);
+const drinkHeadGeo = new THREE.CylinderGeometry(0.087, 0.085, 0.045, 10);
 
 // The character's drink, held in one hand
 function drinkInHand(arm, d) {
@@ -296,6 +353,9 @@ function drinkInHand(arm, d) {
     add(new THREE.Mesh(drinkMugGeo, mat(d.body))).position.set(0, -0.63, 0.08);
     add(box(0.13, 0.01, 0.13, d.coffee, 0, -0.555, 0.08));        // coffee, no lid
     add(box(0.03, 0.09, 0.07, d.body, 0, -0.62, 0.18));          // handle
+  } else if (d.kind === 'pint') {
+    add(new THREE.Mesh(drinkPintGeo, mat(d.body))).position.set(0, -0.63, 0.08);
+    add(new THREE.Mesh(drinkHeadGeo, mat(d.head))).position.set(0, -0.48, 0.08); // the creamy head
   } else if (d.kind === 'bottle') {
     add(new THREE.Mesh(drinkBottleGeo, mat(d.body))).position.set(0, -0.62, 0.08);
     add(box(0.11, 0.07, 0.11, d.lid, 0, -0.42, 0.08));           // cap

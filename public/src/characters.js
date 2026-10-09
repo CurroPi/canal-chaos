@@ -36,7 +36,16 @@ export const CHARACTERS = [
   },
 ];
 
-export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || CHARACTERS[0];
+// Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
+export const DRAFTS = [
+  {
+    id: 'david', // the real local: skinny old boy, messy grey hair, dirty boiler suit, pint of Guinness
+    name: 'David',
+    drink: { name: 'Pint of Guinness', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
+  },
+];
+
+export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || DRAFTS.find((c) => c.id === id) || CHARACTERS[0];
 
 const css = (hex) => `#${hex.toString(16).padStart(6, '0')}`;
 
@@ -61,6 +70,13 @@ export function drinkSvg(d) {
       <rect x="8" y="1" width="8" height="5" rx="1" fill="${css(d.lid)}"/>
       <rect x="5" y="6" width="14" height="25" rx="3" fill="${css(d.body)}" stroke="#1b1b1b" stroke-width="0.6"/>
       <rect x="5" y="14" width="14" height="2" fill="#ffffff" opacity="0.6"/>
+    </svg>`;
+  }
+  if (d.kind === 'pint') {
+    return `<svg viewBox="0 0 24 32" aria-hidden="true">
+      <path d="M4 3h16l-1.5 27h-13z" fill="${css(d.body)}" stroke="#1b1b1b" stroke-width="0.6"/>
+      <path d="M4 3h16l-0.3 5h-15.4z" fill="${css(d.head)}"/>
+      <rect x="6" y="10" width="1.5" height="17" fill="#ffffff" opacity="0.25"/>
     </svg>`;
   }
   return `<svg viewBox="0 0 24 32" aria-hidden="true">

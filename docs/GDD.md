@@ -190,3 +190,8 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Hot Tub Time (floating sauna; Dave drops the towel, censored by a pixel mosaic, jumps in, surfaces wearing a cone/bag/duck) | MISSING THE HEATWAVE? 90°C ON A BOAT. 4°C IN THE CANAL. | BOOK A SESSION → FULLY BOOKED BY CONSULTANTS |
 | Narrowboat for sale (£85,000 ONO; the boat keeps moving to a new mooring) | MOVE EVERY 14 DAYS. LIKE RENTING, BUT WET. | ENQUIRE NOW → YOUR TOILET IS NOW FULL |
 | Soft Launch Run Club (matching neon kit, a couple holding hands drifts to the back, hearts instead of sweat) | 5K. 3 DATES. 0 PERSONAL BESTS. | JOIN THE CLUB → MATCHED WITH YOUR EX |
+
+## Draft walker: David (designed, not playable yet)
+- The real local: skinny older man, messy windswept light grey hair, dirty blue boiler suit unzipped at the collar, brown work boots. Drinks a pint of Guinness (new "pint" drink).
+- Saved in `DRAFTS` in characters.js, hidden from the selection screen. Preview locally: `?debug`, then `debug.walker('david')`.
+- To decide: add as a 7th walker or replace someone; free or unlock score (2,000 suggested); unlock line ("DAVID HAS CLOCKED OFF. THE PINT HAS NOT." / "DAVID WAS HERE BEFORE THE OAT MILK.").
