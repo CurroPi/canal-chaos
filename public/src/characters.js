@@ -59,17 +59,17 @@ export const CHARACTERS = [
     unlockLine: 'DAVID IS HERE. THE VICTORY MUST BE SHUT.',
     drink: { name: 'Pint of Guinness', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
   },
-];
-
-// Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
-export const DRAFTS = [
   {
-    id: 'spike', // the Camden punk who walked the wrong way (name to be decided)
+    id: 'spike', // the Camden punk who walked the wrong way
     name: 'Spike',
+    unlockLine: 'SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO.',
     bio: 'Walked from Camden. Thinks this is still Camden.',
     drink: { name: 'Tin of cheap cider', kind: 'can', body: 0x2e6b2e, lid: 0xc0c0c0, band: 0xd9b54a, splash: 0xd9b54a },
   },
 ];
+
+// Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
+export const DRAFTS = [];
 
 export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || DRAFTS.find((c) => c.id === id) || CHARACTERS[0];
 

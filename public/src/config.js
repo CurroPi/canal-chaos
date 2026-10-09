@@ -100,7 +100,7 @@ export const CONFIG = {
   ads: { every: 3, skipAfter: 3 },
 
   // Walkers unlocked by your best score (on this device). Anyone not listed is free from the start.
-  unlocks: { josh: 500, ross: 1000, tanner: 1500, david: 2000 },
+  unlocks: { josh: 500, ross: 1000, tanner: 1500, david: 2000, spike: 2500 },
 
   playerScale: 0.89, // size of your walker (1 = same as everyone else)
 

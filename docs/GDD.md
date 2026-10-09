@@ -39,7 +39,7 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 - **Looks only:** each character has their own appearance, lines and death messages, but they all play the same.
   This keeps the leaderboard fair. Perks may come later, after playtesting.
 
-### The cast (9 walkers)
+### The cast (10 walkers)
 
 | # | Walker | Status | Look | Drink (= extra life) | One-liner |
 |---|---|---|---|---|---|
@@ -52,8 +52,9 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 | 7 | **Ross** | Unlock at 1,000 | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug | Brings his own mug. Brings it up constantly. |
 | 8 | **Tanner** | Unlock at 1,500 | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle | Dressed for K2. Walking to Broadway Market. |
 | 9 | **David** | Unlock at 2,000 | The real local: skinny, bent back, sways when he walks, messy windswept grey hair, dirty blue boiler suit open at the collar, work boots | Pint of Guinness | Always at The Victory. Even when it's shut. |
+| 10 | **Spike** | Unlock at 2,500 | The Camden punk who walked the wrong way: green mohawk, leather jacket with studs, patch and safety pins, red tartan trousers, cherry-red Docs, piercings, wallet chain | Tin of cheap cider | Walked from Camden. Thinks this is still Camden. |
 
-Unlock lines: Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT."
+Unlock lines: Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT." · Spike "SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO."
 Code: `public/src/characters.js` (names, drinks, one-liners, unlock lines), `public/src/models.js` (looks), thresholds in `CONFIG.unlocks`.
 
 Reserve cast ideas for later: Rafe (Startup Founder), Juniper (Natural Wine Person), Otis, Barnaby, Rufus, Ezra, Wilf, Caspar, Arlo.
@@ -181,6 +182,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Ross | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
 | Tanner | 1,500 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
 | David | 2,000 | 🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT. |
+| Spike | 2,500 | 🎉 SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO. |
 
 - Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
 - Game over: a "New walker unlocked!" screen (silhouette turns into the walker, fanfare), then the usual card with a "Try <name> 🆕" button. Thresholds live in config.js.
