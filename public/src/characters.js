@@ -10,7 +10,7 @@ export const CHARACTERS = [
   {
     id: 'alex',
     name: 'Alex',
-    bio: 'Drinks builder\'s tea. Has never built anything.',
+    bio: 'Always wears an Aries tee. She\'s a Pisces.',
     drink: { name: 'Builder\'s tea', kind: 'cup', body: 0xffffff, lid: 0xffffff, tag: 0xffd23f, splash: 0xa0662e },
   },
   {
