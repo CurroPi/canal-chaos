@@ -183,6 +183,7 @@ function showRules() {
     <ul class="rules">
       <li><b>← →</b> or swipe to dodge. Lime bikes, runners, run clubs, dog leads, prams, bridges.</li>
       <li><b>🔔 Listen for bells.</b> Bikes come from behind. The red lane is where they're going.</li>
+      <li><b>👣 Every step counts.</b> How far down the towpath can you get on a Saturday?</li>
       <li><b>☕ Your coffee is your extra life.</b> The narrowboat café pops up every now and then with another.</li>
     </ul>
     <p class="small music-hint">♪ Music on: tap ♪ or press M to mute.</p>
@@ -227,7 +228,7 @@ function showPick() {
   document.getElementById('pickName').textContent = open ? character.name : '???'; // locked: name is a surprise
   document.getElementById('pickDrink').innerHTML = open
     ? `<span class="pick-drink">${drinkSvg(character.drink)}</span> ${character.drink.name}`
-    : `🔒 Reach ${unlockAt(character).toLocaleString('en-GB')} points`;
+    : `🔒 Reach ${unlockAt(character).toLocaleString('en-GB')} steps`;
   document.getElementById('pickBio').textContent = open ? character.bio || '' : '';
   const go = overlay.querySelector('.go');
   if (go) {
@@ -336,7 +337,7 @@ function celebrate(points) {
   lastTitle = m.title;
   const rush = points % CONFIG.rush.every === 0
     ? `<span class="rush">🔥 ${CONFIG.rush.names[(points / CONFIG.rush.every - 1) % CONFIG.rush.names.length]}: everyone speeds up</span>` : '';
-  milestoneEl.innerHTML = `<span class="pts">${points}</span><strong>${m.title}</strong><span class="line">${m.line}</span>${rush}`;
+  milestoneEl.innerHTML = `<span class="pts">${points} steps</span><strong>${m.title}</strong><span class="line">${m.line}</span>${rush}`;
   milestoneEl.classList.remove('show');
   void milestoneEl.offsetWidth; // restart the animation
   milestoneEl.classList.add('show');
@@ -745,7 +746,7 @@ function gameOver(e) {
       <h2>${message}</h2>
       <p class="big">${final}</p>
       ${lastTitle ? `<p class="small last-title">Last title: <b>${lastTitle}</b></p>` : ''}
-      <p class="small">${isRecord ? '🎉 New personal best!' : `Best ${best}`}</p>
+      <p class="small">${isRecord ? '🎉 NEW PB!' : `Best ${best} steps`}</p>
       <div id="board"></div>
       <button>Try again</button>
       <button class="secondary share">📸 Share score</button>
@@ -758,7 +759,7 @@ function gameOver(e) {
       const card = await makeScoreCard({
         shot, score: final, message, walker: played.name, drinkSvg: drinkSvg(played.drink), title: lastTitle, isRecord,
       });
-      const result = await shareCard(card, `I survived ${final.toLocaleString('en-GB')} points on the Regent's Canal. Can you beat me?`);
+      const result = await shareCard(card, `${final.toLocaleString('en-GB')} steps on the Regent's Canal this weekend. Nobody read the sign. Can you beat me?`);
       shareBtn.disabled = false;
       shareBtn.textContent = result === 'downloaded' ? '✓ Image saved, link copied' : '📸 Share score';
     });

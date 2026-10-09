@@ -214,3 +214,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 ## Pilar (built): the potter
 - Wavy shoulder-length dark hair, thick black square glasses, white tee, white apron to the knees, clay everywhere (apron, hands, forearms, cheek, hair). Drinks chai in a wonky celadon mug she made. Unlocks at 500.
 - One-liner: "Does pottery on Wednesdays. Talks about it the other six days."
+
+## Score = steps (built)
+- The score is called **steps** everywhere players see it ("Reach 600 steps", "Best 504 steps", milestone banners "250 steps"). A new record is a **NEW PB!**
+- Share card: "SATURDAY ON THE CANAL. / 1,240 STEPS / BEFORE THE TOWPATH GOT ME.", KILLED BY: <death message>, walker + last title, "BEAT MY STEPS: PLAYCANALCHAOS.COM". Share text: "1,240 steps on the Regent's Canal this weekend. Nobody read the sign. Can you beat me?"

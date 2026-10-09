@@ -56,7 +56,7 @@ export async function makeScoreCard({ shot, score, message, walker, drinkSvg, ti
   await Promise.all([document.fonts.load(`40px ${PIXEL}`), document.fonts.load(`40px ${BODY}`)]);
   const W = 1080;
   const H = 1350;
-  const PHOTO = 760;
+  const PHOTO = 740;
   const c = document.createElement('canvas');
   c.width = W;
   c.height = H;
@@ -96,52 +96,54 @@ export async function makeScoreCard({ shot, score, message, walker, drinkSvg, ti
   g.textAlign = 'left';
   g.fillStyle = '#b45309';
   g.font = `30px ${PIXEL}`;
-  g.fillText('I SURVIVED', 60, PHOTO + 72);
+  g.fillText('SATURDAY ON THE CANAL.', 60, PHOTO + 72);
   g.font = `110px ${PIXEL}`;
-  const points = score.toLocaleString('en-GB');
+  const steps = score.toLocaleString('en-GB');
   g.fillStyle = '#b6d7a8';
-  g.fillText(points, 66, PHOTO + 196);
+  g.fillText(steps, 66, PHOTO + 196);
   g.fillStyle = INK;
-  g.fillText(points, 60, PHOTO + 190);
-  const pw = g.measureText(points).width;
+  g.fillText(steps, 60, PHOTO + 190);
+  const pw = g.measureText(steps).width;
   g.font = `30px ${PIXEL}`;
-  g.fillText('POINTS', 60 + pw + 24, PHOTO + 190);
+  g.fillText('STEPS', 60 + pw + 24, PHOTO + 190);
+  g.font = `26px ${PIXEL}`;
+  g.fillText('BEFORE THE TOWPATH GOT ME.', 60, PHOTO + 250);
 
   if (isRecord) { // tilted "new best" sticker
     g.save();
-    g.translate(880, PHOTO + 64);
+    g.translate(870, PHOTO - 20);
     g.rotate(0.08);
     g.font = `22px ${PIXEL}`;
     box(g, -150, -38, 300, 76, '#ffd23f', 5, 7);
     g.fillStyle = INK;
     g.textAlign = 'center';
-    g.fillText('NEW BEST!', 0, 12);
+    g.fillText('NEW PB!', 0, 12);
     g.restore();
     g.textAlign = 'left';
   }
 
   g.fillStyle = '#6b6b6b';
   g.font = `40px ${BODY}`;
-  g.fillText('KILLED BY:', 60, PHOTO + 264);
+  g.fillText('KILLED BY:', 60, PHOTO + 318);
   g.fillStyle = INK;
   g.font = `54px ${BODY}`;
-  wrap(g, message, W - 120, 2).forEach((line, i) => g.fillText(line, 60, PHOTO + 318 + i * 50));
+  wrap(g, message, W - 120, 2).forEach((line, i) => g.fillText(line, 60, PHOTO + 370 + i * 48));
 
   // Who you were, and your last title
   const icon = drinkSvg ? await svgImage(drinkSvg) : null;
-  if (icon) g.drawImage(icon, 60, PHOTO + 404, 36, 48);
+  if (icon) g.drawImage(icon, 60, PHOTO + 446, 33, 44);
   g.fillStyle = '#4a4a4a';
   g.font = `40px ${BODY}`;
-  g.fillText(`as ${walker}${title ? ` · ${title}` : ''}`, icon ? 108 : 60, PHOTO + 442);
+  g.fillText(`as ${walker}${title ? ` · ${title}` : ''}`, icon ? 104 : 60, PHOTO + 480);
 
   // Call to action
   g.font = `26px ${PIXEL}`;
-  const cta = 'BEAT ME: PLAYCANALCHAOS.COM';
+  const cta = 'BEAT MY STEPS: PLAYCANALCHAOS.COM';
   const cw = g.measureText(cta).width + 60;
-  box(g, (W - cw) / 2, H - 100, cw, 66, '#ffd23f', 5, 8);
+  box(g, (W - cw) / 2, H - 92, cw, 62, '#ffd23f', 5, 8);
   g.fillStyle = INK;
   g.textAlign = 'center';
-  g.fillText(cta, W / 2, H - 54);
+  g.fillText(cta, W / 2, H - 48);
   return c;
 }
 
