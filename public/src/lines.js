@@ -54,7 +54,7 @@ export const LINES = {
     'This used to be a squat',
   ],
 
-  // Oatley's own reactions
+  // Fallback reactions (each walker has their own in characters.js)
   spill: [
     'MY OAT FLAT WHITE!',
     '£4.80. Gone.',

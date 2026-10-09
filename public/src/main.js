@@ -198,7 +198,7 @@ function showRules() {
       <li><b>← →</b> or swipe to dodge. Lime bikes, runners, run clubs, dog leads, prams, bridges.</li>
       <li><b>🔔 Listen for bells.</b> Bikes come from behind. The red lane is where they're going.</li>
       <li><b>👣 Every step counts.</b> How far down the towpath can you get on a Saturday?</li>
-      <li><b>☕ Your coffee is your extra life.</b> The narrowboat café pops up every now and then with another.</li>
+      <li><b>☕ Your drink is your extra life.</b> Coffee, matcha, a pint: spill it and you get one more go. The narrowboat café pops up every now and then with a refill.</li>
     </ul>
     <p class="small music-hint">♪ Music on: tap ♪ or press M to mute.</p>
     <button>Choose your walker</button>
@@ -606,8 +606,8 @@ function spillCoffee() {
   spilledAt = elapsed;
   score = Math.max(0, score - c.spillPenalty);
   spillSound();
-  floatText(`☕ SPILLED! −${c.spillPenalty}`, 'bad');
-  playerSays(LINES.spill);
+  floatText(`${character.emoji || '☕'} SPILLED! −${c.spillPenalty}`, 'bad');
+  playerSays(character.spill || LINES.spill); // each walker mourns their own drink
 
   // Splash of coffee
   const pos = player.group.position;
@@ -631,12 +631,12 @@ function collectCoffee(e) {
   entities = entities.filter((o) => o !== e);
   if (coffees >= CONFIG.coffee.max) {
     score += CONFIG.cafe.bonusIfFull;
-    floatText(`+${CONFIG.cafe.bonusIfFull} ☕ EXTRA SHOT`);
+    floatText(`+${CONFIG.cafe.bonusIfFull} ${character.emoji || '☕'} TOP-UP`);
   } else {
     coffees++;
     setCoffee(player, coffees);
-    floatText('☕ REFILL! £4.80');
-    playerSays(LINES.refill);
+    floatText(`${character.emoji || '☕'} REFILL!`);
+    playerSays(character.refill || LINES.refill);
   }
   pickupSound();
   updateHud();
