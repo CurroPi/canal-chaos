@@ -39,9 +39,6 @@ export const CONFIG = {
     gapStart: 14,        // seconds between them at the start...
     gapMin: 6,           // ...and at max busyness
     warn: 1.1,           // seconds of warning
-    swerveFrom: 60,      // after this many seconds, they may switch lanes at the last moment
-    swerveChance: 0.5,
-    swerveAt: 0.6,       // ...this many seconds before reaching you
   },
 
   // Hackney specials: one-off surprises, each appears once per run (then the list reshuffles)
@@ -117,6 +114,7 @@ export const CONFIG = {
     warnStart: 1.3,     // seconds of warning before they reach you...
     warnMin: 0.75,      // ...and at max busyness
     sameLaneAsYou: 0.6, // chance they come for the lane you're in
+    clearBefore: 1.5,   // never warn about a Lime this many seconds before a delivery bike is due (one warning at a time)
   },
 
   // Bridges squeeze the path from the wall side

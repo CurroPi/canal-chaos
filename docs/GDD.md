@@ -177,4 +177,4 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Tanner | 1,500 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
 
 - Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
-- Game over: unlock celebration with the fanfare. Thresholds live in config.js.
+- Game over: a "New walker unlocked!" screen (silhouette turns into the walker, fanfare), then the usual card with a "Try <name> 🆕" button. Thresholds live in config.js.

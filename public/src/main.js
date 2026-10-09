@@ -229,7 +229,11 @@ function showPick() {
     go.textContent = open ? 'Start walking' : 'Locked';
   }
   document.getElementById('pickDots').textContent = CHARACTERS.map((c) => (c === character ? '■' : '□')).join(' ');
-  // Face the camera for the preview
+  placePreview();
+}
+
+// Big walker in front of the camera (selection and unlock screens)
+function placePreview() {
   player.group.position.set(0, 0, CONFIG.select.previewZ);
   player.group.scale.setScalar(CONFIG.select.previewScale * CONFIG.playerScale);
 }
@@ -544,25 +548,6 @@ function bookDelivery() {
   return true;
 }
 
-// Late in the run, a delivery rider may dart into another lane just before reaching you.
-// Only into a lane that keeps a way through, and the red flash moves with them.
-function maybeSwerve(e) {
-  const d = CONFIG.delivery;
-  if (e.kind !== 'delivery' || e.swerveChecked || elapsed < d.swerveFrom) return;
-  if (e.model.group.position.z > e.gain * d.swerveAt + 0.5) return;
-  e.swerveChecked = true;
-  if (Math.random() > d.swerveChance) return;
-  const others = entities;
-  entities = entities.filter((o) => o !== e);
-  const options = shuffle([e.lanes[0] - 1, e.lanes[0] + 1].filter((l) => l >= 0 && l <= 2));
-  const to = options.find((l) => canPlace([l], e.span, e.arrival, false));
-  entities = others;
-  if (to === undefined) return;
-  e.lanes = [to];
-  if (e.flash) e.flash.position.x = CONFIG.lanes[to];
-  bell();
-}
-
 function removeFlash(e) {
   if (e.flash) {
     scene.remove(e.flash);
@@ -738,9 +723,17 @@ function gameOver(e) {
   if (isRecord) { best = final; saveBest(best); }
   const unlocked = CHARACTERS.filter((c) => unlockAt(c) > before && unlockAt(c) <= best);
   updateHud();
-  overlayTimer = setTimeout(() => {
+  const played = character;
+  const newest = unlocked[unlocked.length - 1];
+  const showCard = () => {
+    if (unlocked.length) {
+      // Back to the walker you played (the leaderboard records them), lying where they fell
+      setCharacter(played);
+      player.group.position.set(CONFIG.lanes[lane], 0, 0);
+      player.group.rotation.x = -1.4;
+      state = 'over';
+    }
     showOverlay(`
-      ${unlocked.map((c) => `<p class="unlock">🎉 ${c.unlockLine}</p>`).join('')}
       <p class="small label">Cause of death</p>
       <h2>${message}</h2>
       <p class="big">${final}</p>
@@ -748,12 +741,44 @@ function gameOver(e) {
       <p class="small">${isRecord ? '🎉 New personal best!' : `Best ${best}`}</p>
       <div id="board"></div>
       <button>Try again</button>
-      <button class="secondary">Change walker</button>
+      <button class="secondary">${newest ? `Try ${newest.name} 🆕` : 'Change walker'}</button>
     `);
-    overlay.querySelector('.secondary').addEventListener('click', showSelect);
-    if (unlocked.length) fanfare();
+    overlay.querySelector('.secondary').addEventListener('click', () => {
+      if (newest) setCharacter(newest);
+      showSelect();
+    });
     if (leaderboardEnabled()) showLeaderboard(final);
-  }, 700);
+  };
+  overlayTimer = setTimeout(() => (unlocked.length ? showUnlocks(unlocked, showCard) : showCard()), 700);
+}
+
+// A new walker unlocked: their own screen. They turn as a silhouette, then light up with the fanfare.
+function showUnlocks(list, done) {
+  const [c, ...rest] = list;
+  const next = () => {
+    clearTimeout(overlayTimer); // skipped before the reveal
+    if (rest.length) showUnlocks(rest, done);
+    else done();
+  };
+  state = 'unlock';
+  for (const e of entities) { e.model.group.visible = false; removeFlash(e); }
+  setCharacter(c);
+  silhouette(player);
+  placePreview();
+  showOverlay(`
+    <p class="unlock-title">New walker unlocked!</p>
+    <h2 class="unlock-name">???</h2>
+    <p class="unlock">${c.unlockLine}</p>
+    <button>Continue</button>
+  `, next, 'unlock-card');
+  overlay.classList.add('clear');
+  overlayTimer = setTimeout(() => {
+    setCharacter(c); // in full colour
+    placePreview();
+    overlay.querySelector('.unlock-name').textContent = c.name;
+    overlay.querySelector('.unlock-card').classList.add('revealed');
+    fanfare();
+  }, 900);
 }
 
 // ---------- Leaderboard ----------
@@ -916,6 +941,10 @@ window.addEventListener('keydown', (e) => {
     else if (e.key === ' ' || e.key === 'Enter') start();
     return;
   }
+  if (state === 'unlock') {
+    if (e.key === ' ' || e.key === 'Enter') overlay.querySelector('button')?.click();
+    return;
+  }
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move(-1);
   else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') move(1);
   else if ((e.key === ' ' || e.key === 'Enter') && state !== 'playing') start();
@@ -1010,8 +1039,14 @@ function step(dt, t) {
     behindTimer -= dt;
     if (behindTimer <= 0) {
       const o = CONFIG.overtaking;
-      spawnBehind('lime', { speed: o.speed, hitZ: o.hitZ, warn: lerp(o.warnStart, o.warnMin, progress()), sameLaneAsYou: o.sameLaneAsYou });
-      behindTimer = rushGap(lerp(o.gapStart, o.gapMin, progress()) * (0.8 + Math.random() * 0.4));
+      const warn = lerp(o.warnStart, o.warnMin, progress());
+      // Only one warning at a time: wait while another bike is coming or a delivery is due soon
+      const busy = entities.some((e) => e.flash) || reservations.some((r) => r.at < elapsed + warn + o.clearBefore);
+      if (busy) behindTimer = 0.5;
+      else {
+        spawnBehind('lime', { speed: o.speed, hitZ: o.hitZ, warn, sameLaneAsYou: o.sameLaneAsYou });
+        behindTimer = rushGap(lerp(o.gapStart, o.gapMin, progress()) * (0.8 + Math.random() * 0.4));
+      }
     }
 
     deliveryTimer -= dt;
@@ -1057,7 +1092,7 @@ function step(dt, t) {
       const g = e.model.group;
       g.position.z += (e.own + walk) * dt;
       ENEMIES[e.kind].animate(e.model, t);
-      if (e.fromBehind) { maybeSwerve(e); steerOvertaker(e, dt); }
+      if (e.fromBehind) steerOvertaker(e, dt);
       if (!e.model.fade) g.visible = g.position.z < CONFIG.hideNearCameraZ; // don't block the view
       checkCloseCall(e);
       // Bridges fade as they pass the camera so they don't block the view
@@ -1094,7 +1129,7 @@ function step(dt, t) {
   } else if (state === 'over') {
     // Topple over backwards
     player.group.rotation.x += (-1.4 - player.group.rotation.x) * Math.min(1, dt * 8);
-  } else if (state === 'select') {
+  } else if (state === 'select' || state === 'unlock') {
     player.group.rotation.y += dt * 0.9; // slow turntable
     animateWalk(player, t, 3);
   } else {
@@ -1178,8 +1213,13 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
   window.models = { makeCargoBike, ENEMIES, GAGS, makeNarrowboat, addPosters };
   window.debug = {
     get state() { return { state, elapsed, score, lane, coffees }; },
-    get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z) })); },
+    get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z), warning: Boolean(e.flash) })); },
     skip(seconds) { elapsed += seconds; },
+    // Fast-forward the game without waiting for the screen; onStep runs after every step
+    simulate(seconds, onStep) {
+      const dt = 1 / 60;
+      for (let i = 0; i < seconds / dt && state === 'playing'; i++) { step(dt, clock.elapsedTime + i * dt); onStep?.(); }
+    },
     godMode() { invulnUntil = Infinity; },
     landmark(kind) { world.forceNext = kind; },
     gag(kind) { world.forceGag = kind; },
