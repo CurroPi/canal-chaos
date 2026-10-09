@@ -398,6 +398,38 @@ LOOKS.spike = {
   },
 };
 
+// Fern, back from Columbia Road: Breton top, linen trousers, bun, round shades, hugging a giant fiddle-leaf fig
+LOOKS.fern = {
+  body: { skin: 0xf1c9a5, shirt: 0xf7f5ef, legs: 0xe9dfc9, shoes: 0xf5f5f5, hair: 0x8a5a35 },
+  dress(p) {
+    p.head.add(box(0.2, 0.16, 0.2, 0x8a5a35, 0, 0.3, -0.08));      // top bun...
+    p.head.add(box(0.22, 0.04, 0.22, 0xe07a5f, 0, 0.24, -0.08));    // ...with a scrunchie
+    p.head.add(box(0.38, 0.22, 0.06, 0x8a5a35, 0, 0.08, -0.18));    // hair pulled back
+    for (const x of [-0.09, 0.09]) p.head.add(box(0.1, 0.09, 0.03, 0x3a2a1d, x, 0.03, 0.19)); // round shades
+    for (const y of [1.3, 1.2, 1.1, 1.0, 0.9]) p.rig.add(box(0.57, 0.035, 0.33, 0x1f3a6b, 0, y, 0)); // Breton stripes
+    for (const arm of [p.armL, p.armR]) for (const y of [-0.1, -0.22, -0.34]) arm.add(box(0.16, 0.03, 0.17, 0x1f3a6b, 0, y, 0));
+    for (const leg of [p.legL, p.legR]) leg.add(box(0.26, 0.6, 0.28, 0xe9dfc9, 0, -0.33, 0)); // wide linen trousers
+
+    // The plant: a terracotta pot hugged to her chest, and a fiddle-leaf fig taller than she is
+    const plant = new THREE.Group();
+    plant.position.set(0, 1.05, 0.34);
+    plant.add(box(0.34, 0.3, 0.3, 0xc0663f, 0, 0, 0));             // pot
+    plant.add(box(0.38, 0.06, 0.34, 0xa8532f, 0, 0.15, 0));         // rim
+    plant.add(box(0.06, 1.3, 0.06, 0x6b4a2b, 0, 0.75, -0.05));      // trunk
+    const LEAF = [0x2e7d32, 0x3f9a44, 0x256b2a];
+    for (const [y, side, tilt, size] of [
+      [0.45, -1, 0.5, 0.9], [0.6, 1, 0.4, 1], [0.8, -1, 0.3, 1.1], [0.95, 1, 0.5, 1.1],
+      [1.15, -1, 0.6, 1], [1.3, 1, 0.3, 1], [1.45, -1, 0.2, 0.9], [1.6, 1, 0.5, 0.8], [1.7, 0, 0.1, 0.8],
+    ]) {
+      const leaf = box(0.28 * size, 0.04, 0.4 * size, LEAF[Math.round(y * 10) % 3], side * 0.18 * size, y, -0.05);
+      leaf.rotation.set(-tilt, 0, side * 0.6);
+      plant.add(leaf);
+      plant.add(box(0.02, 0.02, 0.36 * size, 0x86c96a, side * 0.18 * size, y + 0.025, -0.05).rotateZ(side * 0.6).rotateX(-tilt)); // leaf vein
+    }
+    p.rig.add(plant);
+  },
+};
+
 // David: skinny old boy, light grey hair, dirty blue boiler suit unzipped halfway, a pint in hand
 LOOKS.david = {
   body: { skin: 0xe6b99c, shirt: 0x2f5486, legs: 0x2f5486, shoes: 0x3a2a1d, hair: 0xd2d2d2 },

@@ -70,7 +70,14 @@ export const CHARACTERS = [
 ];
 
 // Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
-export const DRAFTS = [];
+export const DRAFTS = [
+  {
+    id: 'fern', // the Columbia Road Sunday shopper, hugging a huge plant
+    name: 'Fern',
+    bio: 'Bought a fiddle-leaf fig. It will be dead by Wednesday.',
+    drink: { name: 'Iced oat latte', kind: 'cup', body: 0xd8b48a, lid: 0xf2f2f2, straw: 0x3f9a44, splash: 0xd8b48a },
+  },
+];
 
 export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || DRAFTS.find((c) => c.id === id) || CHARACTERS[0];
 
