@@ -56,7 +56,14 @@ export const CHARACTERS = [
 ];
 
 // Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
-export const DRAFTS = [];
+export const DRAFTS = [
+  {
+    id: 'pilar', // the potter
+    name: 'Pilar',
+    bio: 'Does pottery on Wednesdays. Talks about it the other six days.',
+    drink: { name: 'Chai in a mug she made', kind: 'mug', body: 0x8fb3a6, coffee: 0xc8935f, splash: 0xc8935f },
+  },
+];
 
 export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || DRAFTS.find((c) => c.id === id) || CHARACTERS[0];
 

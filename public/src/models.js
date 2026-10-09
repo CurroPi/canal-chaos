@@ -300,6 +300,57 @@ LOOKS.jasper = {
   },
 };
 
+// Pilar, the potter: wavy shoulder-length dark hair, thick square glasses, white tee, white apron, clay everywhere
+const CLAY = 0xb9805e;
+const CLAY_DRY = 0xcdb8a6;
+LOOKS.pilar = {
+  body: { skin: 0xebc3a6, shirt: 0xf4f4f2, legs: 0x3b3b40, shoes: 0x8a5a35, hair: 0x3b2618 },
+  dress(p) {
+    // Wavy dark hair to the shoulders, a bit wild
+    p.head.add(box(0.42, 0.12, 0.42, 0x3b2618, 0, 0.22, 0));
+    for (const x of [-0.2, 0.2]) {
+      p.head.add(box(0.08, 0.42, 0.36, 0x3b2618, x, -0.08, -0.02));     // sides, past the jaw
+      p.head.add(box(0.1, 0.14, 0.3, 0x3b2618, x * 1.12, -0.3, -0.04));  // flicking out at the shoulders
+    }
+    p.head.add(box(0.42, 0.48, 0.08, 0x3b2618, 0, -0.08, -0.2));        // back
+    for (const [x, y, z, rz] of [[-0.12, 0.29, 0.1, 0.5], [0.1, 0.3, 0.02, -0.4], [0.2, 0.18, 0.1, -0.7], [-0.22, 0.1, 0.1, 0.6]]) {
+      const wave = box(0.1, 0.1, 0.12, 0x4a3020, x, y, z);              // waves and frizz
+      wave.rotation.z = rz;
+      p.head.add(wave);
+    }
+    p.head.add(box(0.16, 0.06, 0.06, 0x3b2618, -0.08, 0.16, 0.18));     // side-parted fringe
+    // Thick black square glasses
+    for (const x of [-0.09, 0.09]) {
+      p.head.add(box(0.15, 0.12, 0.03, 0x111111, x, 0.03, 0.19));
+      p.head.add(box(0.09, 0.07, 0.02, 0xdfe9ef, x, 0.03, 0.205));
+    }
+    p.head.add(box(0.05, 0.03, 0.03, 0x111111, 0, 0.06, 0.19));
+    // Clay in her hair and on her cheek
+    for (const [x, y, z] of [[-0.14, 0.27, 0.12], [0.08, 0.29, -0.05], [0.21, 0.02, 0.06], [-0.21, -0.18, 0.02], [0.02, 0.28, 0.16]]) {
+      p.head.add(box(0.06, 0.04, 0.06, CLAY_DRY, x, y, z));
+    }
+    p.head.add(box(0.06, 0.04, 0.02, CLAY, 0.11, -0.08, 0.185));
+
+    // White apron over the tee: bib, neck strap, waist tie, and a skirt to the knees
+    p.rig.add(box(0.4, 0.42, 0.03, 0xfbfaf6, 0, 1.13, 0.17));
+    for (const x of [-0.12, 0.12]) p.rig.add(box(0.04, 0.22, 0.03, 0xfbfaf6, x, 1.44, 0.15));
+    p.rig.add(box(0.6, 0.05, 0.36, 0xe8e4da, 0, 0.92, 0));
+    p.rig.add(box(0.48, 0.48, 0.03, 0xfbfaf6, 0, 0.66, 0.2));
+    p.rig.add(box(0.2, 0.12, 0.02, 0xe8e4da, 0, 1.08, 0.19));            // front pocket
+    p.rig.add(box(0.02, 0.14, 0.02, 0x8a5a35, 0.06, 1.15, 0.2));         // a clay tool in it
+    // Clay everywhere: smears and handprints on the apron, clay-covered hands and forearms
+    for (const [x, y, w, h, c] of [
+      [-0.12, 1.25, 0.1, 0.06, CLAY], [0.1, 0.98, 0.08, 0.1, CLAY], [-0.08, 0.72, 0.12, 0.08, CLAY],
+      [0.14, 0.58, 0.06, 0.12, CLAY_DRY], [0.02, 0.85, 0.06, 0.04, CLAY_DRY], [-0.16, 0.5, 0.08, 0.06, CLAY],
+    ]) p.rig.add(box(w, h, 0.02, c, x, y, 0.22));
+    for (const arm of [p.armL, p.armR]) {
+      arm.add(box(0.14, 0.14, 0.15, CLAY_DRY, 0, -0.47, 0));           // clay up the forearms...
+      arm.add(box(0.14, 0.13, 0.14, CLAY, 0, -0.6, 0));                // ...and caked on the hands
+    }
+    p.legL.add(box(0.21, 0.08, 0.02, CLAY_DRY, 0, -0.55, 0.115));
+  },
+};
+
 // David: skinny old boy, light grey hair, dirty blue boiler suit unzipped halfway, a pint in hand
 LOOKS.david = {
   body: { skin: 0xe6b99c, shirt: 0x2f5486, legs: 0x2f5486, shoes: 0x3a2a1d, hair: 0xd2d2d2 },
