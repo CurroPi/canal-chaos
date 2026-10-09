@@ -194,7 +194,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 ## Draft walker: David (designed, not playable yet)
 - The real local: skinny older man, messy windswept light grey hair, dirty blue boiler suit unzipped at the collar, brown work boots. Drinks a pint of Guinness (new "pint" drink).
 - Saved in `DRAFTS` in characters.js, hidden from the selection screen. Preview locally: `?debug`, then `debug.walker('david')`.
-- To decide: add as a 7th walker or replace someone; free or unlock score (2,000 suggested); unlock line chosen: "DAVID HAS LEFT THE VICTORY. FIRST TIME SINCE 1987.".
+- To decide: add as a 7th walker or replace someone; free or unlock score (2,000 suggested); unlock line chosen: "DAVID IS HERE. THE VICTORY MUST BE SHUT.".
 
 ## Jasper (built) and walker one-liners
 - Jasper, the face on the favicon: red bobble beanie, thick black glasses, big brown beard, dark green top, cream tote. Drinks a matcha latte. Free from the start.
