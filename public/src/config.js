@@ -169,7 +169,5 @@ export const CONFIG = {
   tile: { length: 20, count: 8 },
 
   camera: { fov: 60, x: 0, y: 4.2, z: 7.5, lookY: 1, lookZ: -8 },
-  // Phones held upright: higher and closer, tilted down (less sky, bigger walker near the bottom).
-  // The camera stays still (only the walker moves); `widen` = how much the view widens so all three lanes fit
-  cameraPortrait: { fov: 52, x: 0, y: 4.8, z: 4.2, lookY: 0, lookZ: -5.5, widen: 0.85 },
+  cameraPortrait: { fov: 52, x: 0, y: 3.3, z: 6.2, lookY: 0.4, lookZ: -9 }, // phones held upright
 };

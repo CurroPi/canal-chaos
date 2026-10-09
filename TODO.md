@@ -4,7 +4,7 @@
 
 ### Now: quick wins
 1. [x] **Share button on game over**: a pixel-art score card image ("I SURVIVED 1,240 POINTS ON THE REGENT'S CANAL · Killed by: a run club · playcanalchaos.com"), shared in one tap (phone share sheet; download on desktop).
-2. [x] **Phone polish**: check the camera on tall phones (too much sky, player too small) and fix.
+2. [x] **Phone polish**: tried a new phone camera; Curro prefers the original framing, so it stays as it was.
 
 ### Next: real players
 3. [ ] **Friends playtest** (5–10 people, one week). Before it starts: anonymous stats (score, cause of death, seconds, walker) so we can see where and why people die.
@@ -43,6 +43,6 @@
 - Hosting: GitHub Pages at playcanalchaos.com; favicon and phone icons.
 - Marketing stills for LinkedIn and Instagram.
 - Score is called steps; NEW PB; share button with a pixel score card (crash snapshot, Saturday-on-the-canal copy).
-- Phone camera: less sky, bigger walker; the camera stays still (sideways follow tried and removed: confusing).
+- Phone camera: tried less sky + bigger walker + sideways follow; reverted to the original framing (preferred).
 - Opening camera swing (first walk and after changing walker) with name + one-liner caption and whoosh.
 - Every walker spills and refills their own drink (own lines and icon).
