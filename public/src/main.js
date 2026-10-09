@@ -7,7 +7,7 @@ import { ENEMIES } from './enemies.js';
 import { CHARACTERS, characterById, drinkSvg } from './characters.js';
 import { leaderboardEnabled, topScores, submitScore, rankOf, bestOf, cleanName } from './leaderboard.js';
 import { titleFor } from './titles.js';
-import { playAd } from './ads.js';
+import { playAd, queueAd } from './ads.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -1235,7 +1235,7 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     get state() { return { state, elapsed, score, lane, coffees }; },
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z), warning: Boolean(e.flash) })); },
     skip(seconds) { elapsed += seconds; },
-    adNext() { gamesOver = CONFIG.ads.every - 1; }, // the next game over shows an ad
+    adNext(i) { gamesOver = CONFIG.ads.every - 1; if (i !== undefined) queueAd(i); }, // the next game over shows an ad (optionally which)
     // Fast-forward the game without waiting for the screen; onStep runs after every step
     simulate(seconds, onStep) {
       const dt = 1 / 60;

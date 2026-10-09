@@ -21,7 +21,9 @@ const FONT = {
   P: '110101110100100', Q: '010101101110011', R: '110101110101101', S: '011100010001110', T: '111010010010010',
   U: '101101101101111', V: '101101101101010', W: '101101111111101', X: '101101010101101', Y: '101101010010010',
   Z: '111001010100111', ' ': '000000000000000',
-  0: '111101101101111', 4: '101101111001001', 9: '111101111001111', '°': '010101010000000',
+  0: '111101101101111', 1: '010110010010111', 2: '111001111100111', 3: '111001111001111', 4: '101101111001001',
+  5: '111100111001111', 6: '111100111101111', 7: '111001001001001', 8: '111101111101111', 9: '111101111001111',
+  '°': '010101010000000', ':': '000010000010000', '/': '001001010100100', '.': '000000000000010',
 };
 const textWidth = (s, k = 1) => s.length * 4 * k - k;
 function text(s, x, y, c, k = 1) {
@@ -345,6 +347,135 @@ function sauna(t) {
   }
 }
 
+// ---------- Rent Free: live on a narrowboat (and move every 14 days) ----------
+function backdrop(spot, t) { // where the boat is moored this fortnight
+  if (spot === 0) { // warehouse wall with graffiti
+    bricks(0, 14, W, 38, 41);
+    g.globalAlpha = 0.6; text('NO MOORING', 50, 24, '#f0f0f0'); g.globalAlpha = 1;
+  } else if (spot === 1) { // Victoria Park trees
+    R('#8fc1e8', 0, 14, W, 38);
+    seed = 51;
+    for (let i = 0; i < 40; i++) {
+      const x = Math.floor(rnd() * W);
+      const y = 18 + Math.floor(rnd() * 22);
+      R(['#3f7d3a', '#4f9a44', '#2e6a2c'][i % 3], x, y, 10, 8);
+    }
+    for (let x = 6; x < W; x += 22) R('#5b3a22', x + 4, 40, 2, 12);
+  } else { // the gasholder frame
+    R('#a9c9e6', 0, 14, W, 38);
+    for (let x = 30; x <= 130; x += 12) R('#5a6068', x, 18, 2, 34);
+    for (const y of [18, 30, 42]) R('#5a6068', 28, y, 106, 2);
+    for (let x = 30; x < 130; x += 12) L('#5a6068', x, 30, x + 12, 18);
+  }
+  cloud((50 + t * 2) % 200 - 30, 2);
+}
+function narrowboat(bx) {
+  bx = Math.round(bx);
+  R('#1b1b1b', bx, 88, 120, 8); R('#2b2b2b', bx + 2, 96, 116, 2); R('#c9a227', bx, 88, 120, 1); // hull
+  R('#1b1b1b', bx + 118, 86, 6, 6); R('#1b1b1b', bx - 4, 86, 6, 6);                              // bow and stern
+  R('#2f6b4a', bx + 8, 72, 104, 16); R('#b8322a', bx + 8, 72, 104, 2); R('#f1e3b8', bx + 8, 84, 104, 1);
+  text('RENT FREE', bx + 46, 77, '#f1e3b8');
+  for (const x of [14, 26, 90, 102]) { R('#c9a227', bx + x, 76, 5, 5); R('#2d3d4a', bx + x + 1, 77, 3, 3); } // portholes
+  R('#244f37', bx + 6, 70, 108, 2); // roof
+  R('#3a4a5c', bx + 12, 66, 18, 4); for (let i = 0; i < 18; i += 3) R('#6c87a8', bx + 12 + i, 66, 2, 4);      // solar panel
+  L('#1b1b1b', bx + 36, 69, bx + 40, 64); L('#1b1b1b', bx + 40, 64, bx + 48, 64); L('#1b1b1b', bx + 48, 64, bx + 52, 69); // bike
+  R('#1b1b1b', bx + 34, 67, 4, 3); R('#1b1b1b', bx + 50, 67, 4, 3);
+  for (let i = 0; i < 4; i++) { R('#8a5a35', bx + 58 + i * 4, 67, 3, 3); R('#3f9a44', bx + 58 + i * 4, 64, 3, 3); }  // plant pots
+  for (let i = 0; i < 3; i++) R('#7a5230', bx + 78, 64 + i * 2, 10, 2);                                     // log pile
+  R('#c0392b', bx + 92, 64, 4, 6);                                                                         // gas bottle
+  R('#1b1b1b', bx + 104, 58, 3, 12);                                                                       // stove chimney
+}
+function boatLife(t) {
+  const loop = t % 9;
+  const spot = Math.floor(t / 9) % 3;
+  R('#cfe3f1', 0, 0, W, 14);
+  backdrop(spot, t);
+  R('#cfc6b2', 0, 52, W, 10);
+  for (let x = 0; x < W; x += 9) R('#b8af9a', x, 55 + (x % 2) * 3, 5, 2);
+  R('#8c8577', 0, 62, W, 2);
+  R('#3e5f4c', 0, 64, W, 56);
+  for (let i = 0; i < 28; i++) R('#527a63', Math.round((i * 41 + t * 5) % 180) - 10, 68 + (i * 17) % 50, 7, 1);
+
+  // In, moored for 14 days, then off again
+  let bx = 20;
+  if (loop < 1.5) bx = -130 + 150 * (loop / 1.5);
+  else if (loop > 7) bx = 20 + 160 * ((loop - 7) / 2);
+  const day = Math.min(14, Math.max(1, Math.floor((loop - 1.5) / 5.5 * 14) + 1));
+  g.globalAlpha = 0.25; R('#1b1b1b', Math.round(bx), 99, 124, 3); g.globalAlpha = 1;
+  narrowboat(bx);
+  for (let i = 0; i < 5; i++) { // stove smoke
+    const k = (t * 0.6 + i / 5) % 1;
+    g.globalAlpha = 0.6 * (1 - k);
+    R('#d8d8d8', Math.round(bx + 105 - k * 8), Math.round(56 - k * 30), 2 + Math.round(k * 4), 2 + Math.round(k * 4));
+    g.globalAlpha = 1;
+  }
+
+  // The towpath day counter
+  const urgent = day >= 12 && loop > 1.5 && loop <= 7;
+  const flash = urgent && Math.floor(t * 4) % 2 === 0;
+  R('#5b3a22', 136, 40, 2, 14);
+  R('#1b1b1b', 120, 30, 34, 13);
+  R(flash ? '#c81e3a' : '#fffaf0', 121, 31, 32, 11);
+  textC('DAY', 137, 32, flash ? '#fffaf0' : '#1b1b1b');
+  textC(`${loop > 7 ? 14 : day}/14`, 137, 38, flash ? '#fffaf0' : '#c81e3a');
+}
+
+// ---------- Soft Launch Run Club: running, technically ----------
+const HEART = ['01010', '11111', '11111', '01110', '00100'];
+function heart(x, y, c) {
+  g.fillStyle = c;
+  HEART.forEach((row, j) => [...row].forEach((b, i) => { if (b === '1') g.fillRect(Math.round(x) + i, Math.round(y) + j, 1, 1); }));
+}
+function runner(x, feet, t, top, skin, hair, k = 2) { // a runner, k pixels per pixel
+  const P = (c, dx, dy, w, h) => R(c, Math.round(x) + dx * k, feet + dy * k, w * k, h * k);
+  const step = Math.floor(t * 8) % 2;
+  P(hair, 0, -14, 3, 1); P(skin, 0, -13, 3, 3);
+  P(top, 0, -10, 3, 5); P(skin, step ? -1 : 3, -9, 1, 3); // swinging arm
+  P('#1b1b1b', 0, -5, 3, 2);
+  if (step) { P(skin, -1, -3, 1, 3); P(skin, 3, -3, 1, 3); } else { P(skin, 1, -3, 1, 3); }
+  P('#fafafa', -1, 0, 2, 1); P('#fafafa', 2, 0, 2, 1);
+}
+function runClub(t) {
+  const scroll = t * 30;
+  R('#bcd7ee', 0, 0, W, 22);
+  for (let i = -1; i < 10; i++) { // far bank, sliding past
+    const x = Math.round(i * 20 - (scroll * 0.3) % 20);
+    const h = 12 + ((i + Math.floor(scroll * 0.3 / 20)) * 7 % 3) * 6;
+    const col = ['#9a4733', '#7a7f86', '#b05a40'][(i + Math.floor(scroll * 0.3 / 20) + 3) % 3];
+    R(col, x, 46 - h, 18, h);
+    for (let wy = 46 - h + 3; wy < 43; wy += 5) for (let wx = 3; wx < 16; wx += 5) R('#2d3d4a', x + wx, wy, 2, 2);
+  }
+  R('#3e5f4c', 0, 46, W, 20);
+  for (let i = 0; i < 16; i++) R('#527a63', Math.round(((i * 37) - scroll * 0.5) % 170 + 170) % 170 - 5, 48 + (i * 7) % 16, 7, 1);
+  R('#8c8577', 0, 66, W, 2);
+  R('#cfc6b2', 0, 68, W, 52);
+  for (let x = -12; x < W + 12; x += 12) R('#b8af9a', Math.round(x - scroll % 12), 68, 1, 52);
+  for (let y = 80; y < 120; y += 13) R('#b8af9a', 0, y, W, 1);
+
+  // The club, in matching kit
+  const NEON = '#c6ff3a';
+  const SKINS = ['#f0c9a0', '#c98e62', '#8a5a3c', '#f5d5b5', '#e0b088', '#6b4630'];
+  const HAIR = ['#6b4a2b', '#1b1b1b', '#d9b54a', '#1b1b1b', '#a0522d', '#1b1b1b'];
+  const lag = ((t % 10) / 10) * 50; // the couple, drifting to the back
+  const club = [[138, 108, 0], [116, 116, 1], [96, 108, 2], [76, 114, 3]];
+  for (const [x, feet, i] of club) runner(x, feet, t + i * 0.13, NEON, SKINS[i], HAIR[i]);
+  runner(54 - lag, 112, t + 0.5, NEON, SKINS[4], HAIR[4]);
+  runner(66 - lag, 113, t + 0.6, NEON, SKINS[5], HAIR[5]);
+  R(SKINS[4], Math.round(60 - lag), 96, 6, 2); // holding hands
+  for (let i = 0; i < 5; i++) { // hearts instead of sweat
+    const k = (t * 0.7 + i / 5) % 1;
+    g.globalAlpha = 1 - k;
+    heart(61 - lag + Math.sin(t * 3 + i) * 5, 80 - k * 34, ['#e11d48', '#ff5a8a'][i % 2]);
+    g.globalAlpha = 1;
+  }
+
+  // The running app, telling the truth
+  R('#1b1b1b', 4, 4, 58, 24);
+  text('PACE', 8, 8, '#fc5200'); text('9:42/KM', 28, 8, '#fffaf0');
+  heart(8, 16, '#e11d48'); text(`${150 + Math.floor((t % 10) * 4)} BPM`, 16, 16, '#fffaf0');
+  text('KM 2.1', 8, 22, '#9aa');
+}
+
 // ---------- The ads ----------
 export const ADS = [
   {
@@ -385,9 +516,28 @@ export const ADS = [
     cta: 'BOOK A SESSION', ctaAfter: 'FULLY BOOKED BY CONSULTANTS',
     draw: sauna,
   },
+  {
+    logo: 'R', logoBg: '#2f6b4a', logoFg: '#f1e3b8',
+    brand: 'RENT FREE', sub: 'Sponsored · Floating homes · Zone 2 (ish)',
+    headline: 'ESCAPE THE RENT.<br>MOVE EVERY 14 DAYS.<br>LIKE RENTING, BUT WET.',
+    small: 'Mooring not included. Toilet emptying not included. Damp included.',
+    stars: '★★★★★ "haven\'t had a dry sock since 2021"',
+    cta: 'ENQUIRE NOW', ctaAfter: 'YOUR TOILET IS NOW FULL',
+    draw: boatLife,
+  },
+  {
+    logo: '♥', logoBg: '#c6ff3a', logoFg: '#1b1b1b',
+    brand: 'SOFT LAUNCH RUN CLUB', sub: 'Sponsored · Tuesdays 7pm · Then natural wine',
+    headline: '5K. 3 DATES.<br>0 PERSONAL BESTS.',
+    small: 'Pace: conversational. Conversation: about pace. Running optional, post-run drinks mandatory.',
+    stars: '★★★★★ "met my fiancé at km 2. we walked the rest."',
+    cta: 'JOIN THE CLUB', ctaAfter: 'MATCHED WITH YOUR EX',
+    draw: runClub,
+  },
 ];
 
 let nextAd = Math.floor(Math.random() * ADS.length);
+export const queueAd = (i) => { nextAd = i % ADS.length; }; // testing helper
 
 // Fills `container` with the next ad. Calls `done` when skipped. Returns a function that skips (if allowed).
 export function playAd(container, { skipAfter }, done) {
