@@ -7,6 +7,7 @@ import { ENEMIES } from './enemies.js';
 import { CHARACTERS, characterById, drinkSvg } from './characters.js';
 import { leaderboardEnabled, topScores, submitScore, rankOf, bestOf, cleanName } from './leaderboard.js';
 import { titleFor } from './titles.js';
+import { playAd } from './ads.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -116,6 +117,8 @@ let invulnUntil = 0;
 let spilledAt = -99;
 let best = loadBest();
 let overAt = 0;
+let gamesOver = 0;    // for the fake ad break every few runs
+let skipAd = null;    // skips the ad on screen (if it's allowed yet)
 let overlayTimer = null;
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -726,12 +729,12 @@ function gameOver(e) {
   const played = character;
   const newest = unlocked[unlocked.length - 1];
   const showCard = () => {
+    state = 'over';
     if (unlocked.length) {
       // Back to the walker you played (the leaderboard records them), lying where they fell
       setCharacter(played);
       player.group.position.set(CONFIG.lanes[lane], 0, 0);
       player.group.rotation.x = -1.4;
-      state = 'over';
     }
     showOverlay(`
       <p class="small label">Cause of death</p>
@@ -749,7 +752,20 @@ function gameOver(e) {
     });
     if (leaderboardEnabled()) showLeaderboard(final);
   };
-  overlayTimer = setTimeout(() => (unlocked.length ? showUnlocks(unlocked, showCard) : showCard()), 700);
+  const afterAd = () => (unlocked.length ? showUnlocks(unlocked, showCard) : showCard());
+  gamesOver++;
+  const adDue = gamesOver % CONFIG.ads.every === 0;
+  overlayTimer = setTimeout(() => (adDue ? showAd(afterAd) : afterAd()), 700);
+}
+
+// A fake ad break, like every free mobile game (but these ones are jokes)
+function showAd(done) {
+  state = 'ad';
+  showOverlay('', null, 'ad-card');
+  skipAd = playAd(overlay.querySelector('.ad-card'), CONFIG.ads, () => {
+    skipAd = null;
+    done();
+  });
 }
 
 // A new walker unlocked: their own screen. They turn as a silhouette, then light up with the fanfare.
@@ -943,6 +959,10 @@ window.addEventListener('keydown', (e) => {
   }
   if (state === 'unlock') {
     if (e.key === ' ' || e.key === 'Enter') overlay.querySelector('button')?.click();
+    return;
+  }
+  if (state === 'ad') {
+    if (e.key === ' ' || e.key === 'Enter') skipAd?.();
     return;
   }
   if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') move(-1);
@@ -1215,6 +1235,7 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     get state() { return { state, elapsed, score, lane, coffees }; },
     get entities() { return entities.map((e) => ({ kind: e.kind, lanes: e.lanes, z: Math.round(e.model.group.position.z), warning: Boolean(e.flash) })); },
     skip(seconds) { elapsed += seconds; },
+    adNext() { gamesOver = CONFIG.ads.every - 1; }, // the next game over shows an ad
     // Fast-forward the game without waiting for the screen; onStep runs after every step
     simulate(seconds, onStep) {
       const dt = 1 / 60;

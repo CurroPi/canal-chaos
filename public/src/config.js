@@ -96,6 +96,9 @@ export const CONFIG = {
   // A Hackney title is celebrated every this many points (see src/titles.js)
   titles: { every: 250, seconds: 2.6 },
 
+  // Fake ad breaks between runs: one every `every` game overs; "Skip ad" works after `skipAfter` seconds
+  ads: { every: 3, skipAfter: 3 },
+
   // Walkers unlocked by your best score (on this device). Anyone not listed is free from the start.
   unlocks: { josh: 500, ross: 1000, tanner: 1500 },
 

@@ -178,3 +178,12 @@ Jump/duck, character customisation (outfits), accounts and logins.
 
 - Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
 - Game over: a "New walker unlocked!" screen (silhouette turns into the walker, fanfare), then the usual card with a "Try <name> 🆕" button. Thresholds live in config.js.
+
+## Fake ad breaks (built)
+- Every 3rd game over (`CONFIG.ads.every`), a pixel-art "ad" appears before the game-over card, styled like a cheap mobile-game ad. "Skip ad" works after 3 seconds (`CONFIG.ads.skipAfter`). The three ads take turns.
+
+| Ad | Headline | Button → after pressing |
+|---|---|---|
+| The Victory (pub sign flips OPEN/SHUT) | GOOGLE SAYS OPEN. GOOGLE IS WRONG. | GET DIRECTIONS → SORRY, WE'RE SHUT |
+| Community Canoe (chained, a duck sitting in it) | SENT TO THE GROUP CHAT 31 TIMES. BOOKED 0 TIMES. | BOOK NOW → MAYBE NEXT SUMMER |
+| DUDE London (the black warehouse, drinks upstairs) | CRAZY SHIT. THAT WORKS. LIKE THIS GAME. | HIRE US → NOT NOW, WE'RE AT THE VICTORY (2nd press opens dude.it/london) |
