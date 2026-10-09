@@ -26,6 +26,12 @@ export const CHARACTERS = [
     drink: { name: 'Matcha latte', kind: 'cup', body: 0xffffff, lid: 0x6f9a3a, sleeve: 0x9ccc65, splash: 0x8bc34a },
   },
   {
+    id: 'pilar', // the potter
+    name: 'Pilar',
+    bio: 'Does pottery on Wednesdays. Talks about it the other six days.',
+    drink: { name: 'Chai in a mug she made', kind: 'mug', body: 0x8fb3a6, coffee: 0xc8935f, splash: 0xc8935f },
+  },
+  {
     id: 'josh',
     unlockLine: 'JOSH IS FULLY CHARGED. SO IS HIS VAPE.',
     name: 'Josh',
@@ -56,14 +62,7 @@ export const CHARACTERS = [
 ];
 
 // Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
-export const DRAFTS = [
-  {
-    id: 'pilar', // the potter
-    name: 'Pilar',
-    bio: 'Does pottery on Wednesdays. Talks about it the other six days.',
-    drink: { name: 'Chai in a mug she made', kind: 'mug', body: 0x8fb3a6, coffee: 0xc8935f, splash: 0xc8935f },
-  },
-];
+export const DRAFTS = [];
 
 export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || DRAFTS.find((c) => c.id === id) || CHARACTERS[0];
 

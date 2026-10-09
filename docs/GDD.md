@@ -199,3 +199,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - Jasper, the face on the favicon: red bobble beanie, thick black glasses, big brown beard, dark green top, cream tote. Drinks a matcha latte. Free from the start.
 - Each walker has a one-liner (`bio` in characters.js) on the selection screen (hidden while locked):
   Sophie "Tote bag full of other tote bags." · Alex "Always wears an Aries tee. She's a Pisces." · Joe "Says "no problemo". Has several problemos." · Josh "In a band. The band doesn't know yet." · Ross "Brings his own mug. Brings it up constantly." · Tanner "Dressed for K2. Walking to Broadway Market." · Jasper "Owns a sourdough starter called Kevin." · David "Always at The Victory. Even when it's shut."
+
+## Pilar (built): the potter
+- Wavy shoulder-length dark hair, thick black square glasses, white tee, white apron to the knees, clay everywhere (apron, hands, forearms, cheek, hair). Drinks chai in a wonky celadon mug she made. Free from the start.
+- One-liner: "Does pottery on Wednesdays. Talks about it the other six days."
