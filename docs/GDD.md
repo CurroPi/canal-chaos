@@ -192,7 +192,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Soft Launch Run Club (matching neon kit, a couple holding hands drifts to the back, hearts instead of sweat) | 5K. 3 DATES. 0 PERSONAL BESTS. | JOIN THE CLUB → MATCHED WITH YOUR EX |
 
 ## David (built): the ultimate unlock
-- The real local: skinny older man, messy windswept light grey hair, dirty blue boiler suit unzipped at the collar, brown work boots. Drinks a pint of Guinness (new "pint" drink).
+- The real local: skinny older man with a bent back and a slight sway when he walks, messy windswept light grey hair, dirty blue boiler suit unzipped at the collar, brown work boots. Drinks a pint of Guinness (new "pint" drink).
 - Unlocks at a best score of 2,000: "🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT." One-liner: "Always at The Victory. Even when it's shut."
 
 ## Jasper (built) and walker one-liners

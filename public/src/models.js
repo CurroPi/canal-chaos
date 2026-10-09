@@ -403,6 +403,19 @@ LOOKS.david = {
     p.legL.add(box(0.21, 0.12, 0.02, 0x1f3352, 0, -0.45, 0.115));
     p.legR.add(box(0.21, 0.1, 0.02, 0xc8c0a8, 0, -0.25, 0.115)); // plaster dust on the knee
     for (const leg of [p.legL, p.legR]) leg.add(box(0.24, 0.16, 0.34, 0x3a2a1d, 0, -0.7, 0.04)); // work boots
+
+    // A bent back: everything above the hips leans forward, and he looks up to see where he's going
+    const upper = new THREE.Group();
+    upper.position.y = 0.8;
+    for (const part of [...p.rig.children]) {
+      if (part === p.legL || part === p.legR) continue;
+      part.position.y -= 0.8;
+      upper.add(part);
+    }
+    p.rig.add(upper);
+    upper.rotation.x = 0.3;
+    p.head.rotation.x = -0.25;
+    p.wobble = 0.07; // and he never walks quite straight
   },
 };
 
@@ -703,6 +716,7 @@ export function animateWalk(model, t, freq) {
   model.armL.rotation.x = model.holdL ?? -swing * 0.8;
   model.armR.rotation.x = model.holdR ?? swing * 0.8;
   model.rig.position.y = Math.abs(Math.sin(t * freq)) * 0.05;
+  if (model.wobble) model.rig.rotation.z = Math.sin(t * freq * 0.5) * model.wobble; // a bit of a sway
 }
 
 const cargoWheelGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.08, 12);
