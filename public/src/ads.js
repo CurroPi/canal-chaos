@@ -396,11 +396,10 @@ function boatLife(t) {
   R('#3e5f4c', 0, 64, W, 56);
   for (let i = 0; i < 28; i++) R('#527a63', Math.round((i * 41 + t * 5) % 180) - 10, 68 + (i * 17) % 50, 7, 1);
 
-  // In, moored for 14 days, then off again
+  // In, moored for a while, then off again (every 14 days, in real life)
   let bx = 20;
   if (loop < 1.5) bx = -130 + 150 * (loop / 1.5);
   else if (loop > 7) bx = 20 + 160 * ((loop - 7) / 2);
-  const day = Math.min(14, Math.max(1, Math.floor((loop - 1.5) / 5.5 * 14) + 1));
   g.globalAlpha = 0.25; R('#1b1b1b', Math.round(bx), 99, 124, 3); g.globalAlpha = 1;
   narrowboat(bx);
   for (let i = 0; i < 5; i++) { // stove smoke
@@ -409,15 +408,6 @@ function boatLife(t) {
     R('#d8d8d8', Math.round(bx + 105 - k * 8), Math.round(56 - k * 30), 2 + Math.round(k * 4), 2 + Math.round(k * 4));
     g.globalAlpha = 1;
   }
-
-  // The towpath day counter
-  const urgent = day >= 12 && loop > 1.5 && loop <= 7;
-  const flash = urgent && Math.floor(t * 4) % 2 === 0;
-  R('#5b3a22', 136, 40, 2, 14);
-  R('#1b1b1b', 120, 30, 34, 13);
-  R(flash ? '#c81e3a' : '#fffaf0', 121, 31, 32, 11);
-  textC('DAY', 137, 32, flash ? '#fffaf0' : '#1b1b1b');
-  textC(`${loop > 7 ? 14 : day}/14`, 137, 38, flash ? '#fffaf0' : '#c81e3a');
 }
 
 // ---------- Soft Launch Run Club: running, technically ----------
