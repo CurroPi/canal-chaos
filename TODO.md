@@ -3,7 +3,7 @@
 ## 🚦 Pipeline (in priority order — work top to bottom)
 
 ### Now: quick wins
-1. [ ] **Share button on game over**: a pixel-art score card image ("I SURVIVED 1,240 POINTS ON THE REGENT'S CANAL · Killed by: a run club · playcanalchaos.com"), shared in one tap (phone share sheet; download on desktop).
+1. [x] **Share button on game over**: a pixel-art score card image ("I SURVIVED 1,240 POINTS ON THE REGENT'S CANAL · Killed by: a run club · playcanalchaos.com"), shared in one tap (phone share sheet; download on desktop).
 2. [ ] **Phone polish**: check the camera on tall phones (too much sky, player too small) and fix.
 
 ### Next: real players

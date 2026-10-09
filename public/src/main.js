@@ -8,6 +8,7 @@ import { CHARACTERS, characterById, drinkSvg } from './characters.js';
 import { leaderboardEnabled, topScores, submitScore, rankOf, bestOf, cleanName } from './leaderboard.js';
 import { titleFor } from './titles.js';
 import { playAd, queueAd } from './ads.js';
+import { snapshot, makeScoreCard, shareCard } from './share.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -715,6 +716,7 @@ function gameOver(e) {
   warningEl.classList.add('hidden');
   const type = ENEMIES[e.kind];
   const message = pick(e.fromBehind ? [...type.behindDeaths, ...type.deaths] : type.deaths);
+  const shot = snapshot(renderer, scene, camera); // the crash, for the share card
 
   const final = Math.floor(score);
   runLog.push({
@@ -746,9 +748,21 @@ function gameOver(e) {
       <p class="small">${isRecord ? '🎉 New personal best!' : `Best ${best}`}</p>
       <div id="board"></div>
       <button>Try again</button>
+      <button class="secondary share">📸 Share score</button>
       <button class="secondary">${newest ? `Try ${newest.name} 🆕` : 'Change walker'}</button>
     `);
-    overlay.querySelector('.secondary').addEventListener('click', () => {
+    const shareBtn = overlay.querySelector('.share');
+    shareBtn.addEventListener('click', async () => {
+      shareBtn.disabled = true;
+      shareBtn.textContent = 'Making your card…';
+      const card = await makeScoreCard({
+        shot, score: final, message, walker: played.name, drinkSvg: drinkSvg(played.drink), title: lastTitle, isRecord,
+      });
+      const result = await shareCard(card, `I survived ${final.toLocaleString('en-GB')} points on the Regent's Canal. Can you beat me?`);
+      shareBtn.disabled = false;
+      shareBtn.textContent = result === 'downloaded' ? '✓ Image saved, link copied' : '📸 Share score';
+    });
+    overlay.querySelector('.secondary:not(.share)').addEventListener('click', () => {
       if (newest) setCharacter(newest);
       showSelect();
     });
