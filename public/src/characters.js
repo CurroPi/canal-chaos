@@ -28,8 +28,16 @@ export const CHARACTERS = [
   {
     id: 'pilar', // the potter
     name: 'Pilar',
+    unlockLine: 'PILAR IS HERE. SHE\'S GOT CLAY ON YOU NOW.',
     bio: 'Does pottery on Wednesdays. Talks about it the other six days.',
     drink: { name: 'Chai in a mug she made', kind: 'mug', body: 0x8fb3a6, coffee: 0xc8935f, splash: 0xc8935f },
+  },
+  {
+    id: 'david', // the real local: skinny old boy, messy grey hair, dirty boiler suit, pint of Guinness
+    name: 'David',
+    bio: 'Always at The Victory. Even when it\'s shut.',
+    unlockLine: 'DAVID IS HERE. THE VICTORY MUST BE SHUT.',
+    drink: { name: 'Pint of Guinness', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
   },
   {
     id: 'josh',
@@ -51,13 +59,6 @@ export const CHARACTERS = [
     name: 'Tanner',
     bio: 'Dressed for K2. Walking to Broadway Market.',
     drink: { name: 'Huge water bottle', kind: 'bottle', body: 0x7fc8ff, lid: 0x1b1b1b, splash: 0x9ad7ff },
-  },
-  {
-    id: 'david', // the real local: skinny old boy, messy grey hair, dirty boiler suit, pint of Guinness
-    name: 'David',
-    bio: 'Always at The Victory. Even when it\'s shut.',
-    unlockLine: 'DAVID IS HERE. THE VICTORY MUST BE SHUT.',
-    drink: { name: 'Pint of Guinness', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
   },
   {
     id: 'spike', // the Camden punk who walked the wrong way

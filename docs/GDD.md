@@ -47,14 +47,14 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 | 2 | **Alex** | Free | Blonde bob, black punk-pixel ARIES tee, all black | Builder's tea (teabag tag) | Always wears an Aries tee. She's a Pisces. |
 | 3 | **Joe** | Free | Green cap, moustache, NO PROBLEMO tee, denim shorts, white socks, headphones, record bag | Black batch brew | Says "no problemo". Has several problemos. |
 | 4 | **Jasper** | Free | The favicon face: red bobble beanie, thick black glasses, big brown beard, green top, cream tote | Matcha latte | Owns a sourdough starter called Kevin. |
-| 5 | **Pilar** | Free | The potter: wavy shoulder-length dark hair, thick square glasses, white tee, white apron, clay everywhere (hands, cheek, hair) | Chai in a wonky mug she made | Does pottery on Wednesdays. Talks about it the other six days. |
-| 6 | **Josh** | Unlock at 500 | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can | In a band. The band doesn't know yet. |
-| 7 | **Ross** | Unlock at 1,000 | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug | Brings his own mug. Brings it up constantly. |
-| 8 | **Tanner** | Unlock at 1,500 | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle | Dressed for K2. Walking to Broadway Market. |
-| 9 | **David** | Unlock at 2,000 | The real local: skinny, bent back, sways when he walks, messy windswept grey hair, dirty blue boiler suit open at the collar, work boots | Pint of Guinness | Always at The Victory. Even when it's shut. |
+| 5 | **Pilar** | Unlock at 500 | The potter: wavy shoulder-length dark hair, thick square glasses, white tee, white apron, clay everywhere (hands, cheek, hair) | Chai in a wonky mug she made | Does pottery on Wednesdays. Talks about it the other six days. |
+| 6 | **David** | Unlock at 700 | The real local: skinny, bent back, sways when he walks, messy windswept grey hair, dirty blue boiler suit open at the collar, work boots | Pint of Guinness | Always at The Victory. Even when it's shut. |
+| 7 | **Josh** | Unlock at 900 | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can | In a band. The band doesn't know yet. |
+| 8 | **Ross** | Unlock at 1,000 | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug | Brings his own mug. Brings it up constantly. |
+| 9 | **Tanner** | Unlock at 1,100 | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle | Dressed for K2. Walking to Broadway Market. |
 | 10 | **Spike** | Unlock at 2,500 | The Camden punk who walked the wrong way: green mohawk, leather jacket with studs, patch and safety pins, red tartan trousers, cherry-red Docs, piercings, wallet chain | Tin of cheap cider | Walked from Camden. Thinks this is still Camden. |
 
-Unlock lines: Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT." · Spike "SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO."
+Unlock lines: Pilar "PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW." · Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT." · Spike "SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO."
 Code: `public/src/characters.js` (names, drinks, one-liners, unlock lines), `public/src/models.js` (looks), thresholds in `CONFIG.unlocks`.
 
 Reserve cast ideas for later: Rafe (Startup Founder), Juniper (Natural Wine Person), Otis, Barnaby, Rufus, Ezra, Wilf, Caspar, Arlo.
@@ -173,15 +173,16 @@ _First draft, all open to change:_
 Jump/duck, character customisation (outfits), accounts and logins.
 
 ## Walker unlocks (built)
-- Free from the start: **Sophie, Alex, Joe, Jasper, Pilar**.
+- Free from the start: **Sophie, Alex, Joe, Jasper**.
 - Unlocked by best score (saved on the device, so players who already scored high get them automatically):
 
 | Walker | Unlocks at | Celebration line |
 |---|---|---|
-| Josh | 500 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
+| Pilar | 500 | 🎉 PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW. |
+| David | 700 | 🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT. |
+| Josh | 900 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
 | Ross | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
-| Tanner | 1,500 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
-| David | 2,000 | 🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT. |
+| Tanner | 1,100 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
 | Spike | 2,500 | 🎉 SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO. |
 
 - Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
@@ -201,7 +202,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 
 ## David (built): the ultimate unlock
 - The real local: skinny older man with a bent back and a slight sway when he walks, messy windswept light grey hair, dirty blue boiler suit unzipped at the collar, brown work boots. Drinks a pint of Guinness (new "pint" drink).
-- Unlocks at a best score of 2,000: "🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT." One-liner: "Always at The Victory. Even when it's shut."
+- Unlocks at a best score of 700: "🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT." One-liner: "Always at The Victory. Even when it's shut."
 
 ## Jasper (built) and walker one-liners
 - Jasper, the face on the favicon: red bobble beanie, thick black glasses, big brown beard, dark green top, cream tote. Drinks a matcha latte. Free from the start.
@@ -209,5 +210,5 @@ Jump/duck, character customisation (outfits), accounts and logins.
   Sophie "Tote bag full of other tote bags." · Alex "Always wears an Aries tee. She's a Pisces." · Joe "Says "no problemo". Has several problemos." · Josh "In a band. The band doesn't know yet." · Ross "Brings his own mug. Brings it up constantly." · Tanner "Dressed for K2. Walking to Broadway Market." · Jasper "Owns a sourdough starter called Kevin." · David "Always at The Victory. Even when it's shut."
 
 ## Pilar (built): the potter
-- Wavy shoulder-length dark hair, thick black square glasses, white tee, white apron to the knees, clay everywhere (apron, hands, forearms, cheek, hair). Drinks chai in a wonky celadon mug she made. Free from the start.
+- Wavy shoulder-length dark hair, thick black square glasses, white tee, white apron to the knees, clay everywhere (apron, hands, forearms, cheek, hair). Drinks chai in a wonky celadon mug she made. Unlocks at 500.
 - One-liner: "Does pottery on Wednesdays. Talks about it the other six days."
