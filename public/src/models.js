@@ -351,6 +351,53 @@ LOOKS.pilar = {
   },
 };
 
+// Spike, the Camden punk: green mohawk, leather jacket with studs, red tartan trousers, cherry Docs
+LOOKS.spike = {
+  body: { skin: 0xf0d2bc, shirt: 0x1b1b1b, legs: 0xb3202a, shoes: 0x7a1020, hair: 0x2b2b2b },
+  dress(p) {
+    p.head.children[3].visible = false;                              // shaved sides instead of hair...
+    p.head.add(box(0.37, 0.04, 0.37, 0xd8bba6, 0, 0.17, 0));        // ...shaved, just stubble
+    p.head.add(box(0.1, 0.05, 0.38, 0x2fb344, 0, 0.2, 0));           // ...and a green mohawk: the base strip
+    for (let i = 0; i < 5; i++) {                                    // tall spikes, each with a sharp tip
+      const z = 0.15 - i * 0.075;
+      const spike = new THREE.Group();
+      spike.position.set(0, 0.22, z);
+      spike.rotation.x = -0.25 - i * 0.06;                           // swept back a little
+      spike.add(box(0.08, 0.2, 0.06, 0x39d353, 0, 0.1, 0));
+      spike.add(box(0.05, 0.12, 0.04, 0x5cf072, 0, 0.26, 0));
+      spike.add(box(0.025, 0.07, 0.025, 0xa8ffb4, 0, 0.35, 0));
+      p.head.add(spike);
+    }
+    p.head.add(box(0.03, 0.05, 0.03, 0xd0d0d0, 0.05, -0.04, 0.19)); // nose ring
+    for (const y of [0.06, -0.02]) p.head.add(box(0.03, 0.03, 0.04, 0xd0d0d0, 0.19, y, 0.02)); // ear piercings
+
+    // Leather jacket: lapels, studded shoulders, patches and safety pins, front and back
+    for (const x of [-0.13, 0.13]) p.rig.add(box(0.1, 0.3, 0.03, 0x2b2b2b, x, 1.28, 0.165));
+    p.rig.add(box(0.1, 0.3, 0.02, 0xd9d9d9, 0, 1.28, 0.16));        // a grey tee underneath
+    for (const side of [-1, 1]) {
+      for (let i = 0; i < 4; i++) p.rig.add(box(0.035, 0.035, 0.035, 0xd0d0d0, side * (0.14 + i * 0.04), 1.46, 0.08 - i * 0.05));
+    }
+    p.rig.add(box(0.26, 0.26, 0.02, 0xd9d9d9, 0, 1.18, -0.165));   // big patch on the back...
+    p.rig.add(box(0.18, 0.18, 0.025, 0xb3202a, 0, 1.18, -0.17));    // ...in red...
+    p.rig.add(box(0.06, 0.06, 0.03, 0x1b1b1b, 0, 1.18, -0.175));    // ...with a black dot (it means something, apparently)
+    for (const [x, y] of [[-0.18, 1.0], [0.17, 1.32], [-0.06, 0.92]]) p.rig.add(box(0.06, 0.02, 0.02, 0xd0d0d0, x, y, 0.17)); // safety pins
+    p.rig.add(box(0.1, 0.1, 0.02, 0xd9b54a, 0.17, 1.05, 0.165));    // a band badge
+    for (const arm of [p.armL, p.armR]) arm.add(box(0.16, 0.04, 0.17, 0xd0d0d0, 0, -0.5, 0)); // studded cuffs
+
+    // Red tartan: dark stripes across and down the trousers
+    for (const leg of [p.legL, p.legR]) {
+      for (const z of [0.115, -0.115]) {
+        for (const y of [-0.12, -0.32, -0.52]) leg.add(box(0.21, 0.03, 0.01, 0x1b1b1b, 0, y, z));
+        leg.add(box(0.03, 0.62, 0.01, 0x1b1b1b, 0.04, -0.33, z));
+        leg.add(box(0.21, 0.015, 0.01, 0xe8c547, 0, -0.22, z));     // thin yellow line
+      }
+      leg.add(box(0.23, 0.26, 0.25, 0x7a1020, 0, -0.6, 0.02));      // tall cherry-red Docs...
+      leg.add(box(0.24, 0.03, 0.34, 0xe8c547, 0, -0.79, 0.04));     // ...with the yellow stitching
+    }
+    p.rig.add(box(0.03, 0.03, 0.2, 0xc0c0c0, 0.22, 0.78, 0.08));   // wallet chain
+  },
+};
+
 // David: skinny old boy, light grey hair, dirty blue boiler suit unzipped halfway, a pint in hand
 LOOKS.david = {
   body: { skin: 0xe6b99c, shirt: 0x2f5486, legs: 0x2f5486, shoes: 0x3a2a1d, hair: 0xd2d2d2 },

@@ -62,7 +62,14 @@ export const CHARACTERS = [
 ];
 
 // Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
-export const DRAFTS = [];
+export const DRAFTS = [
+  {
+    id: 'spike', // the Camden punk who walked the wrong way (name to be decided)
+    name: 'Spike',
+    bio: 'Walked from Camden. Thinks this is still Camden.',
+    drink: { name: 'Tin of cheap cider', kind: 'can', body: 0x2e6b2e, lid: 0xc0c0c0, band: 0xd9b54a, splash: 0xd9b54a },
+  },
+];
 
 export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || DRAFTS.find((c) => c.id === id) || CHARACTERS[0];
 
