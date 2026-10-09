@@ -39,19 +39,24 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 - **Looks only:** each character has their own appearance, lines and death messages, but they all play the same.
   This keeps the leaderboard fair. Perks may come later, after playtesting.
 
-| Character | Look | Drink (= extra life) |
-|---|---|---|
-| **Sophie** | Mustard beanie, long brown hair, sage overshirt, tote bag | Oat flat white |
-| **Alex** | Blonde bob, black punk-pixel ARIES tee | Builder's tea (teabag tag) |
-| **Joe** | Green cap, moustache, corduroy jacket, headphones, record bag | Black batch brew |
-| **Josh** | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can |
-| **Ross** | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug |
-| **Tanner** | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle |
+### The cast (9 walkers)
 
-**[OPEN]** Unlock by score or all open? Own drink per character? 3D preview or flat cards?
+| # | Walker | Status | Look | Drink (= extra life) | One-liner |
+|---|---|---|---|---|---|
+| 1 | **Sophie** | Free | Mustard beanie, long brown hair, sage overshirt, tote bag | Oat flat white | Tote bag full of other tote bags. |
+| 2 | **Alex** | Free | Blonde bob, black punk-pixel ARIES tee, all black | Builder's tea (teabag tag) | Always wears an Aries tee. She's a Pisces. |
+| 3 | **Joe** | Free | Green cap, moustache, NO PROBLEMO tee, denim shorts, white socks, headphones, record bag | Black batch brew | Says "no problemo". Has several problemos. |
+| 4 | **Jasper** | Free | The favicon face: red bobble beanie, thick black glasses, big brown beard, green top, cream tote | Matcha latte | Owns a sourdough starter called Kevin. |
+| 5 | **Pilar** | Free | The potter: wavy shoulder-length dark hair, thick square glasses, white tee, white apron, clay everywhere (hands, cheek, hair) | Chai in a wonky mug she made | Does pottery on Wednesdays. Talks about it the other six days. |
+| 6 | **Josh** | Unlock at 500 | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can | In a band. The band doesn't know yet. |
+| 7 | **Ross** | Unlock at 1,000 | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug | Brings his own mug. Brings it up constantly. |
+| 8 | **Tanner** | Unlock at 1,500 | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle | Dressed for K2. Walking to Broadway Market. |
+| 9 | **David** | Unlock at 2,000 | The real local: skinny, bent back, sways when he walks, messy windswept grey hair, dirty blue boiler suit open at the collar, work boots | Pint of Guinness | Always at The Victory. Even when it's shut. |
 
-Reserve cast for later: Jasper (Creative Director), Saffron (Ceramicist), Rafe (Startup Founder),
-Juniper (Natural Wine Person).
+Unlock lines: Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT."
+Code: `public/src/characters.js` (names, drinks, one-liners, unlock lines), `public/src/models.js` (looks), thresholds in `CONFIG.unlocks`.
+
+Reserve cast ideas for later: Rafe (Startup Founder), Juniper (Natural Wine Person), Otis, Barnaby, Rufus, Ezra, Wilf, Caspar, Arlo.
 
 ## 5. The towpath (lanes) ✅ (agreed)
 ```
@@ -167,7 +172,7 @@ _First draft, all open to change:_
 Jump/duck, character customisation (outfits), accounts and logins.
 
 ## Walker unlocks (built)
-- Free from the start: **Sophie, Alex, Joe**.
+- Free from the start: **Sophie, Alex, Joe, Jasper, Pilar**.
 - Unlocked by best score (saved on the device, so players who already scored high get them automatically):
 
 | Walker | Unlocks at | Celebration line |
@@ -175,6 +180,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Josh | 500 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
 | Ross | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
 | Tanner | 1,500 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
+| David | 2,000 | 🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT. |
 
 - Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
 - Game over: a "New walker unlocked!" screen (silhouette turns into the walker, fanfare), then the usual card with a "Try <name> 🆕" button. Thresholds live in config.js.
