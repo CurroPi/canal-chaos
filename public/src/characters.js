@@ -53,7 +53,8 @@ export const DRAFTS = [
   {
     id: 'david', // the real local: skinny old boy, messy grey hair, dirty boiler suit, pint of Guinness
     name: 'David',
-    bio: 'Was here before the oat milk.',
+    bio: 'Always at The Victory. Even when it\'s shut.',
+    unlockLine: 'DAVID HAS LEFT THE VICTORY. FIRST TIME SINCE 1987.',
     drink: { name: 'Pint of Guinness', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
   },
 ];
