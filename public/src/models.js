@@ -278,6 +278,28 @@ const LOOKS = {
   },
 };
 
+// Jasper (the face on the favicon): red bobble beanie, thick black glasses, big beard, green top, tote
+LOOKS.jasper = {
+  body: { skin: 0xf1c9a5, shirt: 0x1f5f3a, legs: 0x2b2b2b, shoes: 0x8a5a35, hair: 0x6b4a2b },
+  dress(p) {
+    p.head.add(box(0.4, 0.22, 0.4, 0xc0392b, 0, 0.26, 0));        // red beanie...
+    p.head.add(box(0.42, 0.07, 0.42, 0xa52f23, 0, 0.14, 0));      // ...turned-up brim...
+    p.head.add(box(0.12, 0.1, 0.12, 0xfafafa, 0, 0.42, 0));       // ...and a white bobble
+    for (const x of [-0.09, 0.09]) {                             // thick black glasses
+      p.head.add(box(0.13, 0.1, 0.03, 0x111111, x, 0.03, 0.19));
+      p.head.add(box(0.07, 0.05, 0.02, 0x9fd3ff, x, 0.03, 0.205));
+    }
+    p.head.add(box(0.06, 0.03, 0.03, 0x111111, 0, 0.05, 0.19));   // bridge
+    p.head.add(box(0.38, 0.2, 0.08, 0x6b4a2b, 0, -0.14, 0.17));   // big beard...
+    p.head.add(box(0.28, 0.1, 0.08, 0x6b4a2b, 0, -0.26, 0.16));   // ...going down past the chin
+    for (const x of [-0.18, 0.18]) p.head.add(box(0.04, 0.22, 0.2, 0x6b4a2b, x, -0.08, 0.08)); // sideburns
+    p.head.add(box(0.1, 0.03, 0.02, 0xc98e7a, 0, -0.09, 0.215));  // mouth peeking through
+    p.rig.add(box(0.05, 0.6, 0.05, 0xe9dcc0, 0.18, 1.3, -0.17));  // tote strap
+    p.rig.add(box(0.4, 0.44, 0.06, 0xe9dcc0, 0.1, 0.93, -0.2));   // cream tote bag
+    p.rig.add(box(0.2, 0.1, 0.07, 0x1f5f3a, 0.1, 0.98, -0.2));    // with a little logo
+  },
+};
+
 // David: skinny old boy, light grey hair, dirty blue boiler suit unzipped halfway, a pint in hand
 LOOKS.david = {
   body: { skin: 0xe6b99c, shirt: 0x2f5486, legs: 0x2f5486, shoes: 0x3a2a1d, hair: 0xd2d2d2 },

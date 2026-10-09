@@ -4,35 +4,47 @@ export const CHARACTERS = [
   {
     id: 'sophie',
     name: 'Sophie',
+    bio: 'Tote bag full of other tote bags.',
     drink: { name: 'Oat flat white', kind: 'cup', body: 0xffffff, lid: 0x6b4a2f, sleeve: 0xc8a27a, splash: 0x6b4a2f },
   },
   {
     id: 'alex',
     name: 'Alex',
+    bio: 'Drinks builder\'s tea. Has never built anything.',
     drink: { name: 'Builder\'s tea', kind: 'cup', body: 0xffffff, lid: 0xffffff, tag: 0xffd23f, splash: 0xa0662e },
   },
   {
     id: 'joe',
     name: 'Joe',
+    bio: 'Says "no problemo". Has several problemos.',
     drink: { name: 'Black batch brew', kind: 'cup', body: 0x1b1b1b, lid: 0x1b1b1b, sleeve: 0xe8e2d4, splash: 0x2b1d14 },
   },
   {
     id: 'josh',
     unlockLine: 'JOSH IS FULLY CHARGED. SO IS HIS VAPE.',
     name: 'Josh',
+    bio: 'In a band. The band doesn\'t know yet.',
     drink: { name: 'Energy drink', kind: 'can', body: 0x1e5bd8, lid: 0xc0c0c0, band: 0xf5d000, splash: 0xe8e05a },
   },
   {
     id: 'ross',
     unlockLine: 'ROSS IS HERE. HE BROUGHT HIS OWN MUG.',
     name: 'Ross',
+    bio: 'Brings his own mug. Brings it up constantly.',
     drink: { name: 'Flat white in his own mug', kind: 'mug', body: 0xe07a5f, coffee: 0x8a5a3a, splash: 0x6b4a2f },
   },
   {
     id: 'tanner',
     unlockLine: 'TANNER HAS HYDRATED. TANNER IS READY.',
     name: 'Tanner',
+    bio: 'Dressed for K2. Walking to Broadway Market.',
     drink: { name: 'Huge water bottle', kind: 'bottle', body: 0x7fc8ff, lid: 0x1b1b1b, splash: 0x9ad7ff },
+  },
+  {
+    id: 'jasper',
+    name: 'Jasper',
+    bio: 'Owns a sourdough starter called Kevin.',
+    drink: { name: 'Matcha latte', kind: 'cup', body: 0xffffff, lid: 0x6f9a3a, sleeve: 0x9ccc65, splash: 0x8bc34a },
   },
 ];
 
@@ -41,6 +53,7 @@ export const DRAFTS = [
   {
     id: 'david', // the real local: skinny old boy, messy grey hair, dirty boiler suit, pint of Guinness
     name: 'David',
+    bio: 'Was here before the oat milk.',
     drink: { name: 'Pint of Guinness', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
   },
 ];

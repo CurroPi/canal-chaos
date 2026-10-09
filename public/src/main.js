@@ -202,6 +202,7 @@ function showSelect() {
       <div class="who">
         <h2 id="pickName"></h2>
         <p class="small" id="pickDrink"></p>
+        <p class="bio" id="pickBio"></p>
       </div>
       <button class="arrow" data-dir="1" aria-label="Next">▶</button>
     </div>
@@ -226,6 +227,7 @@ function showPick() {
   document.getElementById('pickDrink').innerHTML = open
     ? `<span class="pick-drink">${drinkSvg(character.drink)}</span> ${character.drink.name}`
     : `🔒 Reach ${unlockAt(character).toLocaleString('en-GB')} points`;
+  document.getElementById('pickBio').textContent = open ? character.bio || '' : '';
   const go = overlay.querySelector('.go');
   if (go) {
     go.disabled = !open;

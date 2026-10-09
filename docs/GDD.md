@@ -195,3 +195,8 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - The real local: skinny older man, messy windswept light grey hair, dirty blue boiler suit unzipped at the collar, brown work boots. Drinks a pint of Guinness (new "pint" drink).
 - Saved in `DRAFTS` in characters.js, hidden from the selection screen. Preview locally: `?debug`, then `debug.walker('david')`.
 - To decide: add as a 7th walker or replace someone; free or unlock score (2,000 suggested); unlock line ("DAVID HAS CLOCKED OFF. THE PINT HAS NOT." / "DAVID WAS HERE BEFORE THE OAT MILK.").
+
+## Jasper (built) and walker one-liners
+- Jasper, the face on the favicon: red bobble beanie, thick black glasses, big brown beard, dark green top, cream tote. Drinks a matcha latte. Free from the start.
+- Each walker has a one-liner (`bio` in characters.js) on the selection screen (hidden while locked):
+  Sophie "Tote bag full of other tote bags." · Alex "Drinks builder's tea. Has never built anything." · Joe "Says "no problemo". Has several problemos." · Josh "In a band. The band doesn't know yet." · Ross "Brings his own mug. Brings it up constantly." · Tanner "Dressed for K2. Walking to Broadway Market." · Jasper "Owns a sourdough starter called Kevin." · David (draft) "Was here before the oat milk."
