@@ -11,7 +11,7 @@ import { playAd, queueAd } from './ads.js';
 import { snapshot, makeScoreCard, shareCard } from './share.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
-  startMusic, stopMusic, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
+  startMusic, stopMusic, whooshSound, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
   isSfxMuted, toggleSfx,
 } from './sound.js';
 import { LINES } from './lines.js';
@@ -53,8 +53,13 @@ window.addEventListener('resize', resize);
 
 // On phones the view is narrow, so the camera drifts sideways with you (the edge lanes stay on screen)
 function followCamera() {
+  if (state === 'intro') { introCamera(); return; }
   const c = camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam;
-  if (!c.follow) return;
+  if (!c.follow) {
+    camera.position.set(c.x, c.y, c.z);
+    camera.lookAt(0, c.lookY, c.lookZ);
+    return;
+  }
   const fx = (state === 'playing' || state === 'over' ? player.group.position.x : 0) * c.follow;
   camera.position.x = c.x + fx;
   camera.lookAt(fx, c.lookY, c.lookZ);
@@ -699,7 +704,8 @@ function prewarm(seconds) {
 }
 
 function start() {
-  if (state === 'playing') return;
+  if (state === 'playing' || state === 'intro') return;
+  const fromSelect = state === 'select';
   if (!isUnlocked(character)) {
     if (state === 'select') return; // the button says Locked
     setCharacter(CHARACTERS.find(isUnlocked));
@@ -707,11 +713,51 @@ function start() {
   if (state === 'over' && performance.now() - overAt < 900) return; // no accidental instant restarts
   clearTimeout(overlayTimer);
   initAudio();
-  startMusic();
   reset();
   prewarm(CONFIG.spawn.prewarmSeconds);
-  state = 'playing';
   overlay.classList.add('hidden');
+  startIntro(fromSelect);
+}
+
+// ---------- The opening camera swing ----------
+// The camera starts in front of your walker and swings round (via the canal side, rising) to the play position.
+let introT = 0;
+let introDur = 0;
+const captionEl = document.createElement('div');
+captionEl.id = 'introCaption';
+document.body.appendChild(captionEl);
+
+function startIntro(full) {
+  const c = CONFIG.intro;
+  introT = 0;
+  introDur = full ? c.full : c.quick;
+  state = 'intro';
+  whooshSound(introDur);
+  if (full) {
+    captionEl.innerHTML = `<strong>${character.name}</strong><span>${character.bio || ''}</span>`;
+    captionEl.classList.remove('show');
+    void captionEl.offsetWidth; // restart the animation
+    captionEl.classList.add('show');
+    setTimeout(() => captionEl.classList.remove('show'), c.caption * 1000);
+  }
+}
+
+function finishIntro() {
+  state = 'playing';
+  startMusic();
+}
+
+const ease = (p) => (p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2);
+const mix = (a, b, p) => a + (b - a) * p;
+function introCamera() {
+  const c = camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam;
+  const i = CONFIG.intro;
+  const p = ease(Math.min(1, introT / introDur));
+  const angle = Math.PI * (1 - p);            // π = in front, 0 = behind
+  const radius = mix(i.radius, c.z, p);
+  camera.position.set(i.side * radius * Math.sin(angle) + mix(0, c.x, p), mix(i.height, c.y, p), radius * Math.cos(angle));
+  const look = ease(Math.max(0, (Math.min(1, introT / introDur) - 0.6) / 0.4)); // eyes on the walker until the last stretch
+  camera.lookAt(0, mix(i.lookY, c.lookY, look), mix(0, c.lookZ, look));
 }
 
 function gameOver(e) {
@@ -977,6 +1023,7 @@ showMute();
 window.addEventListener('keydown', (e) => {
   if (e.repeat || e.target.tagName === 'INPUT') return; // typing your name isn't playing
   if (e.key === 'm' || e.key === 'M') { toggleMute(); showMute(); return; }
+  if (state === 'intro') { introT = introDur; return; } // any key skips the swing
   if (state === 'select') {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') browse(-1);
     else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') browse(1);
@@ -997,6 +1044,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 let touchStart = null;
+window.addEventListener('pointerdown', () => { if (state === 'intro') introT = introDur; }); // a tap skips the swing
 window.addEventListener('touchstart', (e) => {
   const t = e.changedTouches[0];
   touchStart = { x: t.clientX, y: t.clientY };
@@ -1057,6 +1105,10 @@ function tick() {
 }
 
 function step(dt, t) {
+  if (state === 'intro') {
+    introT += dt;
+    if (introT >= introDur) finishIntro();
+  }
   if (autopilot && state === 'playing') autopilot(dt);
   if (autopilot && state === 'over' && autoRuns > 0) { autoRuns--; overAt = 0; start(); }
   if (autopilot && state === 'over' && autoRuns <= 0) { autopilot = null; simSpeed = 1; }
@@ -1264,11 +1316,12 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     skip(seconds) { elapsed += seconds; },
     walker(id) { setCharacter(characterById(id)); if (state === 'select') showPick(); }, // try any walker, drafts too
     camera(p) { Object.assign(camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam, p); resize(); followCamera(); renderer.render(scene, camera); }, // try camera settings live
+    introAt(p) { introT = p * introDur; followCamera(); renderer.render(scene, camera); }, // freeze the opening swing at 0..1
     adNext(i) { gamesOver = CONFIG.ads.every - 1; if (i !== undefined) queueAd(i); }, // the next game over shows an ad (optionally which)
     // Fast-forward the game without waiting for the screen; onStep runs after every step
     simulate(seconds, onStep) {
       const dt = 1 / 60;
-      for (let i = 0; i < seconds / dt && state === 'playing'; i++) { step(dt, clock.elapsedTime + i * dt); onStep?.(); }
+      for (let i = 0; i < seconds / dt && (state === 'playing' || state === 'intro'); i++) { step(dt, clock.elapsedTime + i * dt); onStep?.(); }
     },
     godMode() { invulnUntil = Infinity; },
     landmark(kind) { world.forceNext = kind; },

@@ -126,6 +126,31 @@ export function pickupSound() {
   tone(1320, t + 0.08, 0.25, { type: 'triangle', vol: 0.15 });
 }
 
+// Whoosh: a swept burst of air, for the opening camera swing
+export function whooshSound(dur) {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  const len = Math.max(0.2, dur);
+  const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * len), ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.Q.value = 1.2;
+  filter.frequency.setValueAtTime(350, t);
+  filter.frequency.exponentialRampToValueAtTime(2400, t + len * 0.55);
+  filter.frequency.exponentialRampToValueAtTime(500, t + len);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.001, t);
+  gain.gain.exponentialRampToValueAtTime(0.22, t + len * 0.5);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + len);
+  src.connect(filter).connect(gain).connect(sfxOut());
+  src.start(t);
+  src.stop(t + len);
+}
+
 // Electric motor whine, rising
 export function whineSound() {
   if (!ctx) return;

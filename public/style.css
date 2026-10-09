@@ -468,3 +468,36 @@ html, body {
   line-height: 1.1;
   color: #b45309;
 }
+
+/* Opening swing: the walker's name and one-liner, fighting-game style */
+#introCaption {
+  position: fixed;
+  left: 0; right: 0; top: 18%;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 5;
+}
+#introCaption strong {
+  display: block;
+  font-family: var(--pixel);
+  font-size: 34px;
+  color: #ffd23f;
+  text-shadow: 3px 3px 0 #1b1b1b, -2px -2px 0 #1b1b1b, 2px -2px 0 #1b1b1b, -2px 2px 0 #1b1b1b;
+}
+#introCaption span {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 10px;
+  background: #1b1b1b;
+  color: #fffaf0;
+  font-family: var(--pixel-body);
+  font-size: 22px;
+}
+#introCaption.show { animation: introCaption 1.9s ease-out forwards; }
+@keyframes introCaption {
+  0% { opacity: 0; transform: translateX(-40px); }
+  12% { opacity: 1; transform: translateX(0); }
+  80% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(40px); }
+}

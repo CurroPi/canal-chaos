@@ -218,3 +218,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 ## Score = steps (built)
 - The score is called **steps** everywhere players see it ("Reach 600 steps", "Best 504 steps", milestone banners "250 steps"). A new record is a **NEW PB!**
 - Share card: "SATURDAY ON THE CANAL. / 1,240 STEPS / BEFORE THE TOWPATH GOT ME.", KILLED BY: <death message>, walker + last title, "BEAT MY STEPS: PLAYCANALCHAOS.COM". Share text: "1,240 steps on the Regent's Canal this weekend. Nobody read the sign. Can you beat me?"
+
+## Opening camera swing (built)
+- Start walking from the selection screen: the camera starts in front of the walker and swings round the canal side, rising, to the play position behind them (1.3s, eased), with a whoosh. The walker's name and one-liner slide in, fighting-game style. Music starts when it lands; steps only count after.
+- Try again: a quick 0.5s version, no caption. Any key or tap skips it. Settings: `CONFIG.intro`.
