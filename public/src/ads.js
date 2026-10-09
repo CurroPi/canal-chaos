@@ -347,7 +347,7 @@ function sauna(t) {
   }
 }
 
-// ---------- Rent Free: live on a narrowboat (and move every 14 days) ----------
+// ---------- Narrowboat for sale: live on the canal (and move every 14 days) ----------
 function backdrop(spot, t) { // where the boat is moored this fortnight
   if (spot === 0) { // warehouse wall with graffiti
     bricks(0, 14, W, 38, 41);
@@ -374,7 +374,7 @@ function narrowboat(bx) {
   R('#1b1b1b', bx, 88, 120, 8); R('#2b2b2b', bx + 2, 96, 116, 2); R('#c9a227', bx, 88, 120, 1); // hull
   R('#1b1b1b', bx + 118, 86, 6, 6); R('#1b1b1b', bx - 4, 86, 6, 6);                              // bow and stern
   R('#2f6b4a', bx + 8, 72, 104, 16); R('#b8322a', bx + 8, 72, 104, 2); R('#f1e3b8', bx + 8, 84, 104, 1);
-  text('RENT FREE', bx + 46, 77, '#f1e3b8');
+  text('FOR SALE', bx + 46, 77, '#f1e3b8');
   for (const x of [14, 26, 90, 102]) { R('#c9a227', bx + x, 76, 5, 5); R('#2d3d4a', bx + x + 1, 77, 3, 3); } // portholes
   R('#244f37', bx + 6, 70, 108, 2); // roof
   R('#3a4a5c', bx + 12, 66, 18, 4); for (let i = 0; i < 18; i += 3) R('#6c87a8', bx + 12 + i, 66, 2, 4);      // solar panel
@@ -517,8 +517,8 @@ export const ADS = [
     draw: sauna,
   },
   {
-    logo: 'R', logoBg: '#2f6b4a', logoFg: '#f1e3b8',
-    brand: 'RENT FREE', sub: 'Sponsored · Floating homes · Zone 2 (ish)',
+    logo: '£', logoBg: '#2f6b4a', logoFg: '#f1e3b8',
+    brand: 'NARROWBOAT FOR SALE', sub: 'Sponsored · £85,000 ONO · Zone 2 (ish)',
     headline: 'ESCAPE THE RENT.<br>MOVE EVERY 14 DAYS.<br>LIKE RENTING, BUT WET.',
     small: 'Mooring not included. Toilet emptying not included. Damp included.',
     stars: '★★★★★ "haven\'t had a dry sock since 2021"',
