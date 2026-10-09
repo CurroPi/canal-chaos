@@ -43,6 +43,6 @@
 - Hosting: GitHub Pages at playcanalchaos.com; favicon and phone icons.
 - Marketing stills for LinkedIn and Instagram.
 - Score is called steps; NEW PB; share button with a pixel score card (crash snapshot, Saturday-on-the-canal copy).
-- Phone camera: less sky, bigger walker, follows your lane.
+- Phone camera: less sky, bigger walker; the camera stays still (sideways follow tried and removed: confusing).
 - Opening camera swing (first walk and after changing walker) with name + one-liner caption and whoosh.
 - Every walker spills and refills their own drink (own lines and icon).
