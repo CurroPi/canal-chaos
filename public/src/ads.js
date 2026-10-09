@@ -509,7 +509,7 @@ export const ADS = [
   {
     logo: '£', logoBg: '#2f6b4a', logoFg: '#f1e3b8',
     brand: 'NARROWBOAT FOR SALE', sub: 'Sponsored · £85,000 ONO · Zone 2 (ish)',
-    headline: 'ESCAPE THE RENT.<br>MOVE EVERY 14 DAYS.<br>LIKE RENTING, BUT WET.',
+    headline: 'MOVE EVERY 14 DAYS.<br>LIKE RENTING, BUT WET.',
     small: 'Mooring not included. Toilet emptying not included. Damp included.',
     stars: '★★★★★ "haven\'t had a dry sock since 2021"',
     cta: 'ENQUIRE NOW', ctaAfter: 'YOUR TOILET IS NOW FULL',
