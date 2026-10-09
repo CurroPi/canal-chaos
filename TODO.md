@@ -36,9 +36,13 @@
 ## ✅ Done so far
 - Design: GDD, satire tone, cast, enemies, towpath lanes.
 - Game: 3-lane endless runner in Three.js; Lime bikes, delivery e-bikes (fair: one warning at a time, no last-second swerves), runners, run clubs, dog walkers, prams, cargo bikes, specials, bridges, café coffee refills, close calls, rush levels, Hackney milestone titles, speech bubbles, 14+ canal gags, East London far bank, DUDE office.
-- Walkers: 11, with unlocks by best score (Pilar 500, Fern 600, David 700, Spike 800, Josh 900, Ross 1,000, Tanner 1,100), own drinks, one-liners, unlock screen with fanfare.
+- Walkers: 11 (free: Sophie, Alex, Joe, Jasper; unlocks: Pilar 500, Fern 600, David 700, Spike 800, Josh 900, Ross 1,000, Tanner 1,100), own drinks, one-liners, unlock screen with fanfare.
 - Fake ad breaks: 6 pixel-art parody ads, shuffled, every 3rd game over.
 - Sound: chiptune music and SFX, with separate on/off buttons.
 - Online leaderboard (Supabase) with anti-cheat.
 - Hosting: GitHub Pages at playcanalchaos.com; favicon and phone icons.
 - Marketing stills for LinkedIn and Instagram.
+- Score is called steps; NEW PB; share button with a pixel score card (crash snapshot, Saturday-on-the-canal copy).
+- Phone camera: less sky, bigger walker, follows your lane.
+- Opening camera swing (first walk and after changing walker) with name + one-liner caption and whoosh.
+- Every walker spills and refills their own drink (own lines and icon).
