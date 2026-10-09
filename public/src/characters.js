@@ -33,6 +33,13 @@ export const CHARACTERS = [
     drink: { name: 'Chai in a mug she made', kind: 'mug', body: 0x8fb3a6, coffee: 0xc8935f, splash: 0xc8935f },
   },
   {
+    id: 'fern', // the Columbia Road Sunday shopper, hugging a huge plant
+    name: 'Fern',
+    unlockLine: 'FERN IS HERE. SHE CAN\'T SEE WHERE SHE\'S GOING.',
+    bio: 'Went to Columbia Road for a cactus. Came back with a tree.',
+    drink: { name: 'Iced oat latte', kind: 'cup', body: 0xd8b48a, lid: 0xf2f2f2, straw: 0x3f9a44, splash: 0xd8b48a },
+  },
+  {
     id: 'david', // the real local: skinny old boy, messy grey hair, dirty boiler suit, pint of Guinness
     name: 'David',
     bio: 'Always at The Victory. Even when it\'s shut.',
@@ -70,14 +77,7 @@ export const CHARACTERS = [
 ];
 
 // Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
-export const DRAFTS = [
-  {
-    id: 'fern', // the Columbia Road Sunday shopper, hugging a huge plant
-    name: 'Fern',
-    bio: 'Bought a fiddle-leaf fig. It will be dead by Wednesday.',
-    drink: { name: 'Iced oat latte', kind: 'cup', body: 0xd8b48a, lid: 0xf2f2f2, straw: 0x3f9a44, splash: 0xd8b48a },
-  },
-];
+export const DRAFTS = [];
 
 export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || DRAFTS.find((c) => c.id === id) || CHARACTERS[0];
 

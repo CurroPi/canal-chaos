@@ -39,7 +39,7 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 - **Looks only:** each character has their own appearance, lines and death messages, but they all play the same.
   This keeps the leaderboard fair. Perks may come later, after playtesting.
 
-### The cast (10 walkers)
+### The cast (11 walkers)
 
 | # | Walker | Status | Look | Drink (= extra life) | One-liner |
 |---|---|---|---|---|---|
@@ -48,13 +48,14 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 | 3 | **Joe** | Free | Green cap, moustache, NO PROBLEMO tee, denim shorts, white socks, headphones, record bag | Black batch brew | Says "no problemo". Has several problemos. |
 | 4 | **Jasper** | Free | The favicon face: red bobble beanie, thick black glasses, big brown beard, green top, cream tote | Matcha latte | Owns a sourdough starter called Kevin. |
 | 5 | **Pilar** | Unlock at 500 | The potter: wavy shoulder-length dark hair, thick square glasses, white tee, white apron, clay everywhere (hands, cheek, hair) | Chai in a wonky mug she made | Does pottery on Wednesdays. Talks about it the other six days. |
-| 6 | **David** | Unlock at 700 | The real local: skinny, bent back, sways when he walks, messy windswept grey hair, dirty blue boiler suit open at the collar, work boots | Pint of Guinness | Always at The Victory. Even when it's shut. |
-| 7 | **Spike** | Unlock at 800 | The Camden punk who walked the wrong way: green mohawk, leather jacket with studs, patch and safety pins, red tartan trousers, cherry-red Docs, piercings, wallet chain | Tin of cheap cider | Walked from Camden. Thinks this is still Camden. |
-| 8 | **Josh** | Unlock at 900 | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can | In a band. The band doesn't know yet. |
-| 9 | **Ross** | Unlock at 1,000 | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug | Brings his own mug. Brings it up constantly. |
-| 10 | **Tanner** | Unlock at 1,100 | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle | Dressed for K2. Walking to Broadway Market. |
+| 6 | **Fern** | Unlock at 600 | Columbia Road Sunday shopper: Breton top, wide linen trousers, bun with scrunchie, round shades, hugging a terracotta pot with a fiddle-leaf fig taller than her (hides her face) | Iced oat latte | Went to Columbia Road for a cactus. Came back with a tree. |
+| 7 | **David** | Unlock at 700 | The real local: skinny, bent back, sways when he walks, messy windswept grey hair, dirty blue boiler suit open at the collar, work boots | Pint of Guinness | Always at The Victory. Even when it's shut. |
+| 8 | **Spike** | Unlock at 800 | The Camden punk who walked the wrong way: green mohawk, leather jacket with studs, patch and safety pins, red tartan trousers, cherry-red Docs, piercings, wallet chain | Tin of cheap cider | Walked from Camden. Thinks this is still Camden. |
+| 9 | **Josh** | Unlock at 900 | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can | In a band. The band doesn't know yet. |
+| 10 | **Ross** | Unlock at 1,000 | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug | Brings his own mug. Brings it up constantly. |
+| 11 | **Tanner** | Unlock at 1,100 | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle | Dressed for K2. Walking to Broadway Market. |
 
-Unlock lines: Pilar "PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW." · Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT." · Spike "SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO."
+Unlock lines: Pilar "PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW." · Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · Fern "FERN IS HERE. SHE CAN'T SEE WHERE SHE'S GOING." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT." · Spike "SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO."
 Code: `public/src/characters.js` (names, drinks, one-liners, unlock lines), `public/src/models.js` (looks), thresholds in `CONFIG.unlocks`.
 
 Reserve cast ideas for later: Rafe (Startup Founder), Juniper (Natural Wine Person), Otis, Barnaby, Rufus, Ezra, Wilf, Caspar, Arlo.
@@ -179,6 +180,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Walker | Unlocks at | Celebration line |
 |---|---|---|
 | Pilar | 500 | 🎉 PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW. |
+| Fern | 600 | 🎉 FERN IS HERE. SHE CAN'T SEE WHERE SHE'S GOING. |
 | David | 700 | 🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT. |
 | Spike | 800 | 🎉 SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO. |
 | Josh | 900 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
