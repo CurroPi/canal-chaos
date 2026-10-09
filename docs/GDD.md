@@ -221,4 +221,4 @@ Jump/duck, character customisation (outfits), accounts and logins.
 
 ## Opening camera swing (built)
 - Start walking from the selection screen: the camera starts in front of the walker and swings round the canal side, rising, to the play position behind them (1.3s, eased), with a whoosh. The walker's name and one-liner slide in, fighting-game style. Music starts when it lands; steps only count after.
-- Try again: a quick 0.5s version, no caption. Any key or tap skips it. Settings: `CONFIG.intro`.
+- The swing plays on the first walk and after changing walker. Try again starts walking straight away (no swing). Any key or tap skips it. Settings: `CONFIG.intro`.

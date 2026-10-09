@@ -100,9 +100,9 @@ export const CONFIG = {
   ads: { every: 3, skipAfter: 3 },
 
   // The opening camera swing: from in front of your walker round to behind them.
-  // `full` from the selection screen, `quick` on Try again (seconds); start `radius`/`height` in front of the walker;
-  // `side` -1 swings round the canal side; `caption` = how long the name and one-liner stay up
-  intro: { full: 1.3, quick: 0.5, radius: 4.2, height: 1.3, lookY: 1.1, side: -1, caption: 1.9 },
+  // `full` from the selection screen (first walk, or after changing walker), `quick` on Try again (0 = no swing);
+  // start `radius`/`height` in front of the walker; `side` -1 swings round the canal side; `caption` = how long the name stays up
+  intro: { full: 1.3, quick: 0, radius: 4.2, height: 1.3, lookY: 1.1, side: -1, caption: 1.9 },
 
   // Walkers unlocked by your best score (on this device). Anyone not listed is free from the start.
   unlocks: { pilar: 500, fern: 600, david: 700, spike: 800, josh: 900, ross: 1000, tanner: 1100 },

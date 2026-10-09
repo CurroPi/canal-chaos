@@ -731,6 +731,7 @@ function startIntro(full) {
   const c = CONFIG.intro;
   introT = 0;
   introDur = full ? c.full : c.quick;
+  if (introDur <= 0) { finishIntro(); return; } // Try again: straight back to walking
   state = 'intro';
   whooshSound(introDur);
   if (full) {
