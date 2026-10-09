@@ -21,6 +21,7 @@ const FONT = {
   P: '110101110100100', Q: '010101101110011', R: '110101110101101', S: '011100010001110', T: '111010010010010',
   U: '101101101101111', V: '101101101101010', W: '101101111111101', X: '101101010101101', Y: '101101010010010',
   Z: '111001010100111', ' ': '000000000000000',
+  0: '111101101101111', 4: '101101111001001', 9: '111101111001111', '°': '010101010000000',
 };
 const textWidth = (s, k = 1) => s.length * 4 * k - k;
 function text(s, x, y, c, k = 1) {
@@ -253,6 +254,97 @@ function dude(t) {
   R('#e8762a', sx - 2, 98, 2, 1); R('#111', sx + 1, 98, 1, 1); R('#dcdcdc', sx + 3, 106, 7, 1);
 }
 
+// ---------- Hot Tub Time: the floating sauna (and Dave) ----------
+const SKIN = '#f0c9a0';
+const MOSAIC = ['#f0c9a0', '#e8a890', '#d98a7a', '#f5d5b5', '#c97a6a'];
+function mosaic(x, y, w, h, t) { // the censor blur, flickering
+  seed = Math.floor(t * 12) + 7;
+  for (let i = 0; i < w; i += 2) for (let j = 0; j < h; j += 2) R(MOSAIC[Math.floor(rnd() * MOSAIC.length)], x + i, y + j, 2, 2);
+}
+function dave(x, y, naked, armsUp, t) {
+  x = Math.round(x);
+  y = Math.round(y);
+  R('#6b4a2b', x + 1, y, 4, 1); R(SKIN, x + 1, y + 1, 4, 3); R('#111', x + 2, y + 2, 1, 1); R('#111', x + 4, y + 2, 1, 1);
+  R('#6b4a2b', x + 1, y + 3, 4, 2); // beard, obviously
+  R(SKIN, x, y + 5, 6, 6); R('#e0b088', x + 1, y + 9, 4, 1);
+  if (armsUp) { R(SKIN, x - 1, y, 1, 6); R(SKIN, x + 6, y, 1, 6); } else { R(SKIN, x - 1, y + 5, 1, 5); R(SKIN, x + 6, y + 5, 1, 5); }
+  if (naked) mosaic(x - 1, y + 11, 8, 4, t);
+  else { R('#fafafa', x - 1, y + 11, 8, 4); R('#5b8fd1', x - 1, y + 13, 8, 1); } // towel
+  R(SKIN, x + 1, y + 15, 2, 5); R(SKIN, x + 3, y + 15, 2, 5);
+  R('#e0b088', x, y + 19, 3, 1); R('#e0b088', x + 3, y + 19, 3, 1);
+}
+function canalHat(kind, x, y) { // what Dave comes up wearing
+  if (kind === 0) { // traffic cone
+    R('#ff7a1a', x + 2, y - 5, 2, 1); R('#ff7a1a', x + 1, y - 4, 4, 2); R('#fafafa', x + 1, y - 3, 4, 1); R('#ff7a1a', x, y - 2, 6, 2);
+  } else if (kind === 1) { // carrier bag
+    R('#e9e9e9', x, y - 4, 6, 4); R('#cfcfcf', x, y - 4, 1, 4); R('#e9e9e9', x + 1, y - 6, 1, 2); R('#e9e9e9', x + 4, y - 6, 1, 2);
+  } else { // a duck
+    R('#8a6a48', x - 1, y - 4, 7, 3); R('#2e7d32', x + 4, y - 7, 3, 3); R('#e8b030', x + 7, y - 6, 2, 1); R('#111', x + 5, y - 6, 1, 1);
+  }
+}
+function sauna(t) {
+  const loop = t % 7; // towel, drop, jump, splash, surface
+  const kind = Math.floor(t / 7) % 3;
+  bricks(0, 0, W, 36, 3);
+  R('#bdb3a0', 0, 34, W, 2);
+  text('SAUNA', 6, 5, '#fffaf0'); R('#1b1b1b', 13, 11, 5, 19); R('#fafafa', 14, 12, 3, 17); R('#e11d48', 14, 13, 3, 16); text('90°', 8, 31, '#fffaf0');
+  text('CANAL', 30, 5, '#fffaf0'); R('#1b1b1b', 37, 11, 5, 19); R('#fafafa', 38, 12, 3, 17); R('#3b82f6', 38, 27, 3, 2); text('4°', 33, 31, '#fffaf0');
+  R('#cfc6b2', 0, 36, W, 10);
+  for (let x = 0; x < W; x += 9) R('#b8af9a', x, 39 + (x % 2) * 3, 5, 2);
+  R('#8c8577', 0, 46, W, 2);
+
+  // A jogger on the towpath, who sees everything
+  const rx = Math.round(175 - (t * 14) % 200);
+  R('#1b1b1b', rx, 44, 1, 2); R('#1b1b1b', rx + 3, 44, 1, 2); R('#ff5a8a', rx, 38, 4, 5); R(SKIN, rx, 34, 4, 4); R('#d9b54a', rx, 33, 4, 1);
+  if (loop > 2.2 && loop < 3.6 && rx > 20 && rx < 150) { R('#e11d48', rx + 1, 26, 2, 4); R('#e11d48', rx + 1, 31, 2, 1); }
+
+  R('#3e5f4c', 0, 48, W, 72);
+  for (let i = 0; i < 30; i++) {
+    const x = Math.round((i * 41 + t * 5) % 180) - 10;
+    const y = 52 + (i * 17) % 66;
+    R('#527a63', x, y, 7, 1); R('#2f4c3c', x + 2, y + 1, 4, 1);
+  }
+  g.globalAlpha = 0.25; R('#9a4733', 0, 48, W, 8); g.globalAlpha = 1;
+
+  // The boat
+  R('#3a2a1e', 10, 72, 142, 10); R('#2a1e14', 12, 82, 138, 2); R('#c9a227', 10, 72, 142, 1);
+  R('#b07a45', 24, 56, 118, 16);
+  for (let y = 58; y < 72; y += 3) R('#9a6838', 24, y, 118, 1);
+  R('#5a3a22', 22, 54, 122, 3);
+  for (const x of [30, 48, 104, 122]) { R('#1b1b1b', x - 1, 59, 10, 8); R('#ff9a3c', x, 60, 8, 6); R('#ffcf7a', x + 1, 61, 3, 2); }
+  text('HOT TUB TIME', 64, 62, '#fffaf0');
+  R('#1b1b1b', 132, 42, 5, 12); R('#3a3a3a', 131, 41, 7, 2);
+  for (let i = 0; i < 6; i++) { // steam
+    const k = (t * 0.5 + i / 6) % 1;
+    const s = 2 + Math.round(k * 5);
+    g.globalAlpha = 0.7 * (1 - k);
+    R('#e8e8e8', Math.round(134 + k * 10 - s / 2), Math.round(40 - k * 36), s, s);
+    g.globalAlpha = 1;
+  }
+  g.globalAlpha = 0.25; R('#2a1e14', 10, 86, 142, 5); g.globalAlpha = 1;
+
+  // Dave
+  const towel = () => { R('#fafafa', 66, 52, 7, 2); R('#5b8fd1', 67, 52, 5, 1); };
+  if (loop < 2.2) dave(60, 34, false, loop > 0.8 && Math.floor(t * 1.5) % 2 === 0, t);
+  else if (loop < 2.6) { dave(60, 34, true, false, t); towel(); }
+  else {
+    towel();
+    if (loop < 3.4) {
+      const p = (loop - 2.6) / 0.8;
+      dave(60 + 34 * p, 34 + 60 * p - 26 * Math.sin(Math.PI * p), true, true, t);
+    } else {
+      const age = loop - 3.4;
+      if (age < 0.6) { seed = Math.floor(t * 30); for (let i = 0; i < 14; i++) R('#e8f4ff', Math.round(96 + (rnd() - 0.5) * 16), Math.round(92 - rnd() * 14 * (1 - age / 0.6)), 1, 2); }
+      const r = Math.round(age * 6) % 14;
+      g.globalAlpha = 0.5; R('#9ec4b0', 97 - r, 100, 2 * r + 6, 1); g.globalAlpha = 1;
+      if (age > 1.3) {
+        R('#6b4a2b', 96, 96, 4, 1); R(SKIN, 96, 97, 4, 3); R('#111', 97, 98, 1, 1); R('#111', 99, 98, 1, 1); R('#3e5f4c', 95, 100, 7, 2);
+        canalHat(kind, 95, 96);
+      }
+    }
+  }
+}
+
 // ---------- The ads ----------
 export const ADS = [
   {
@@ -283,6 +375,16 @@ export const ADS = [
     link: 'https://dude.it/london/', // the second press opens it
     draw: dude,
   },
+  {
+    logo: 'H', logoBg: '#8a5a32', logoFg: '#ffcf7a',
+    brand: 'HOT TUB TIME', sub: 'Sponsored · Floating sauna · Regent\'s Canal',
+    badge: 'RATED PG: PIXELATED GENITALS',
+    headline: 'MISSING THE HEATWAVE?<br>90°C ON A BOAT.<br>4°C IN THE CANAL.',
+    small: 'Towels optional. Dignity not included. Canal water not tested.',
+    stars: '★★★★★ "my pores have never been so open. or so scared."',
+    cta: 'BOOK A SESSION', ctaAfter: 'FULLY BOOKED BY CONSULTANTS',
+    draw: sauna,
+  },
 ];
 
 let nextAd = Math.floor(Math.random() * ADS.length);
@@ -298,6 +400,7 @@ export function playAd(container, { skipAfter }, done) {
     </div>
     <div class="ad-scene">
       <canvas width="${W}" height="${H}"></canvas>
+      ${ad.badge ? `<span class="ad-badge">${ad.badge}</span>` : ''}
       <button class="ad-skip" disabled></button>
       <div class="ad-progress"></div>
     </div>

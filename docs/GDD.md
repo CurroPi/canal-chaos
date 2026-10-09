@@ -187,3 +187,4 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | The Victory (pub sign flips OPEN/SHUT) | GOOGLE SAYS OPEN. GOOGLE IS WRONG. | GET DIRECTIONS → SORRY, WE'RE SHUT |
 | Community Canoe (chained, a duck sitting in it) | SENT TO THE GROUP CHAT 31 TIMES. BOOKED 0 TIMES. | BOOK NOW → MAYBE NEXT SUMMER |
 | DUDE London (the black warehouse, drinks upstairs) | CRAZY SHIT. THAT WORKS. LIKE THIS GAME. | HIRE US → NOT NOW, WE'RE AT THE VICTORY (2nd press opens dude.it/london) |
+| Hot Tub Time (floating sauna; Dave drops the towel, censored by a pixel mosaic, jumps in, surfaces wearing a cone/bag/duck) | MISSING THE HEATWAVE? 90°C ON A BOAT. 4°C IN THE CANAL. | BOOK A SESSION → FULLY BOOKED BY CONSULTANTS |
