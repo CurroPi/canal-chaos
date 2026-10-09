@@ -180,7 +180,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - Game over: a "New walker unlocked!" screen (silhouette turns into the walker, fanfare), then the usual card with a "Try <name> 🆕" button. Thresholds live in config.js.
 
 ## Fake ad breaks (built)
-- Every 3rd game over (`CONFIG.ads.every`), a pixel-art "ad" appears before the game-over card, styled like a cheap mobile-game ad. "Skip ad" works after 3 seconds (`CONFIG.ads.skipAfter`). The three ads take turns.
+- Every 3rd game over (`CONFIG.ads.every`), a pixel-art "ad" appears before the game-over card, styled like a cheap mobile-game ad. "Skip ad" works after 3 seconds (`CONFIG.ads.skipAfter`). The ads play in a shuffled order: each one once per round, never the same twice in a row.
 
 | Ad | Headline | Button → after pressing |
 |---|---|---|

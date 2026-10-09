@@ -526,13 +526,27 @@ export const ADS = [
   },
 ];
 
-let nextAd = Math.floor(Math.random() * ADS.length);
-export const queueAd = (i) => { nextAd = i % ADS.length; }; // testing helper
+// Shuffled deck: every ad plays once in a random order, then the deck is reshuffled
+// (never starting with the ad that just played)
+let deck = [];
+let lastAd = null;
+function drawAd() {
+  if (!deck.length) {
+    deck = ADS.map((_, i) => i);
+    for (let i = deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    if (deck[0] === lastAd) deck.push(deck.shift());
+  }
+  lastAd = deck.shift();
+  return ADS[lastAd];
+}
+export const queueAd = (i) => { deck.unshift(i % ADS.length); }; // testing helper
 
 // Fills `container` with the next ad. Calls `done` when skipped. Returns a function that skips (if allowed).
 export function playAd(container, { skipAfter }, done) {
-  const ad = ADS[nextAd];
-  nextAd = (nextAd + 1) % ADS.length; // take turns
+  const ad = drawAd();
   container.innerHTML = `
     <div class="ad-head">
       <div class="ad-logo" style="background:${ad.logoBg};color:${ad.logoFg}">${ad.logo}</div>
