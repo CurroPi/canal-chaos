@@ -20,6 +20,12 @@ export const CHARACTERS = [
     drink: { name: 'Black batch brew', kind: 'cup', body: 0x1b1b1b, lid: 0x1b1b1b, sleeve: 0xe8e2d4, splash: 0x2b1d14 },
   },
   {
+    id: 'jasper',
+    name: 'Jasper',
+    bio: 'Owns a sourdough starter called Kevin.',
+    drink: { name: 'Matcha latte', kind: 'cup', body: 0xffffff, lid: 0x6f9a3a, sleeve: 0x9ccc65, splash: 0x8bc34a },
+  },
+  {
     id: 'josh',
     unlockLine: 'JOSH IS FULLY CHARGED. SO IS HIS VAPE.',
     name: 'Josh',
@@ -41,16 +47,6 @@ export const CHARACTERS = [
     drink: { name: 'Huge water bottle', kind: 'bottle', body: 0x7fc8ff, lid: 0x1b1b1b, splash: 0x9ad7ff },
   },
   {
-    id: 'jasper',
-    name: 'Jasper',
-    bio: 'Owns a sourdough starter called Kevin.',
-    drink: { name: 'Matcha latte', kind: 'cup', body: 0xffffff, lid: 0x6f9a3a, sleeve: 0x9ccc65, splash: 0x8bc34a },
-  },
-];
-
-// Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
-export const DRAFTS = [
-  {
     id: 'david', // the real local: skinny old boy, messy grey hair, dirty boiler suit, pint of Guinness
     name: 'David',
     bio: 'Always at The Victory. Even when it\'s shut.',
@@ -58,6 +54,9 @@ export const DRAFTS = [
     drink: { name: 'Pint of Guinness', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
   },
 ];
+
+// Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
+export const DRAFTS = [];
 
 export const characterById = (id) => CHARACTERS.find((c) => c.id === id) || DRAFTS.find((c) => c.id === id) || CHARACTERS[0];
 

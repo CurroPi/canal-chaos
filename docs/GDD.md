@@ -191,12 +191,11 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Narrowboat for sale (£85,000 ONO; the boat keeps moving to a new mooring) | MOVE EVERY 14 DAYS. LIKE RENTING, BUT WET. | ENQUIRE NOW → YOUR TOILET IS NOW FULL |
 | Soft Launch Run Club (matching neon kit, a couple holding hands drifts to the back, hearts instead of sweat) | 5K. 3 DATES. 0 PERSONAL BESTS. | JOIN THE CLUB → MATCHED WITH YOUR EX |
 
-## Draft walker: David (designed, not playable yet)
+## David (built): the ultimate unlock
 - The real local: skinny older man, messy windswept light grey hair, dirty blue boiler suit unzipped at the collar, brown work boots. Drinks a pint of Guinness (new "pint" drink).
-- Saved in `DRAFTS` in characters.js, hidden from the selection screen. Preview locally: `?debug`, then `debug.walker('david')`.
-- To decide: add as a 7th walker or replace someone; free or unlock score (2,000 suggested); unlock line chosen: "DAVID IS HERE. THE VICTORY MUST BE SHUT.".
+- Unlocks at a best score of 2,000: "🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT." One-liner: "Always at The Victory. Even when it's shut."
 
 ## Jasper (built) and walker one-liners
 - Jasper, the face on the favicon: red bobble beanie, thick black glasses, big brown beard, dark green top, cream tote. Drinks a matcha latte. Free from the start.
 - Each walker has a one-liner (`bio` in characters.js) on the selection screen (hidden while locked):
-  Sophie "Tote bag full of other tote bags." · Alex "Always wears an Aries tee. She's a Pisces." · Joe "Says "no problemo". Has several problemos." · Josh "In a band. The band doesn't know yet." · Ross "Brings his own mug. Brings it up constantly." · Tanner "Dressed for K2. Walking to Broadway Market." · Jasper "Owns a sourdough starter called Kevin." · David (draft) "Always at The Victory. Even when it's shut."
+  Sophie "Tote bag full of other tote bags." · Alex "Always wears an Aries tee. She's a Pisces." · Joe "Says "no problemo". Has several problemos." · Josh "In a band. The band doesn't know yet." · Ross "Brings his own mug. Brings it up constantly." · Tanner "Dressed for K2. Walking to Broadway Market." · Jasper "Owns a sourdough starter called Kevin." · David "Always at The Victory. Even when it's shut."
