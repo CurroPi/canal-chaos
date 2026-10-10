@@ -136,6 +136,7 @@ export function playPottery(card, {
   let shapeTarget;
   let handle;
   let glaze;
+  let swapsLeft;   // you can ask for another brief once
   let sayUntil = 0;
   let nextComment = 0;
   let running = true;
@@ -148,13 +149,29 @@ export function playPottery(card, {
 
   // ---------- Controls under the picture, per step ----------
   function showControls() {
+    const ticket = `<p class="pottery-ticket"><b>📋 THE BRIEF</b> ${brief.text}</p>`;
     if (phase === 'brief') {
-      controls.innerHTML = `
-        <p class="pottery-brief"><b>THE BRIEF</b>${brief.text}</p>
-        <button class="pottery-go">Start throwing</button>`;
-      controls.querySelector('.pottery-go').addEventListener('click', startThrow);
+      // The commission, big over the studio: accept it (or swap it, once) before you start
+      controls.innerHTML = '';
+      resultEl.classList.remove('hidden');
+      resultEl.innerHTML = `
+        <div class="commission">
+          <p class="commission-title">NEW COMMISSION</p>
+          <p class="commission-text">${brief.text}</p>
+          <p class="commission-small">Pilar will judge it against this brief.<br>You need ${passMark}/40 to get into the show.</p>
+          <button class="commission-accept">✓ Accept the brief</button>
+          ${swapsLeft ? '<button class="commission-swap secondary">↻ Ask for another</button>' : ''}
+        </div>`;
+      resultEl.querySelector('.commission-accept').addEventListener('click', () => { resultEl.classList.add('hidden'); startThrow(); });
+      resultEl.querySelector('.commission-swap')?.addEventListener('click', () => {
+        swapsLeft--;
+        brief = pick(BRIEFS.filter((b) => b !== brief));
+        say('Fine. This one, then.', 2);
+        showControls();
+      });
     } else if (phase === 'throw') {
       controls.innerHTML = `
+        ${ticket}
         <button class="pull-button">HOLD TO PULL UP</button>
         <p class="pool-hint">1/3 THROW · Pull to the line, let go to steady it.<br>Bubble? Let go before it pops!</p>`;
       const btn = controls.querySelector('.pull-button');
@@ -162,6 +179,7 @@ export function playPottery(card, {
       for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) btn.addEventListener(ev, () => setHolding(false));
     } else if (phase === 'shape') {
       controls.innerHTML = `
+        ${ticket}
         <div class="joystick" aria-label="Drag left to push in, right to let out">
           <span class="joy-arrow">◀ IN</span><span class="joy-arrow">OUT ▶</span>
           <div class="joy-knob"></div>
@@ -170,6 +188,7 @@ export function playPottery(card, {
       bindJoystick();
     } else if (phase === 'finish') {
       controls.innerHTML = `
+        ${ticket}
         <p class="pottery-label">HANDLE</p>
         <div class="pottery-options">${Object.entries(HANDLES).map(([id, name]) => `<button data-handle="${id}" class="${id === handle ? 'chosen' : ''}">${name}</button>`).join('')}</div>
         <p class="pottery-label">GLAZE</p>
@@ -216,6 +235,7 @@ export function playPottery(card, {
     widths = null;
     handle = 'classic';
     glaze = 'speckled';
+    swapsLeft = 1;
     resultEl.classList.add('hidden');
     showControls();
     say('Read the brief. Then make me something beautiful.', 3);

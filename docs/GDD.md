@@ -242,6 +242,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 
 ## Pilar's Open Studio Show (built): unlocks Pilar
 - Reach 500 steps, then get a mug into Pilar's show. Railway-arch studio with an "OPEN STUDIO · SHOW SAT · FREE WINE" poster.
+- A NEW COMMISSION card over the studio: you must ✓ Accept the brief before starting (or ↻ Ask for another, once). Once accepted, the brief stays pinned as a ticket above the controls for all three steps.
 - A local brief at random, e.g. "A mug for a natural wine bar in Clapton. Earthy. Slightly wonky." / "…a Scandi coffee shop on Broadway Market. Calm. Beige. Minimal." / "…a Hackney Wick warehouse party. Loud. Weird. Very wonky." / "…a sourdough café on Chatsworth Road. Rustic. Honest. Brownish." / "…a Columbia Road flower stall. Green. Fresh. A bit bulgy."
 - 1/3 THROW: hold to pull up to the line, let go to steady; bubbles swell and pop (let go before they pop). Failing here ends the attempt with the jokes: coaster, bowl, art, lamp (too tall), class over (time).
 - 2/3 SHAPE: the hands climb the pot over ~4s; drag the joystick (or ← →) to push the clay IN or let it bulge OUT at each height.
