@@ -1,7 +1,6 @@
-// Mini-game: Pilar's wheel class. The clay rises on its own up to the customer's line;
-// your job is to keep it centred with ◀ ▶ (or ← →, or tapping either side of the table).
-// It drifts and leans more as it gets taller, and air bubbles shove it. How it fails depends on how
-// high it got: a coaster, a bowl, a lamp, or (right at the end) art.
+// Mini-game: Pilar's wheel class. Pull the clay up to the customer's line.
+// Hold to pull the walls up; it wobbles more the longer you pull, so let go to steady it. Air bubbles
+// add sudden wobble. Collapse low: a coaster; halfway: a bowl; near the top: art. Past the line: a lamp.
 
 import { crashSound, fanfare, clackSound } from './sound.js';
 import { FONT } from './ads.js';
@@ -18,9 +17,9 @@ const ORDERS = [
 ];
 const PILAR = {
   start: ['Feel the clay.', 'Centre yourself first. Then the clay.', 'Wheel class is £65. No refunds.'],
-  pulling: ['Less pressure. Like your rent.', 'Gentle...', 'Let the clay lead.', 'That\'s very... intentional.'],
+  pulling: ['Less pressure. Like your rent.', 'Gentle...', 'Let the clay lead.'],
+  wobbly: ['Steady!', 'That\'s very... intentional.', 'Wonky is a feature. Within reason.'],
   close: ['Nearly there.', 'Stop when it feels right.'],
-  leaning: ['It\'s leaning!', 'Centre it!', 'Back to the middle!'],
   lump: ['Air bubble!', 'Lump!', 'Did you wedge this?'],
 };
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -42,7 +41,9 @@ function profile(shape, y, h, width) {
   return half * (0.92 + 0.08 * Math.sin(f * Math.PI));   // mug: straight-ish
 }
 
-export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lumpEvery = 3 }, onDone) {
+export function playPottery(card, {
+  seconds = 25, tolerance = 5, pullSpeed = 26, wobbleRate = 0.36, calmRate = 0.5, steadyFor = 0.9, lumpEvery = 3.2,
+}, onDone) {
   card.innerHTML = `
     <div class="pool-head">
       <span class="pool-title">🏺 PILAR'S WHEEL CLASS</span>
@@ -54,11 +55,8 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
       <div class="pool-score"></div>
       <div class="pool-result hidden"></div>
     </div>
-    <div class="joystick" aria-label="Drag left or right to centre the clay">
-      <span class="joy-arrow">◀</span><span class="joy-arrow">▶</span>
-      <div class="joy-knob"></div>
-    </div>
-    <p class="pool-hint">The clay rises by itself. Drag the knob to keep it centred.</p>
+    <button class="pull-button">HOLD TO PULL UP</button>
+    <p class="pool-hint">Hold to pull the clay up. Let go to steady it.<br>Stop on the dotted line.</p>
   `;
   card.classList.add('pottery-card');
   const canvas = card.querySelector('canvas');
@@ -66,20 +64,19 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
   const sayEl = card.querySelector('.pool-say');
   const scoreEl = card.querySelector('.pool-score');
   const resultEl = card.querySelector('.pool-result');
-  scoreEl.style.cssText = 'top: 6px; bottom: auto;'; // up top: the centre meter is at the bottom
+  const pullBtn = card.querySelector('.pull-button');
 
   let order;
   let height;
-  let lean;       // -1 .. 1: how far the clay leans (1 = it falls over)
-  let leanVel;
-  let leanBias;   // which way the clay wants to go right now
-  let biasT;
-  let pushDir;    // -1 .. 1: you pushing it back (the joystick is analogue: further = harder)
-  let lumpT;      // seconds to the next air bubble
-  let lumpFlash;  // shows "LUMP!" for a moment
-  let fail;       // how it went wrong: coaster | bowl | lamp | art
-  let phase;      // 'class' | 'collapse' | 'firing' | 'over'
+  let wobble;     // 0 calm .. 1 collapse
+  let holding;
+  let timeLeft;
+  let phase;      // 'class' | 'collapse' | 'lamp' | 'firing' | 'over'
   let phaseT;
+  let steadyInBand;
+  let lumpT;      // seconds to the next air bubble
+  let lumpFlash;
+  let collapseAs; // what a collapse turns it into: coaster | bowl | art
   let sayUntil;
   let nextComment;
   let running = true;
@@ -92,25 +89,33 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
 
   function setup() {
     order = ORDERS[Math.floor(Math.random() * ORDERS.length)];
-    height = 6;
-    lean = 0;
-    leanVel = 0;
-    leanBias = Math.random() < 0.5 ? -1 : 1;
-    biasT = 0.6;
-    pushDir = 0;
-    lumpT = lumpEvery * (0.8 + Math.random() * 0.6);
-    lumpFlash = 0;
-    fail = null;
+    height = 8;
+    wobble = 0;
+    holding = false;
+    timeLeft = seconds;
     phase = 'class';
     phaseT = 0;
-    nextComment = performance.now() + 4000;
+    steadyInBand = 0;
+    lumpT = lumpEvery * (0.8 + Math.random() * 0.6);
+    lumpFlash = 0;
+    collapseAs = null;
+    nextComment = performance.now() + 5000;
     resultEl.classList.add('hidden');
+    pullBtn.disabled = false;
     say(pick(PILAR.start));
   }
 
-  function finish(won) {
+  function setHolding(on) {
+    if (phase !== 'class') { holding = false; return; }
+    if (on && !holding && Math.random() < 0.35) say(pick(PILAR.pulling), 1.6);
+    holding = on;
+    pullBtn.classList.toggle('active', on);
+  }
+
+  function finish(won, how) {
     phase = 'over';
-    pushDir = 0;
+    holding = false;
+    pullBtn.disabled = true;
     resultEl.classList.remove('hidden');
     if (won) {
       fanfare();
@@ -121,11 +126,12 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
       resultEl.querySelector('.pool-continue').addEventListener('click', () => close(true));
     } else {
       const [title, line] = {
+        lamp: ['IT\'S A LAMP NOW.', 'Too tall. Pilar is putting a bulb in it.'],
+        time: ['CLASS IS OVER.', 'That\'ll be £65.'],
         coaster: ['IT\'S A COASTER NOW.', 'Pilar will sell it as a set of six.'],
         bowl: ['IT\'S A BOWL NOW.', 'Wonky is a feature. That isn\'t.'],
-        lamp: ['IT\'S A LAMP NOW.', 'Pilar is putting a bulb in it.'],
         art: ['IT\'S ART NOW.', 'Pilar is selling it for £900. You get nothing.'],
-      }[fail];
+      }[how];
       resultEl.innerHTML = `
         <p class="pool-big lose">${title}</p>
         <p>${line}</p>
@@ -143,25 +149,14 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
     onDone(won);
   }
 
-  // ---------- Input: the joystick (drag left/right, springs back), or ← → ----------
-  const joy = card.querySelector('.joystick');
-  const knob = card.querySelector('.joy-knob');
-  let dragging = false;
-  function setJoy(clientX) {
-    const r = joy.getBoundingClientRect();
-    const reach = r.width / 2 - knob.offsetWidth / 2;
-    const v = Math.max(-1, Math.min(1, (clientX - (r.left + r.width / 2)) / reach));
-    pushDir = v;
-    knob.style.transform = `translateX(${v * reach}px)`;
+  // ---------- Input: hold the button, the table, Space or ↑ ----------
+  for (const el of [pullBtn, canvas]) {
+    el.addEventListener('pointerdown', (e) => { e.preventDefault(); el.setPointerCapture?.(e.pointerId); setHolding(true); });
+    for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) el.addEventListener(ev, () => setHolding(false));
   }
-  joy.addEventListener('pointerdown', (e) => { e.preventDefault(); try { joy.setPointerCapture(e.pointerId); } catch { /* not a real pointer */ } dragging = true; joy.classList.add('active'); setJoy(e.clientX); });
-  joy.addEventListener('pointermove', (e) => { if (dragging) setJoy(e.clientX); });
-  for (const ev of ['pointerup', 'pointercancel']) {
-    joy.addEventListener(ev, () => { dragging = false; pushDir = 0; knob.style.transform = ''; joy.classList.remove('active'); });
-  }
-  const leanKey = { ArrowLeft: -1, ArrowRight: 1, a: -1, A: -1, d: 1, D: 1 };
-  function onKeyDown(e) { if (leanKey[e.key]) { e.preventDefault(); pushDir = leanKey[e.key]; } }
-  function onKeyUp(e) { if (leanKey[e.key] && pushDir === leanKey[e.key]) pushDir = 0; }
+  const isPull = (e) => e.key === ' ' || e.key === 'ArrowUp';
+  function onKeyDown(e) { if (isPull(e)) { e.preventDefault(); if (!e.repeat) setHolding(true); } }
+  function onKeyUp(e) { if (isPull(e)) setHolding(false); }
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
   card.querySelector('.pool-leave').addEventListener('click', () => close(false));
@@ -217,11 +212,11 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
 
   function drawPot(t) {
     const h = Math.round(height);
-    const sway = lean * 16;                                                       // leaning off-centre
+    const sway = Math.sin(t * 14) * wobble * 7;
     for (let y = 0; y < h; y++) {
-      const half = profile(order.shape, y, h, order.width) + Math.sin(t * 9 + y * 0.3) * Math.abs(lean) * 1.5;
-      const shift = sway * (y / Math.max(1, h));                                 // the higher, the further it leans
-      const x0 = Math.round(CX - half + shift);
+      const half = profile(order.shape, y, h, order.width) + Math.sin(t * 9 + y * 0.3) * wobble * 2;
+      const lean = sway * (y / Math.max(1, h));
+      const x0 = Math.round(CX - half + lean);
       const w = Math.round(half * 2);
       g.fillStyle = y % 7 === 0 ? '#a46a4a' : '#b9805e';                         // clay, with throwing rings
       g.fillRect(x0, WHEEL_Y - y, w, 1);
@@ -232,7 +227,7 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
       const half = profile(order.shape, h, h, order.width);
       g.fillStyle = '#6e3a24'; g.fillRect(Math.round(CX - half + 3 + sway), WHEEL_Y - h, Math.round(half * 2 - 6), 2);
     }
-    if (phase === 'class') {                                                      // your hands, pulling up
+    if (holding && phase === 'class') {                                           // your hands, pulling up
       const half = profile(order.shape, h, h, order.width);
       g.fillStyle = '#ebc3a6';
       g.fillRect(Math.round(CX - half - 6 + sway), WHEEL_Y - h + 2, 6, 5);
@@ -243,18 +238,17 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
   function drawTarget() {
     const y = WHEEL_Y - order.height;
     for (let x = CX - 40; x < CX + 40; x += 4) { g.fillStyle = '#1f7a3a'; g.fillRect(x, y, 2, 1); }
+    g.fillStyle = 'rgba(31,122,58,0.12)'; g.fillRect(CX - 40, y - tolerance, 80, tolerance * 2);
     text(g, order.name, W / 2, 210, '#1b1b1b');
     text(g, order.price, CX - 54, y - 2, '#1f7a3a');
   }
 
-  function drawLeanMeter() {
-    const y = 299;
-    g.fillStyle = '#1b1b1b'; g.fillRect(CX - 41, y - 1, 82, 7);
-    g.fillStyle = '#e0332f'; g.fillRect(CX - 40, y, 80, 5);
-    g.fillStyle = '#ffd23f'; g.fillRect(CX - 26, y, 52, 5);
-    g.fillStyle = '#5cf072'; g.fillRect(CX - 12, y, 24, 5);
-    g.fillStyle = '#fffaf0'; g.fillRect(Math.round(CX + lean * 39) - 1, y - 3, 3, 11);
-    text(g, 'CENTRE', CX, y + 9, '#1b1b1b');
+  function drawWobbleMeter() {
+    g.fillStyle = '#1b1b1b'; g.fillRect(8, 222, 6, 60);
+    const h = Math.round(58 * Math.min(1, wobble));
+    g.fillStyle = wobble > 0.7 ? '#e0332f' : wobble > 0.4 ? '#ffd23f' : '#5cf072';
+    g.fillRect(9, 281 - h, 4, h);
+    text(g, 'WOBBLE', 22, 286, '#1b1b1b');
   }
 
   // ---------- Loop ----------
@@ -265,65 +259,70 @@ export function playPottery(card, { riseSpeed = 11, drift = 1.6, push = 3.8, lum
     last = now;
     const t = now / 1000;
     if (phase === 'class') {
-      height += riseSpeed * dt;
-      // Off-centre drift: the clay keeps pulling to one side, harder as it gets taller
-      biasT -= dt;
-      if (biasT <= 0) { biasT = 0.8 + Math.random() * 1.4; leanBias = Math.random() < 0.6 ? -leanBias : leanBias; }
-      const pullOn = drift * (0.6 + height / 60);
+      timeLeft -= dt;
+      if (holding) {
+        height += pullSpeed * dt;
+        wobble += (wobbleRate + height / 220) * dt;               // the taller it gets, the shakier
+      } else wobble = Math.max(0, wobble - calmRate * dt);
       lumpT -= dt;
-      if (lumpT <= 0) {                                          // an air bubble: a sudden shove
+      if (lumpT <= 0) {                                          // an air bubble: a sudden jolt of wobble
         lumpT = lumpEvery * (0.7 + Math.random() * 0.7);
-        leanVel += (Math.random() < 0.5 ? -1 : 1) * (1 + height / 80);
+        wobble += 0.18 + height / 400;
         lumpFlash = 0.7;
         clackSound(0.6);
         if (now > sayUntil) say(pick(PILAR.lump), 1.2);
       }
       lumpFlash = Math.max(0, lumpFlash - dt);
-      leanVel += (leanBias * pullOn + (Math.random() - 0.5) * 2 + pushDir * push) * dt;
-      leanVel *= Math.exp(-1.6 * dt);
-      lean += leanVel * dt;
-      if (Math.abs(lean) >= 1) {
+      if (wobble >= 1) {
         const f = height / order.height;                         // how far up it got decides what it becomes
-        fail = f < 0.35 ? 'coaster' : f < 0.7 ? 'bowl' : f < 0.93 ? 'lamp' : 'art';
-        lean = Math.sign(lean);
+        collapseAs = f < 0.35 ? 'coaster' : f < 0.85 ? 'bowl' : 'art';
         phase = 'collapse';
         phaseT = 0;
         crashSound();
       }
-      else if (height >= order.height) { height = order.height; phase = 'firing'; phaseT = 0; clackSound(1); }
-      if (now > nextComment) { nextComment = now + 5000; if (now > sayUntil) say(pick(height > order.height * 0.7 ? PILAR.close : PILAR.pulling)); }
-      if (Math.abs(lean) > 0.6 && now > sayUntil) say(pick(PILAR.leaning), 1.2);
-    } else if (phase === 'collapse') {                           // slumping (lamps and art stay up, at an angle)
+      else if (height > order.height + tolerance) { phase = 'lamp'; phaseT = 0; crashSound(); }
+      else if (timeLeft <= 0) finish(false, 'time');
+      // Resting in the band, calm enough: it's done
+      const inBand = Math.abs(height - order.height) <= tolerance;
+      steadyInBand = inBand && !holding && wobble < 0.4 ? steadyInBand + dt : 0;
+      if (steadyInBand > steadyFor) { phase = 'firing'; phaseT = 0; clackSound(1); }
+      if (now > nextComment) {
+        nextComment = now + 6000;
+        if (now > sayUntil) say(wobble > 0.6 ? pick(PILAR.wobbly) : inBand ? pick(PILAR.close) : pick(PILAR.pulling));
+      }
+      if (wobble > 0.75 && now > sayUntil) say(pick(PILAR.wobbly), 1.4);
+    } else if (phase === 'collapse') {                           // slumping (art just stays wonky)
       phaseT += dt;
-      if (fail === 'coaster') height = Math.max(4, height - 60 * dt);
-      else if (fail === 'bowl') { height = Math.max(order.height > 40 ? 22 : 12, height - 120 * dt); lean *= Math.exp(-3 * dt); }
-      else lean = Math.sign(lean) * Math.min(1.6, Math.abs(lean) + 1.2 * dt);
-      if (phaseT > 1) finish(false);
+      if (collapseAs === 'coaster') height = Math.max(4, height - 80 * dt);
+      else if (collapseAs === 'bowl') height = Math.max(order.height > 40 ? 22 : 12, height - 120 * dt);
+      wobble = collapseAs === 'art' ? 0.8 : Math.max(0, wobble - 2 * dt);
+      if (phaseT > 1) finish(false, collapseAs);
+    } else if (phase === 'lamp') {
+      phaseT += dt;
+      if (phaseT > 0.8) finish(false, 'lamp');
     } else if (phase === 'firing') {
       phaseT += dt;
-      lean *= Math.exp(-4 * dt);
+      wobble = Math.max(0, wobble - dt);
       if (phaseT > 0.8) finish(true);
     }
     if (now > sayUntil) sayEl.classList.remove('show');
-    scoreEl.textContent = `${Math.min(100, Math.round((height / order.height) * 100))}% UP`;
+    scoreEl.textContent = `CLASS ENDS ${Math.max(0, Math.ceil(timeLeft))}S`;
 
     drawStudio(t);
     drawTarget();
     drawWheel(t);
     drawPot(t);
-    drawLeanMeter();
-    if (lumpFlash > 0) text(g, 'LUMP!', CX, WHEEL_Y - height - 18, '#e0332f', 2);
-    if (fail === 'lamp' && phase !== 'class') {                  // a bulb on top
-      g.fillStyle = '#ffd23f';
-      g.beginPath(); g.arc(CX + lean * 16, WHEEL_Y - height - 6, 6, 0, Math.PI * 2); g.fill();
-      g.fillStyle = 'rgba(255,210,63,0.25)';
-      g.beginPath(); g.arc(CX + lean * 16, WHEEL_Y - height - 6, 14, 0, Math.PI * 2); g.fill();
+    drawWobbleMeter();
+    if (phase === 'lamp' || (phase === 'over' && height > order.height + tolerance)) {           // a bulb on top
+      g.fillStyle = 'rgba(255,210,63,0.25)'; g.beginPath(); g.arc(CX, WHEEL_Y - height - 6, 14, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ffd23f'; g.beginPath(); g.arc(CX, WHEEL_Y - height - 6, 6, 0, Math.PI * 2); g.fill();
     }
-    if (fail === 'art' && phase !== 'class') text(g, '£900', CX + 40, WHEEL_Y - height - 4, '#1f7a3a', 2);
+    if (collapseAs === 'art' && phase !== 'class') text(g, '£900', CX + 40, WHEEL_Y - height - 4, '#1f7a3a', 2);
+    if (lumpFlash > 0) text(g, 'LUMP!', CX, WHEEL_Y - height - 18, '#e0332f', 2);
     requestAnimationFrame(frame);
   }
   setup();
   requestAnimationFrame(frame);
   // Testing helper (?debug only): a perfect pot
-  return { cheat() { height = order.height; lean = 0; phase = 'firing'; phaseT = 0; } };
+  return { cheat() { height = order.height; wobble = 0; holding = false; steadyInBand = 1; phase = 'firing'; phaseT = 0; } };
 }
