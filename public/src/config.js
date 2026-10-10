@@ -105,7 +105,15 @@ export const CONFIG = {
   intro: { full: 1.3, quick: 0, radius: 4.2, height: 1.3, lookY: 1.1, side: -1, caption: 1.9 },
 
   // Unlock mini-games: some walkers also have to be beaten (David: pot `target` balls before his pint is gone)
-  challenges: { pool: { seconds: 45, target: 3 }, courtship: { bpm: 104, notes: 28 }, pottery: { seconds: 30, tolerance: 7 } },
+  challenges: { pool: { seconds: 45, target: 3 }, courtship: { bpm: 104, notes: 28 }, pottery: {
+      seconds: 25,     // class length
+      tolerance: 4,    // how close to the line counts (pixels of clay)
+      pullSpeed: 30,   // how fast the clay rises while you hold
+      wobbleRate: 0.42, // how fast it gets wobbly while you pull (more as it gets taller)
+      calmRate: 0.42,  // how fast it steadies when you let go
+      steadyFor: 1.1,  // seconds it must rest on the line, calm, to be fired
+    },
+  },
 
   // Walkers unlocked by your best score (on this device). Anyone not listed is free from the start.
   unlocks: { pilar: 500, fern: 600, david: 700, spike: 800, josh: 900, ross: 1000, tanner: 1100, duck: 1200 },

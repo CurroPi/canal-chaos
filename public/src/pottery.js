@@ -1,4 +1,5 @@
 // Mini-game: Pilar's wheel class. Pull the clay up to the customer's line.
+// The clay also drifts off-centre and leans: push it back with ◀ ▶ (or ← →) while you pull.
 // Hold to pull the walls up; it wobbles more the longer you pull, so let go to steady it.
 // Wobble too much and it collapses ("IT'S A BOWL NOW"); pull past the line and it's a lamp.
 
@@ -20,6 +21,7 @@ const PILAR = {
   pulling: ['Less pressure. Like your rent.', 'Gentle...', 'Let the clay lead.'],
   wobbly: ['Steady!', 'That\'s very... intentional.', 'Wonky is a feature. Within reason.'],
   close: ['Nearly there.', 'Stop when it feels right.'],
+  leaning: ['It\'s leaning!', 'Centre it!', 'Back to the middle!'],
 };
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 
@@ -40,7 +42,10 @@ function profile(shape, y, h, width) {
   return half * (0.92 + 0.08 * Math.sin(f * Math.PI));   // mug: straight-ish
 }
 
-export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
+export function playPottery(card, {
+  seconds = 25, tolerance = 4, pullSpeed = 30, wobbleRate = 0.42, calmRate = 0.42, steadyFor = 1.1,
+  drift = 1.1, push = 3,
+}, onDone) {
   card.innerHTML = `
     <div class="pool-head">
       <span class="pool-title">🏺 PILAR'S WHEEL CLASS</span>
@@ -52,8 +57,12 @@ export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
       <div class="pool-score"></div>
       <div class="pool-result hidden"></div>
     </div>
-    <button class="pull-button">HOLD TO PULL UP</button>
-    <p class="pool-hint">Hold to pull the clay up. Let go to steady it.<br>Stop on the dotted line.</p>
+    <div class="pull-row">
+      <button class="lean-button" data-dir="-1" aria-label="Push left">◀</button>
+      <button class="pull-button">HOLD TO<br>PULL UP</button>
+      <button class="lean-button" data-dir="1" aria-label="Push right">▶</button>
+    </div>
+    <p class="pool-hint">Hold to pull the clay up, let go to steady it.<br>Keep it centred with ◀ ▶. Stop on the dotted line.</p>
   `;
   const canvas = card.querySelector('canvas');
   const g = canvas.getContext('2d');
@@ -61,11 +70,17 @@ export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
   const scoreEl = card.querySelector('.pool-score');
   const resultEl = card.querySelector('.pool-result');
   const pullBtn = card.querySelector('.pull-button');
+  scoreEl.style.cssText = 'top: 6px; bottom: auto;'; // the timer sits up top here: the centre meter is at the bottom
 
   let order;
   let height;
   let wobble;     // 0 calm .. 1 collapse
   let holding;
+  let lean;       // -1 .. 1: how far the clay leans (1 = it falls over)
+  let leanVel;
+  let leanBias;   // which way the clay wants to go right now
+  let biasT;
+  let pushDir;    // -1, 0, 1: you pushing it back
   let timeLeft;
   let phase;      // 'class' | 'collapse' | 'lamp' | 'firing' | 'over'
   let phaseT;
@@ -85,6 +100,11 @@ export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
     height = 8;
     wobble = 0;
     holding = false;
+    lean = 0;
+    leanVel = 0;
+    leanBias = Math.random() < 0.5 ? -1 : 1;
+    biasT = 0;
+    pushDir = 0;
     timeLeft = seconds;
     phase = 'class';
     phaseT = 0;
@@ -139,9 +159,21 @@ export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
     el.addEventListener('pointerdown', (e) => { e.preventDefault(); el.setPointerCapture?.(e.pointerId); setHolding(true); });
     for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) el.addEventListener(ev, () => setHolding(false));
   }
+  card.querySelectorAll('.lean-button').forEach((b) => {
+    const dir = Number(b.dataset.dir);
+    b.addEventListener('pointerdown', (e) => { e.preventDefault(); b.setPointerCapture?.(e.pointerId); pushDir = dir; b.classList.add('active'); });
+    for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) b.addEventListener(ev, () => { if (pushDir === dir) pushDir = 0; b.classList.remove('active'); });
+  });
   const isPull = (e) => e.key === ' ' || e.key === 'ArrowUp';
-  function onKeyDown(e) { if (isPull(e)) { e.preventDefault(); if (!e.repeat) setHolding(true); } }
-  function onKeyUp(e) { if (isPull(e)) setHolding(false); }
+  const leanKey = { ArrowLeft: -1, ArrowRight: 1, a: -1, A: -1, d: 1, D: 1 };
+  function onKeyDown(e) {
+    if (isPull(e)) { e.preventDefault(); if (!e.repeat) setHolding(true); }
+    if (leanKey[e.key]) { e.preventDefault(); pushDir = leanKey[e.key]; }
+  }
+  function onKeyUp(e) {
+    if (isPull(e)) setHolding(false);
+    if (leanKey[e.key] && pushDir === leanKey[e.key]) pushDir = 0;
+  }
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
   card.querySelector('.pool-leave').addEventListener('click', () => close(false));
@@ -197,7 +229,7 @@ export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
 
   function drawPot(t) {
     const h = Math.round(height);
-    const sway = Math.sin(t * 14) * wobble * 7;
+    const sway = Math.sin(t * 14) * wobble * 7 + lean * 16;   // shaking, plus leaning off-centre
     for (let y = 0; y < h; y++) {
       const half = profile(order.shape, y, h, order.width) + Math.sin(t * 9 + y * 0.3) * wobble * 2;
       const lean = sway * (y / Math.max(1, h));
@@ -236,6 +268,16 @@ export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
     text(g, 'WOBBLE', 22, 286, '#1b1b1b');
   }
 
+  function drawLeanMeter() {
+    const y = 299;
+    g.fillStyle = '#1b1b1b'; g.fillRect(CX - 41, y - 1, 82, 7);
+    g.fillStyle = '#e0332f'; g.fillRect(CX - 40, y, 80, 5);
+    g.fillStyle = '#ffd23f'; g.fillRect(CX - 26, y, 52, 5);
+    g.fillStyle = '#5cf072'; g.fillRect(CX - 12, y, 24, 5);
+    g.fillStyle = '#fffaf0'; g.fillRect(Math.round(CX + lean * 39) - 1, y - 3, 3, 11);
+    text(g, 'CENTRE', CX, y + 9, '#1b1b1b');
+  }
+
   // ---------- Loop ----------
   let last = performance.now();
   function frame(now) {
@@ -246,25 +288,35 @@ export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
     if (phase === 'class') {
       timeLeft -= dt;
       if (holding) {
-        height += 24 * dt;
-        wobble += (0.32 + height / 260) * dt;                    // the taller it gets, the shakier
-      } else wobble = Math.max(0, wobble - 0.55 * dt);
+        height += pullSpeed * dt;
+        wobble += (wobbleRate + height / 200) * dt;               // the taller it gets, the shakier
+      } else wobble = Math.max(0, wobble - calmRate * dt);
+      // Off-centre drift: the clay keeps pulling to one side (harder when pulling, and when tall)
+      biasT -= dt;
+      if (biasT <= 0) { biasT = 0.8 + Math.random() * 1.4; leanBias = Math.random() < 0.6 ? -leanBias : leanBias; }
+      const pullOn = drift * (0.5 + height / 70) * (holding ? 1.4 : 0.7);
+      leanVel += (leanBias * pullOn + (Math.random() - 0.5) * 2 + pushDir * push) * dt;
+      leanVel *= Math.exp(-1.6 * dt);
+      lean += leanVel * dt;
+      if (Math.abs(lean) >= 1) { lean = Math.sign(lean); phase = 'collapse'; phaseT = 0; crashSound(); }
       if (wobble >= 1) { phase = 'collapse'; phaseT = 0; crashSound(); }
       else if (height > order.height + tolerance) { phase = 'lamp'; phaseT = 0; crashSound(); }
       else if (timeLeft <= 0) finish(false, 'time');
       // Resting in the band, calm enough: it's done
       const inBand = Math.abs(height - order.height) <= tolerance;
-      steadyInBand = inBand && !holding && wobble < 0.45 ? steadyInBand + dt : 0;
-      if (steadyInBand > 0.8) { phase = 'firing'; phaseT = 0; clackSound(1); }
+      steadyInBand = inBand && !holding && wobble < 0.35 && Math.abs(lean) < 0.3 ? steadyInBand + dt : 0;
+      if (steadyInBand > steadyFor) { phase = 'firing'; phaseT = 0; clackSound(1); }
       if (now > nextComment) {
         nextComment = now + 6000;
         if (now > sayUntil) say(wobble > 0.6 ? pick(PILAR.wobbly) : inBand ? pick(PILAR.close) : pick(PILAR.pulling));
       }
       if (wobble > 0.75 && now > sayUntil) say(pick(PILAR.wobbly), 1.4);
+      if (Math.abs(lean) > 0.65 && now > sayUntil) say(pick(PILAR.leaning), 1.2);
     } else if (phase === 'collapse') {                           // slumping into a bowl
       phaseT += dt;
       height = Math.max(order.height > 40 ? 22 : 12, height - 120 * dt);
       wobble = Math.max(0, wobble - 2 * dt);
+      lean *= Math.exp(-3 * dt);
       if (phaseT > 1) finish(false, 'collapse');
     } else if (phase === 'lamp') {
       phaseT += dt;
@@ -282,6 +334,7 @@ export function playPottery(card, { seconds = 30, tolerance = 7 }, onDone) {
     drawWheel(t);
     drawPot(t);
     drawWobbleMeter();
+    drawLeanMeter();
     if (phase === 'lamp') { g.fillStyle = '#ffd23f'; g.beginPath(); g.arc(CX, WHEEL_Y - height - 6, 6, 0, Math.PI * 2); g.fill(); } // a bulb on top
     requestAnimationFrame(frame);
   }

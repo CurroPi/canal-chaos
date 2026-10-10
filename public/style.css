@@ -576,10 +576,24 @@ html, body {
 body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
 
 /* Mini-game: Pilar's wheel class */
+.pull-row { display: flex; gap: 8px; margin-top: 10px; }
+.card .lean-button {
+  flex: 0 0 22%;
+  margin: 0;
+  padding: 16px 0;
+  font-size: 20px;
+  background: #e9dcc0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.card .lean-button.active { background: #cdb8a6; transform: translate(2px, 2px); box-shadow: 2px 2px 0 #1b1b1b; }
 .card .pull-button {
   display: block;
+  flex: 1;
   width: 100%;
-  margin: 10px 0 0;
+  margin: 0;
+  line-height: 1.4;
   padding: 16px 8px;
   font-size: 14px;
   background: #b9805e;
