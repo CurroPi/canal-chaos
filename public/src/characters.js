@@ -62,6 +62,13 @@ export const CHARACTERS = [
     name: 'David',
     bio: 'Always at The Victory. Even when it\'s shut.',
     unlockLine: 'DAVID IS HERE. THE VICTORY MUST BE SHUT.',
+    challenge: {
+      kind: 'pool',
+      label: '🎱 Beat David at pool',
+      button: '🎱 Challenge David',
+      offer: '🎱 David challenges you!',
+      pitch: 'Hey hey!! Pool. At The Victory. Pot 3 before he finishes his pint.',
+    },
     emoji: '🍺',
     spill: ['MY PINT!', 'That was a perfect pour.'],
     refill: ['Ah. A proper pint.'],

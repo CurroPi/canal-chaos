@@ -151,6 +151,16 @@ export function whooshSound(dur) {
   src.stop(t + len);
 }
 
+// Pool balls knocking together (strength 0..1)
+let lastClack = 0;
+export function clackSound(strength = 1) {
+  if (!ctx || ctx.currentTime - lastClack < 0.04) return;
+  lastClack = ctx.currentTime;
+  const t = ctx.currentTime;
+  tone(2200, t, 0.05, { type: 'square', vol: 0.05 * strength, endFreq: 1400 });
+  tone(900, t, 0.04, { type: 'triangle', vol: 0.06 * strength });
+}
+
 // Electric motor whine, rising
 export function whineSound() {
   if (!ctx) return;

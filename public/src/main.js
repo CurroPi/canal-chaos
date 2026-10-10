@@ -9,6 +9,7 @@ import { leaderboardEnabled, topScores, submitScore, rankOf, bestOf, cleanName }
 import { titleFor } from './titles.js';
 import { playAd, queueAd } from './ads.js';
 import { snapshot, makeScoreCard, shareCard } from './share.js';
+import { playPool } from './pool.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, whooshSound, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -70,7 +71,26 @@ const world = createWorld(scene, CONFIG);
 // ---------- Your walker ----------
 // Some walkers unlock when your best score (on this device) reaches a threshold
 const unlockAt = (c) => CONFIG.unlocks[c.id] || 0;
-const isUnlocked = (c) => unlockAt(c) <= loadBest();
+const reachedScore = (c) => unlockAt(c) <= loadBest();
+
+// Some walkers also have to be beaten in a mini-game (David: pool at The Victory)
+const MINI_GAMES = { pool: playPool };
+const wonChallenges = (() => {
+  let ids = null;
+  try { ids = JSON.parse(localStorage.getItem('canal-challenges')); } catch { /* storage unavailable */ }
+  if (!Array.isArray(ids)) {
+    // First time with challenges: anyone who already had these walkers keeps them
+    ids = CHARACTERS.filter((c) => c.challenge && reachedScore(c)).map((c) => c.id);
+    try { localStorage.setItem('canal-challenges', JSON.stringify(ids)); } catch { /* storage unavailable */ }
+  }
+  return new Set(ids);
+})();
+function winChallenge(c) {
+  wonChallenges.add(c.id);
+  try { localStorage.setItem('canal-challenges', JSON.stringify([...wonChallenges])); } catch { /* storage unavailable */ }
+}
+const isUnlocked = (c) => reachedScore(c) && (!c.challenge || wonChallenges.has(c.id));
+const challengeReady = (c) => Boolean(c.challenge) && reachedScore(c) && !wonChallenges.has(c.id);
 
 function loadCharacter() {
   let c = CHARACTERS[0];
@@ -239,15 +259,17 @@ function browse(dir) {
 
 function showPick() {
   const open = isUnlocked(character);
-  document.getElementById('pickName').textContent = open ? character.name : '???'; // locked: name is a surprise
+  const ready = challengeReady(character); // score reached, mini-game still to win
+  document.getElementById('pickName').textContent = open || ready ? character.name : '???'; // locked: name is a surprise
   document.getElementById('pickDrink').innerHTML = open
     ? `<span class="pick-drink">${drinkSvg(character.drink)}</span> ${character.drink.name}`
-    : `🔒 Reach ${unlockAt(character).toLocaleString('en-GB')} steps`;
+    : ready ? `✓ ${unlockAt(character).toLocaleString('en-GB')} steps · ${character.challenge.label}`
+      : `🔒 Reach ${unlockAt(character).toLocaleString('en-GB')} steps`;
   document.getElementById('pickBio').textContent = open ? character.bio || '' : '';
   const go = overlay.querySelector('.go');
   if (go) {
-    go.disabled = !open;
-    go.textContent = open ? 'Start walking' : 'Locked';
+    go.disabled = !open && !ready;
+    go.textContent = open ? 'Start walking' : ready ? character.challenge.button : 'Locked';
   }
   document.getElementById('pickDots').textContent = CHARACTERS.map((c) => (c === character ? '■' : '□')).join(' ');
   placePreview();
@@ -266,7 +288,7 @@ function showReady() {
 function updateHud() {
   scoreEl.textContent = Math.floor(score);
   bestEl.textContent = best ? `Best ${best}` : '';
-  const open = unlockAt(character) <= best;
+  const open = unlockAt(character) <= best && (!character.challenge || wonChallenges.has(character.id));
   const key = `${character.id}-${coffees}-${open}`;
   if (livesEl.dataset.key !== key) {
     let cups = '';
@@ -707,7 +729,10 @@ function start() {
   if (state === 'playing' || state === 'intro') return;
   const fromSelect = state === 'select';
   if (!isUnlocked(character)) {
-    if (state === 'select') return; // the button says Locked
+    if (state === 'select') { // the button says Locked, or offers the mini-game
+      if (challengeReady(character)) showChallenge(character, () => showSelect());
+      return;
+    }
     setCharacter(CHARACTERS.find(isUnlocked));
   }
   if (state === 'over' && performance.now() - overAt < 900) return; // no accidental instant restarts
@@ -785,13 +810,15 @@ function gameOver(e) {
   const isRecord = final > best;
   const before = best;
   if (isRecord) { best = final; saveBest(best); }
-  const unlocked = CHARACTERS.filter((c) => unlockAt(c) > before && unlockAt(c) <= best);
+  const crossed = CHARACTERS.filter((c) => unlockAt(c) > before && unlockAt(c) <= best);
+  const unlocked = crossed.filter((c) => !c.challenge);
+  const challenges = crossed.filter(challengeReady); // these have to be won first
   updateHud();
   const played = character;
-  const newest = unlocked[unlocked.length - 1];
+  let newest = unlocked[unlocked.length - 1];
   const showCard = () => {
     state = 'over';
-    if (unlocked.length) {
+    if (character !== played) {
       // Back to the walker you played (the leaderboard records them), lying where they fell
       setCharacter(played);
       player.group.position.set(CONFIG.lanes[lane], 0, 0);
@@ -825,7 +852,14 @@ function gameOver(e) {
     });
     if (leaderboardEnabled()) showLeaderboard(final);
   };
-  const afterAd = () => (unlocked.length ? showUnlocks(unlocked, showCard) : showCard());
+  const offerChallenges = (list) => {
+    if (!list.length) { showCard(); return; }
+    showChallengeOffer(list[0], (won) => {
+      if (won) newest = list[0];
+      offerChallenges(list.slice(1));
+    });
+  };
+  const afterAd = () => (unlocked.length ? showUnlocks(unlocked, () => offerChallenges(challenges)) : offerChallenges(challenges));
   gamesOver++;
   const adDue = gamesOver % CONFIG.ads.every === 0;
   overlayTimer = setTimeout(() => (adDue ? showAd(afterAd) : afterAd()), 700);
@@ -842,7 +876,7 @@ function showAd(done) {
 }
 
 // A new walker unlocked: their own screen. They turn as a silhouette, then light up with the fanfare.
-function showUnlocks(list, done) {
+function showUnlocks(list, done, won = false) {
   const [c, ...rest] = list;
   const next = () => {
     clearTimeout(overlayTimer); // skipped before the reveal
@@ -855,6 +889,7 @@ function showUnlocks(list, done) {
   silhouette(player);
   placePreview();
   showOverlay(`
+    ${won ? '<p class="unlock-won">YOU WON!</p>' : ''}
     <p class="unlock-title">New walker unlocked!</p>
     <h2 class="unlock-name">???</h2>
     <p class="unlock">${c.unlockLine}</p>
@@ -868,6 +903,38 @@ function showUnlocks(list, done) {
     overlay.querySelector('.unlock-card').classList.add('revealed');
     fanfare();
   }, 900);
+}
+
+// "David challenges you!": play the mini-game now, or later from the selection screen
+function showChallengeOffer(c, done) {
+  state = 'unlock';
+  for (const e of entities) { e.model.group.visible = false; removeFlash(e); }
+  setCharacter(c); // still a silhouette
+  placePreview();
+  showOverlay(`
+    <p class="unlock-title">${c.challenge.offer}</p>
+    <h2 class="unlock-name">${c.name}</h2>
+    <p class="unlock">${c.challenge.pitch}</p>
+    <button>Play now</button>
+    <button class="secondary">Later</button>
+  `, () => showChallenge(c, done), 'unlock-card revealed');
+  overlay.classList.add('clear');
+  overlay.querySelector('.secondary').addEventListener('click', () => done(false));
+}
+
+// The mini-game itself. Win: "YOU WON!" and the unlock celebration
+let miniGame = null; // the one on screen (for the testing helper)
+function showChallenge(c, done) {
+  state = 'challenge';
+  initAudio();
+  for (const e of entities) { e.model.group.visible = false; removeFlash(e); }
+  showOverlay('', null, 'pool-card');
+  miniGame = MINI_GAMES[c.challenge.kind](overlay.querySelector('.pool-card'), CONFIG.challenges[c.challenge.kind], (won) => {
+    if (won) {
+      winChallenge(c);
+      showUnlocks([c], () => done(true), true);
+    } else done(false);
+  });
 }
 
 // ---------- Leaderboard ----------
@@ -1025,6 +1092,7 @@ window.addEventListener('keydown', (e) => {
   if (e.repeat || e.target.tagName === 'INPUT') return; // typing your name isn't playing
   if (e.key === 'm' || e.key === 'M') { toggleMute(); showMute(); return; }
   if (state === 'intro') { introT = introDur; return; } // any key skips the swing
+  if (state === 'challenge') return; // the mini-game has its own controls
   if (state === 'select') {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') browse(-1);
     else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') browse(1);
@@ -1318,6 +1386,8 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     walker(id) { setCharacter(characterById(id)); if (state === 'select') showPick(); }, // try any walker, drafts too
     camera(p) { Object.assign(camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam, p); resize(); followCamera(); renderer.render(scene, camera); }, // try camera settings live
     introAt(p) { introT = p * introDur; followCamera(); renderer.render(scene, camera); }, // freeze the opening swing at 0..1
+    winChallenge() { miniGame?.potAll(); }, // pot the balls in the mini-game on screen
+    challenge(id) { showChallenge(characterById(id), () => showSelect()); }, // play a walker's mini-game
     adNext(i) { gamesOver = CONFIG.ads.every - 1; if (i !== undefined) queueAd(i); }, // the next game over shows an ad (optionally which)
     // Fast-forward the game without waiting for the screen; onStep runs after every step
     simulate(seconds, onStep) {

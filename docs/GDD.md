@@ -222,3 +222,11 @@ Jump/duck, character customisation (outfits), accounts and logins.
 ## Opening camera swing (built)
 - Start walking from the selection screen: the camera starts in front of the walker and swings round the canal side, rising, to the play position behind them (1.3s, eased), with a whoosh. The walker's name and one-liner slide in, fighting-game style. Music starts when it lands; steps only count after.
 - The swing plays on the first walk and after changing walker. Try again starts walking straight away (no swing). Any key or tap skips it. Settings: `CONFIG.intro`.
+
+## Unlock mini-games (built): David's pool challenge
+- Some walkers need a score *and* a mini-game win. David: reach 700 steps, then beat him at pool in The Victory.
+- After the run that reaches 700: "🎱 David challenges you!" (Play now / Later). On the selection screen David shows "✓ 700 steps · 🎱 Beat David at pool" with a "🎱 Challenge David" button.
+- The game: top-down pixel pool table inside The Victory (OPEN/SHUT sign, STOUT IS GOOD mirror, David stooped with his cue). Pot 3 balls before David finishes his pint (the pint drains as the 45s timer). Drag back from the white ball to aim and set power, let go to shoot. Potting the white = foul, it comes back.
+- David heckles: "Hey hey!!" (he always says it when he sees you), "Bit of a slow one, son", "Foul! That's my round you're buying", "Last orders, son"...
+- Win: "YOU WON!" then the unlock celebration. Lose: "DAVID WINS. David always wins." (Rematch / Later).
+- Players who already had David keep him. Settings: `CONFIG.challenges.pool`. Ideas for later: Pilar (pottery wheel), Fern (Columbia Road haggle), Spike (pogo to the beat), Tanner (drink two litres).
