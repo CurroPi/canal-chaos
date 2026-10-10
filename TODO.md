@@ -36,7 +36,7 @@
 ## ✅ Done so far
 - Design: GDD, satire tone, cast, enemies, towpath lanes.
 - Game: 3-lane endless runner in Three.js; Lime bikes, delivery e-bikes (fair: one warning at a time, no last-second swerves), runners, run clubs, dog walkers, prams, cargo bikes, specials, bridges, café coffee refills, close calls, rush levels, Hackney milestone titles, speech bubbles, 14+ canal gags, East London far bank, DUDE office.
-- Walkers: 12 (free: Sophie, Alex, Joe, Jasper; unlocks: Pilar 500, Fern 600, David 700 + pool, Spike 800, Josh 900, Ross 1,000, Tanner 1,100, Duck 1,200 + courtship dance), own drinks, one-liners, unlock screen with fanfare.
+- Walkers: 12 (free: Sophie, Alex, Joe, Jasper; unlocks: Pilar 500 + wheel class, Fern 600, David 700 + pool, Spike 800, Josh 900, Ross 1,000, Tanner 1,100, Duck 1,200 + courtship dance), own drinks, one-liners, unlock screen with fanfare.
 - Fake ad breaks: 6 pixel-art parody ads, shuffled, every 3rd game over.
 - Sound: chiptune music and SFX, with separate on/off buttons.
 - Online leaderboard (Supabase) with anti-cheat.
@@ -46,4 +46,4 @@
 - Phone camera: tried less sky + bigger walker + sideways follow; reverted to the original framing (preferred).
 - Opening camera swing (first walk and after changing walker) with name + one-liner caption and whoosh.
 - Every walker spills and refills their own drink (own lines and icon).
-- Unlock mini-games: David's pool at The Victory (pot 3 before his pint is gone), Duck's courtship dance on the canal (rhythm game vs a mallard).
+- Unlock mini-games: David's pool at The Victory (pot 3 before his pint is gone), Duck's courtship dance on the canal (rhythm game vs a mallard), Pilar's wheel class (pull the pot up to the line).

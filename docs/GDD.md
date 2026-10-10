@@ -47,7 +47,7 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 | 2 | **Alex** | Free | Blonde bob, black punk-pixel ARIES tee, all black | Builder's tea (teabag tag) | Always wears an Aries tee. She's a Pisces. |
 | 3 | **Joe** | Free | Green cap, moustache, NO PROBLEMO tee, denim shorts, white socks, headphones, record bag | Black batch brew | Says "no problemo". Has several problemos. |
 | 4 | **Jasper** | Free | The favicon face: red bobble beanie, thick black glasses, big brown beard, green top, cream tote | Matcha latte | Owns a sourdough starter called Kevin. |
-| 5 | **Pilar** | Unlock at 500 | The potter: wavy shoulder-length dark hair, thick square glasses, white tee, white apron, clay everywhere (hands, cheek, hair) | Chai in a wonky mug she made | Does pottery on Wednesdays. Talks about it the other six days. |
+| 5 | **Pilar** | Unlock at 500 + Pilar's wheel class | The potter: wavy shoulder-length dark hair, thick square glasses, white tee, white apron, clay everywhere (hands, cheek, hair) | Chai in a wonky mug she made | Does pottery on Wednesdays. Talks about it the other six days. |
 | 6 | **Fern** | Unlock at 600 | Columbia Road Sunday shopper: Breton top, wide linen trousers, bun with scrunchie, round shades, hugging a terracotta pot with a fiddle-leaf fig taller than her (hides her face) | Iced oat latte | Went to Columbia Road for a cactus. Came back with a tree. |
 | 7 | **David** | Unlock at 700 | The real local: skinny, bent back, sways when he walks, messy windswept grey hair, dirty blue boiler suit open at the collar, work boots | Pint of Guinness | Always at The Victory. Even when it's shut. |
 | 8 | **Spike** | Unlock at 800 | The Camden punk who walked the wrong way: green mohawk, leather jacket with studs, patch and safety pins, red tartan trousers, cherry-red Docs, piercings, wallet chain | Tin of cheap cider | Walked from Camden. Thinks this is still Camden. |
@@ -180,7 +180,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 
 | Walker | Unlocks at | Celebration line |
 |---|---|---|
-| Pilar | 500 | 🎉 PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW. |
+| Pilar | 500 + wheel class | 🎉 PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW. |
 | Fern | 600 | 🎉 FERN IS HERE. SHE CAN'T SEE WHERE SHE'S GOING. |
 | David | 700 | 🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT. |
 | Spike | 800 | 🎉 SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO. |
@@ -239,3 +239,11 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - Her heart meter swings between you and the mallard: PERFECT/NICE win her over, MISSED and WRONG MOVE push her to him (he scores every beat). She turns to face whoever's winning.
 - Win: "YOU WON! She chose you. The mallard is devastated." then the unlock. Lose: "SHE CHOSE THE MALLARD. Classic."
 - On the water, not the towpath; duck vs duck on purpose (no dogs). Settings: `CONFIG.challenges.courtship` (bpm, number of moves).
+
+## Pilar's wheel class (built): unlocks Pilar
+- Reach 500 steps, then make a customer's pot in a Hackney railway-arch studio ("WHEEL CLASS £65 · 2 HRS · BYO OAT MILK", wonky pots for sale at £340, Pilar in her clay-covered apron).
+- Random order with a dotted target line: a wonky mug (£45), a minimalist vase (£120), a bowl for one olive (£38).
+- Hold (button, table, Space or ↑) to pull the clay up; it wobbles more the longer you pull and the taller it gets, so let go to steady it. Rest on the line, steady, to fire it.
+- Win: "YOU WON! … Pilar will sell it for £340." Lose: wobble too much → "IT'S A BOWL NOW. Wonky is a feature. That isn't." / too tall → "IT'S A LAMP NOW." (a bulb appears) / time up → "CLASS IS OVER. That'll be £65."
+- Pilar's comments: "Feel the clay." "Less pressure. Like your rent." "That's very... intentional." Settings: `CONFIG.challenges.pottery`.
+- Fairness: walkers that used to unlock by score alone (David, Pilar) stay unlocked for players who already had them (`keepIfUnlocked`); brand-new challenge walkers (Duck) never come free.

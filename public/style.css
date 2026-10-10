@@ -574,3 +574,18 @@ html, body {
 
 /* While a mini-game is open the sound buttons step aside (they'd cover its ✕ on phones) */
 body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
+
+/* Mini-game: Pilar's wheel class */
+.card .pull-button {
+  display: block;
+  width: 100%;
+  margin: 10px 0 0;
+  padding: 16px 8px;
+  font-size: 14px;
+  background: #b9805e;
+  color: #fffaf0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.card .pull-button.active { background: #8a5236; transform: translate(2px, 2px); box-shadow: 2px 2px 0 #1b1b1b; }

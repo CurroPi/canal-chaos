@@ -41,6 +41,14 @@ export const CHARACTERS = [
     id: 'pilar', // the potter
     name: 'Pilar',
     unlockLine: 'PILAR IS HERE. SHE\'S GOT CLAY ON YOU NOW.',
+    challenge: {
+      kind: 'pottery',
+      keepIfUnlocked: true, // was a score-only unlock before
+      label: '🏺 Throw a pot in Pilar\'s class',
+      button: '🏺 Start the class',
+      offer: '🏺 Pilar\'s wheel class is starting!',
+      pitch: 'Pull the clay up to the line. Too fast and it\'s a bowl now.',
+    },
     bio: 'Does pottery on Wednesdays. Talks about it the other six days.',
     emoji: '🍵',
     spill: ['MY MUG! I MADE THAT!', 'That mug took three firings.'],
@@ -64,6 +72,7 @@ export const CHARACTERS = [
     unlockLine: 'DAVID IS HERE. THE VICTORY MUST BE SHUT.',
     challenge: {
       kind: 'pool',
+      keepIfUnlocked: true, // was a score-only unlock before
       label: '🎱 Beat David at pool',
       button: '🎱 Challenge David',
       offer: '🎱 David challenges you!',

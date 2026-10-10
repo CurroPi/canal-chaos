@@ -11,6 +11,7 @@ import { playAd, queueAd } from './ads.js';
 import { snapshot, makeScoreCard, shareCard } from './share.js';
 import { playPool } from './pool.js';
 import { playCourtship } from './courtship.js';
+import { playPottery } from './pottery.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, whooshSound, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -75,16 +76,23 @@ const unlockAt = (c) => CONFIG.unlocks[c.id] || 0;
 const reachedScore = (c) => unlockAt(c) <= loadBest();
 
 // Some walkers also have to be beaten in a mini-game (David: pool at The Victory)
-const MINI_GAMES = { pool: playPool, courtship: playCourtship };
+const MINI_GAMES = { pool: playPool, courtship: playCourtship, pottery: playPottery };
 const wonChallenges = (() => {
-  let ids = null;
-  try { ids = JSON.parse(localStorage.getItem('canal-challenges')); } catch { /* storage unavailable */ }
-  if (!Array.isArray(ids)) {
-    // First time with challenges: anyone who already had these walkers keeps them
-    ids = CHARACTERS.filter((c) => c.challenge && reachedScore(c)).map((c) => c.id);
-    try { localStorage.setItem('canal-challenges', JSON.stringify(ids)); } catch { /* storage unavailable */ }
+  const read = (key) => { try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : null; } catch { return null; } };
+  const won = new Set(read('canal-challenges') || []);
+  // Challenges this device has already seen (older saves only knew David's)
+  const known = new Set(read('canal-challenges-known') || (read('canal-challenges') ? ['david'] : []));
+  // A challenge that's new to this device: if that walker used to unlock by score alone
+  // (`keepIfUnlocked`) and you'd already reached it, you keep them
+  for (const c of CHARACTERS.filter((x) => x.challenge && !known.has(x.id))) {
+    if (c.challenge.keepIfUnlocked && reachedScore(c)) won.add(c.id);
+    known.add(c.id);
   }
-  return new Set(ids);
+  try {
+    localStorage.setItem('canal-challenges', JSON.stringify([...won]));
+    localStorage.setItem('canal-challenges-known', JSON.stringify([...known]));
+  } catch { /* storage unavailable */ }
+  return won;
 })();
 function winChallenge(c) {
   wonChallenges.add(c.id);
