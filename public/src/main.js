@@ -10,6 +10,7 @@ import { titleFor } from './titles.js';
 import { playAd, queueAd } from './ads.js';
 import { snapshot, makeScoreCard, shareCard } from './share.js';
 import { playPool } from './pool.js';
+import { playDuckFight } from './duckfight.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, whooshSound, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -74,7 +75,7 @@ const unlockAt = (c) => CONFIG.unlocks[c.id] || 0;
 const reachedScore = (c) => unlockAt(c) <= loadBest();
 
 // Some walkers also have to be beaten in a mini-game (David: pool at The Victory)
-const MINI_GAMES = { pool: playPool };
+const MINI_GAMES = { pool: playPool, duckfight: playDuckFight };
 const wonChallenges = (() => {
   let ids = null;
   try { ids = JSON.parse(localStorage.getItem('canal-challenges')); } catch { /* storage unavailable */ }
@@ -1386,7 +1387,7 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     walker(id) { setCharacter(characterById(id)); if (state === 'select') showPick(); }, // try any walker, drafts too
     camera(p) { Object.assign(camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam, p); resize(); followCamera(); renderer.render(scene, camera); }, // try camera settings live
     introAt(p) { introT = p * introDur; followCamera(); renderer.render(scene, camera); }, // freeze the opening swing at 0..1
-    winChallenge() { miniGame?.potAll(); }, // pot the balls in the mini-game on screen
+    winChallenge() { miniGame?.cheat(); }, // win the mini-game on screen
     challenge(id) { showChallenge(characterById(id), () => showSelect()); }, // play a walker's mini-game
     adNext(i) { gamesOver = CONFIG.ads.every - 1; if (i !== undefined) queueAd(i); }, // the next game over shows an ad (optionally which)
     // Fast-forward the game without waiting for the screen; onStep runs after every step

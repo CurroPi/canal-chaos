@@ -114,6 +114,23 @@ export const CHARACTERS = [
     refill: ['Hydrated.'],
     drink: { name: 'Huge water bottle', kind: 'bottle', body: 0x7fc8ff, lid: 0x1b1b1b, splash: 0x9ad7ff },
   },
+  {
+    id: 'duck', // a white canal duck. No accessories: it's a duck
+    name: 'Duck',
+    unlockLine: 'DUCK IS HERE. DUCK HAS READ THE SIGN.',
+    challenge: {
+      kind: 'duckfight',
+      label: '🦆 Win a duck fight',
+      button: '🦆 Fight the mallard',
+      offer: '🦆 A mallard wants a fight!',
+      pitch: 'QUACK. Towpath. Now. Win the duck fight to unlock Duck.',
+    },
+    bio: 'Has read the sign. Wants peas, not bread.',
+    emoji: '🦆',
+    spill: ['MY PEAS!', 'NOT THE PEAS!'],
+    refill: ['Peas. Finally. Someone read the sign.'],
+    drink: { name: 'Frozen peas', kind: 'peas', body: 0x2e8b3a, splash: 0x7cc34a },
+  },
 ];
 
 // Designed but not playable yet (not on the selection screen). Preview locally with debug.walker('david').
@@ -144,6 +161,13 @@ export function drinkSvg(d) {
       <rect x="8" y="1" width="8" height="5" rx="1" fill="${css(d.lid)}"/>
       <rect x="5" y="6" width="14" height="25" rx="3" fill="${css(d.body)}" stroke="#1b1b1b" stroke-width="0.6"/>
       <rect x="5" y="14" width="14" height="2" fill="#ffffff" opacity="0.6"/>
+    </svg>`;
+  }
+  if (d.kind === 'peas') {
+    return `<svg viewBox="0 0 24 32" aria-hidden="true">
+      <path d="M5 6h14l1 22H4z" fill="${css(d.body)}" stroke="#1b1b1b" stroke-width="0.6"/>
+      <rect x="5" y="4" width="14" height="3" fill="#e8f4ff" stroke="#1b1b1b" stroke-width="0.5"/>
+      ${[[9, 15], [14, 13], [12, 19], [8, 22], [16, 21]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2" fill="#9ccc65"/>`).join('')}
     </svg>`;
   }
   if (d.kind === 'pint') {

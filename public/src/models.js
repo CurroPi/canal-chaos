@@ -498,6 +498,49 @@ LOOKS.david = {
   },
 };
 
+// Duck: a white canal duck. Not a person, so it has its own body (same parts, so it walks and carries peas)
+LOOKS.duck = {
+  build() {
+    const group = new THREE.Group();
+    const rig = new THREE.Group();
+    group.add(rig);
+    const WHITE = 0xf4f4f2;
+    const ORANGE = 0xff9a1a;
+    const makeLeg = (x) => {
+      const leg = new THREE.Group();
+      leg.position.set(x, 0.42, 0);
+      leg.add(box(0.06, 0.36, 0.06, ORANGE, 0, -0.18, 0));
+      leg.add(box(0.2, 0.04, 0.26, ORANGE, 0, -0.4, 0.06));       // webbed feet
+      rig.add(leg);
+      return leg;
+    };
+    const legL = makeLeg(-0.12);
+    const legR = makeLeg(0.12);
+    rig.add(box(0.56, 0.42, 0.8, WHITE, 0, 0.62, 0));               // body
+    rig.add(box(0.5, 0.06, 0.7, 0xdcdcd6, 0, 0.42, 0));             // shaded belly
+    const tail = box(0.3, 0.14, 0.22, WHITE, 0, 0.82, -0.46);
+    tail.rotation.x = -0.6;                                          // tail up
+    rig.add(tail);
+    for (const x of [-0.29, 0.29]) rig.add(box(0.06, 0.3, 0.55, 0xe6e6e0, x, 0.68, -0.04)); // wings
+    rig.add(box(0.2, 0.36, 0.2, WHITE, 0, 0.98, 0.26));             // neck
+    const head = new THREE.Group();
+    head.position.set(0, 1.22, 0.3);
+    head.add(box(0.32, 0.3, 0.34, WHITE));
+    for (const x of [-0.165, 0.165]) head.add(box(0.02, 0.06, 0.06, 0x111111, x, 0.04, 0.06)); // eyes
+    head.add(box(0.16, 0.07, 0.22, ORANGE, 0, -0.04, 0.27));        // beak
+    rig.add(head);
+    // Invisible "hands" at its sides: that's where the bags of peas hang
+    const makeArm = (x) => {
+      const arm = new THREE.Group();
+      arm.position.set(x, 1.05, 0.1);
+      rig.add(arm);
+      return arm;
+    };
+    return { group, rig, legL, legR, armL: makeArm(-0.34), armR: makeArm(0.34), head, wobble: 0.14 }; // a waddle
+  },
+  dress() {},
+};
+
 const drinkCupGeo = new THREE.CylinderGeometry(0.075, 0.055, 0.2, 8);
 const drinkLidGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8);
 const drinkCanGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.22, 10);
@@ -518,6 +561,9 @@ function drinkInHand(arm, d) {
     add(new THREE.Mesh(drinkMugGeo, mat(d.body))).position.set(0, -0.63, 0.08);
     add(box(0.13, 0.01, 0.13, d.coffee, 0, -0.555, 0.08));        // coffee, no lid
     add(box(0.03, 0.09, 0.07, d.body, 0, -0.62, 0.18));          // handle
+  } else if (d.kind === 'peas') {
+    add(box(0.14, 0.18, 0.07, d.body, 0, -0.64, 0.08));               // a bag of frozen peas
+    add(box(0.14, 0.04, 0.072, 0xe8f4ff, 0, -0.53, 0.08));             // frosty top
   } else if (d.kind === 'pint') {
     add(new THREE.Mesh(drinkPintGeo, mat(d.body))).position.set(0, -0.63, 0.08);
     add(new THREE.Mesh(drinkHeadGeo, mat(d.head))).position.set(0, -0.48, 0.08); // the creamy head
@@ -540,7 +586,7 @@ function drinkInHand(arm, d) {
 // A playable hipster, facing away from the camera
 export function makePlayer(character) {
   const look = LOOKS[character.id] || LOOKS.sophie;
-  const p = makePerson(look.body);
+  const p = look.build ? look.build() : makePerson(look.body);
   look.dress(p);
   p.cups = [p.armR, p.armL].map((arm) => drinkInHand(arm, character.drink));
   p.group.rotation.y = Math.PI;

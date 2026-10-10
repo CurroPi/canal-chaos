@@ -368,7 +368,7 @@ export function playPool(card, { seconds = 45, target = 3 }, onDone) {
   requestAnimationFrame(frame);
   // Testing helper (?debug only): pot the balls you need
   return {
-    potAll() {
+    cheat() {
       balls.filter((b) => !b.cue && !b.potted).slice(0, target - potted).forEach(pot);
       shotFinished();
     },

@@ -161,6 +161,16 @@ export function clackSound(strength = 1) {
   tone(900, t, 0.04, { type: 'triangle', vol: 0.06 * strength });
 }
 
+// A quack: two quick nasal honks (pitch: 1 = normal)
+export function quackSound(pitch = 1) {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  for (const [delay, f] of [[0, 520], [0.11, 470]]) {
+    tone(f * pitch, t + delay, 0.09, { type: 'sawtooth', vol: 0.06, endFreq: f * pitch * 0.62 });
+    tone(f * pitch * 2, t + delay, 0.07, { type: 'square', vol: 0.025, endFreq: f * pitch * 1.2 });
+  }
+}
+
 // Electric motor whine, rising
 export function whineSound() {
   if (!ctx) return;

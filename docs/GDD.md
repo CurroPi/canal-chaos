@@ -39,7 +39,7 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 - **Looks only:** each character has their own appearance, lines and death messages, but they all play the same.
   This keeps the leaderboard fair. Perks may come later, after playtesting.
 
-### The cast (11 walkers)
+### The cast (12 walkers)
 
 | # | Walker | Status | Look | Drink (= extra life) | One-liner |
 |---|---|---|---|---|---|
@@ -54,6 +54,7 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 | 9 | **Josh** | Unlock at 900 | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can | In a band. The band doesn't know yet. |
 | 10 | **Ross** | Unlock at 1,000 | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug | Brings his own mug. Brings it up constantly. |
 | 11 | **Tanner** | Unlock at 1,100 | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle | Dressed for K2. Walking to Broadway Market. |
+| 12 | **Duck** | Unlock at 1,200 + win a duck fight | A small white canal duck, orange beak and feet, waddles. No accessories: it's a duck | Frozen peas (the Canal & River Trust says peas, not bread) | Has read the sign. Wants peas, not bread. |
 
 Unlock lines: Pilar "PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW." · Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · Fern "FERN IS HERE. SHE CAN'T SEE WHERE SHE'S GOING." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT." · Spike "SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO."
 Code: `public/src/characters.js` (names, drinks, one-liners, unlock lines), `public/src/models.js` (looks), thresholds in `CONFIG.unlocks`.
@@ -186,6 +187,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Josh | 900 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
 | Ross | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
 | Tanner | 1,100 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
+| Duck | 1,200 + duck fight | 🎉 DUCK IS HERE. DUCK HAS READ THE SIGN. |
 
 - Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
 - Game over: a "New walker unlocked!" screen (silhouette turns into the walker, fanfare), then the usual card with a "Try <name> 🆕" button. Thresholds live in config.js.
@@ -230,3 +232,9 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - David heckles: "Hey hey!!" (he always says it when he sees you), "Bit of a slow one, son", "Foul! That's my round you're buying", "Last orders, son"...
 - Win: "YOU WON!" then the unlock celebration. Lose: "DAVID WINS. David always wins." (Rematch / Later).
 - Players who already had David keep him. Settings: `CONFIG.challenges.pool`. Ideas for later: Pilar (pottery wheel), Fern (Columbia Road haggle), Spike (pogo to the beat), Tanner (drink two litres).
+
+## Duck fight (built): unlocks Duck
+- Reach 1,200 steps, then win a duck fight against a mallard on the towpath ("🦆 A mallard wants a fight!"). Street Fighter parody: health bars, ROUND 1, FIGHT!, K.O.!
+- Two buttons (or keys): FLAP to dodge when the mallard crouches and wiggles ("!"), PECK when it's open after a lunge. Pecking it while it's ready gets you counter-pecked.
+- Win: "YOU WON! Duck wins the duck fight. QUACK." then the unlock. Lose: "THE MALLARD WINS. It's been doing this for years."
+- Duck vs a duck on purpose (no dogs: too sensitive in the UK). Settings: `CONFIG.challenges.duckfight`.
