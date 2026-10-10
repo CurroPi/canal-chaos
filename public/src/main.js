@@ -10,7 +10,7 @@ import { titleFor } from './titles.js';
 import { playAd, queueAd } from './ads.js';
 import { snapshot, makeScoreCard, shareCard } from './share.js';
 import { playPool } from './pool.js';
-import { playDuckFight } from './duckfight.js';
+import { playCourtship } from './courtship.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, whooshSound, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -75,7 +75,7 @@ const unlockAt = (c) => CONFIG.unlocks[c.id] || 0;
 const reachedScore = (c) => unlockAt(c) <= loadBest();
 
 // Some walkers also have to be beaten in a mini-game (David: pool at The Victory)
-const MINI_GAMES = { pool: playPool, duckfight: playDuckFight };
+const MINI_GAMES = { pool: playPool, courtship: playCourtship };
 const wonChallenges = (() => {
   let ids = null;
   try { ids = JSON.parse(localStorage.getItem('canal-challenges')); } catch { /* storage unavailable */ }

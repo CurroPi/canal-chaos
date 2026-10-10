@@ -54,7 +54,7 @@ It's an endless runner that keeps getting harder, and the satire goes up with it
 | 9 | **Josh** | Unlock at 900 | Grey punk cap (studs, red patch), bleached hair, DOOM PIGEONS tee, neon bum bag | Energy drink can | In a band. The band doesn't know yet. |
 | 10 | **Ross** | Unlock at 1,000 | Light orange beanie, ginger, lilac mushroom tee, mustard cords, blue trainers, big tote | Flat white in his own ceramic mug | Brings his own mug. Brings it up constantly. |
 | 11 | **Tanner** | Unlock at 1,100 | Mountain gear: orange shell jacket, hiking trousers, boots, backpack, half-blond hair | Huge reusable water bottle | Dressed for K2. Walking to Broadway Market. |
-| 12 | **Duck** | Unlock at 1,200 + win a duck fight | A small white canal duck, orange beak and feet, waddles. No accessories: it's a duck | Frozen peas (the Canal & River Trust says peas, not bread) | Has read the sign. Wants peas, not bread. |
+| 12 | **Duck** | Unlock at 1,200 + win the courtship dance | A small white canal duck, orange beak and feet, waddles. No accessories: it's a duck | Frozen peas (the Canal & River Trust says peas, not bread) | Has read the sign. Wants peas, not bread. |
 
 Unlock lines: Pilar "PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW." · Josh "JOSH IS FULLY CHARGED. SO IS HIS VAPE." · Ross "ROSS IS HERE. HE BROUGHT HIS OWN MUG." · Tanner "TANNER HAS HYDRATED. TANNER IS READY." · Fern "FERN IS HERE. SHE CAN'T SEE WHERE SHE'S GOING." · David "DAVID IS HERE. THE VICTORY MUST BE SHUT." · Spike "SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO."
 Code: `public/src/characters.js` (names, drinks, one-liners, unlock lines), `public/src/models.js` (looks), thresholds in `CONFIG.unlocks`.
@@ -187,7 +187,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 | Josh | 900 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
 | Ross | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
 | Tanner | 1,100 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
-| Duck | 1,200 + duck fight | 🎉 DUCK IS HERE. DUCK HAS READ THE SIGN. |
+| Duck | 1,200 + courtship dance | 🎉 DUCK IS HERE. DUCK HAS READ THE SIGN. |
 
 - Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
 - Game over: a "New walker unlocked!" screen (silhouette turns into the walker, fanfare), then the usual card with a "Try <name> 🆕" button. Thresholds live in config.js.
@@ -233,8 +233,9 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - Win: "YOU WON!" then the unlock celebration. Lose: "DAVID WINS. David always wins." (Rematch / Later).
 - Players who already had David keep him. Settings: `CONFIG.challenges.pool`. Ideas for later: Pilar (pottery wheel), Fern (Columbia Road haggle), Spike (pogo to the beat), Tanner (drink two litres).
 
-## Duck fight (built): unlocks Duck
-- Reach 1,200 steps, then win a duck fight against a mallard on the towpath ("🦆 A mallard wants a fight!"). Street Fighter parody: health bars, ROUND 1, FIGHT!, K.O.!
-- Two buttons (or keys): FLAP to dodge when the mallard crouches and wiggles ("!"), PECK when it's open after a lunge. Pecking it while it's ready gets you counter-pecked.
-- Win: "YOU WON! Duck wins the duck fight. QUACK." then the unlock. Lose: "THE MALLARD WINS. It's been doing this for years."
-- Duck vs a duck on purpose (no dogs: too sensitive in the UK). Settings: `CONFIG.challenges.duckfight`.
+## The courtship dance (built): unlocks Duck
+- Reach 1,200 steps, then win a lady duck's heart on the canal ("🦆 It's mating season!"). Your white Duck vs a show-off mallard, floating either side of her.
+- Rhythm game: moves slide along a track to the beat; hit the matching button as each reaches the circle. The moves are real mallard courtship displays: NOD (nod-swimming), HEAD UP (head-up-tail-up), FLICK (water flick), WHISTLE (grunt-whistle), each with its own animation and sound. Keys: ◀ ▲ ▼ ▶.
+- Her heart meter swings between you and the mallard: PERFECT/NICE win her over, MISSED and WRONG MOVE push her to him (he scores every beat). She turns to face whoever's winning.
+- Win: "YOU WON! She chose you. The mallard is devastated." then the unlock. Lose: "SHE CHOSE THE MALLARD. Classic."
+- On the water, not the towpath; duck vs duck on purpose (no dogs). Settings: `CONFIG.challenges.courtship` (bpm, number of moves).

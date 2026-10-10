@@ -171,6 +171,42 @@ export function quackSound(pitch = 1) {
   }
 }
 
+// A splash of water
+function splashSound() {
+  const t = ctx.currentTime;
+  const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.2), ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'highpass';
+  filter.frequency.value = 1200;
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.18, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  src.connect(filter).connect(gain).connect(sfxOut());
+  src.start(t);
+}
+
+// Courtship moves: head up (rising whistle), flick (splash), nod (quack), whistle (grunt then whistle)
+export function courtshipSound(move) {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  if (move === 'up') tone(700, t, 0.22, { type: 'sine', vol: 0.12, endFreq: 1600 });
+  else if (move === 'flick') { splashSound(); tone(300, t, 0.08, { type: 'triangle', vol: 0.06, endFreq: 120 }); }
+  else if (move === 'nod') quackSound(1.1);
+  else { tone(160, t, 0.08, { type: 'square', vol: 0.07, endFreq: 110 }); tone(2400, t + 0.09, 0.2, { type: 'sine', vol: 0.11, endFreq: 3100 }); }
+}
+
+// A soft dance beat: kick on the bar, tick on the others
+export function beatSound(strong) {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  if (strong) tone(110, t, 0.16, { type: 'sine', vol: 0.22, endFreq: 45 });
+  else tone(1800, t, 0.03, { type: 'square', vol: 0.025 });
+}
+
 // Electric motor whine, rising
 export function whineSound() {
   if (!ctx) return;

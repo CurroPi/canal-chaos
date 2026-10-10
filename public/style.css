@@ -557,19 +557,17 @@ html, body {
 .pool-result button { margin-top: 4px; }
 .card .pool-hint { margin: 8px 0 0; font-family: var(--pixel-body); font-size: 17px; line-height: 1.1; color: #4a4a4a; }
 
-/* Mini-game: duck fight */
+/* Mini-games on a wide canvas (the courtship dance) */
 .pool-stage.fight-stage { width: 100%; }
 .fight-stage canvas { height: auto; width: 100%; aspect-ratio: 200 / 150; cursor: default; }
-.fight-buttons { display: flex; gap: 10px; margin-top: 10px; }
-.card .fight-buttons button {
-  flex: 1;
+.dance-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+.card .dance-buttons button {
   margin: 0;
-  padding: 14px 6px 10px;
-  font-size: 16px;
+  padding: 12px 2px 8px;
+  font-size: 18px;
+  line-height: 1;
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
 }
-.card .fight-buttons small { display: block; margin-top: 6px; font-family: var(--pixel-body); font-size: 16px; }
-.card .fight-flap { background: #3fd0ff; }
-.card .fight-peck { background: #ffd23f; }
+.card .dance-buttons small { display: block; margin-top: 6px; font-family: var(--pixel); font-size: 7px; }
