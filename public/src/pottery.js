@@ -20,7 +20,8 @@ const PILAR = {
   pulling: ['Less pressure. Like your rent.', 'Gentle...', 'Let the clay lead.'],
   wobbly: ['Steady!', 'That\'s very... intentional.', 'Wonky is a feature. Within reason.'],
   close: ['Nearly there.', 'Stop when it feels right.'],
-  lump: ['Air bubble!', 'Lump!', 'Did you wedge this?'],
+  lump: ['Air bubble! Stop pulling!', 'Bubble! Let go!', 'Did you wedge this?'],
+  popped: ['You pulled through a bubble.', 'Told you.', 'That\'s going to show.'],
 };
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 
@@ -42,7 +43,7 @@ function profile(shape, y, h, width) {
 }
 
 export function playPottery(card, {
-  seconds = 25, tolerance = 5, pullSpeed = 26, wobbleRate = 0.36, calmRate = 0.5, steadyFor = 0.9, lumpEvery = 3.2,
+  seconds = 25, tolerance = 5, pullSpeed = 26, wobbleRate = 0.36, calmRate = 0.5, steadyFor = 0.9, lumpEvery = 3,
 }, onDone) {
   card.innerHTML = `
     <div class="pool-head">
@@ -56,7 +57,7 @@ export function playPottery(card, {
       <div class="pool-result hidden"></div>
     </div>
     <button class="pull-button">HOLD TO PULL UP</button>
-    <p class="pool-hint">Hold to pull the clay up. Let go to steady it.<br>Stop on the dotted line.</p>
+    <p class="pool-hint">Hold to pull up, let go to steady it. Bubble? Let go before it pops!<br>Stop on the dotted line.</p>
   `;
   card.classList.add('pottery-card');
   const canvas = card.querySelector('canvas');
@@ -75,14 +76,19 @@ export function playPottery(card, {
   let phaseT;
   let steadyInBand;
   let lumpT;      // seconds to the next air bubble
-  let lumpFlash;
+  let bubble;     // a bubble swelling in the clay: { t: seconds until it pops, y: where }
+  let popFlash;   // "POP!" on screen
+  let target;     // the line you're aiming for (the customer may move it)
+  let shownTarget;
+  let changed;    // the customer has changed their mind
   let collapseAs; // what a collapse turns it into: coaster | bowl | art
+  let shake = 0;
   let sayUntil;
   let nextComment;
   let running = true;
 
   function say(str, secs = 2.4) {
-    sayEl.textContent = `"${str}"`;
+    sayEl.textContent = str.startsWith('Customer') ? str : `"${str}"`;
     sayEl.classList.add('show');
     sayUntil = performance.now() + secs * 1000;
   }
@@ -96,8 +102,12 @@ export function playPottery(card, {
     phase = 'class';
     phaseT = 0;
     steadyInBand = 0;
-    lumpT = lumpEvery * (0.8 + Math.random() * 0.6);
-    lumpFlash = 0;
+    lumpT = 1.2 + Math.random() * 0.8;                          // the first bubble comes early
+    bubble = null;
+    popFlash = 0;
+    target = order.height;
+    shownTarget = target;
+    changed = false;
     collapseAs = null;
     nextComment = performance.now() + 5000;
     resultEl.classList.add('hidden');
@@ -236,11 +246,12 @@ export function playPottery(card, {
   }
 
   function drawTarget() {
-    const y = WHEEL_Y - order.height;
+    const y = Math.round(WHEEL_Y - shownTarget);
     for (let x = CX - 40; x < CX + 40; x += 4) { g.fillStyle = '#1f7a3a'; g.fillRect(x, y, 2, 1); }
     g.fillStyle = 'rgba(31,122,58,0.12)'; g.fillRect(CX - 40, y - tolerance, 80, tolerance * 2);
     text(g, order.name, W / 2, 210, '#1b1b1b');
     text(g, order.price, CX - 54, y - 2, '#1f7a3a');
+    if (changed) text(g, '+' + Math.round(target - order.height), CX + 50, y - 2, '#e0332f');
   }
 
   function drawWobbleMeter() {
@@ -264,26 +275,46 @@ export function playPottery(card, {
         height += pullSpeed * dt;
         wobble += (wobbleRate + height / 220) * dt;               // the taller it gets, the shakier
       } else wobble = Math.max(0, wobble - calmRate * dt);
-      lumpT -= dt;
-      if (lumpT <= 0) {                                          // an air bubble: a sudden jolt of wobble
-        lumpT = lumpEvery * (0.7 + Math.random() * 0.7);
-        wobble += 0.18 + height / 400;
-        lumpFlash = 0.7;
-        clackSound(0.6);
-        if (now > sayUntil) say(pick(PILAR.lump), 1.2);
+      // Air bubbles: one swells in the clay for a second, then pops. Still pulling when it pops? Big wobble.
+      if (!bubble) {
+        lumpT -= dt;
+        if (lumpT <= 0 && height > 10) {
+          bubble = { t: 1.05, y: 4 + Math.random() * Math.max(4, height - 10) };
+          if (now > sayUntil) say(pick(PILAR.lump), 1.1);
+        }
+      } else {
+        bubble.t -= dt;
+        if (bubble.t <= 0) {
+          if (holding) { wobble += 0.5; shake = 0.35; crashSound(); if (now > sayUntil - 600) say(pick(PILAR.popped), 1.4); }
+          else wobble += 0.06;
+          popFlash = 0.6;
+          clackSound(1);
+          bubble = null;
+          lumpT = lumpEvery * (0.7 + Math.random() * 0.6);
+        }
       }
-      lumpFlash = Math.max(0, lumpFlash - dt);
+      popFlash = Math.max(0, popFlash - dt);
+      // The customer changes their mind, once, about halfway up
+      if (!changed && height > order.height * 0.55) {
+        changed = true;
+        target = order.height + (order.shape === 'bowl' ? 6 : 12);
+        say(`Customer: "Actually... can it be a bit taller?"`, 2.6);
+        clackSound(0.5);
+      }
+      shownTarget += (target - shownTarget) * Math.min(1, dt * 4);
+      if (wobble > 0.75) shake = Math.max(shake, 0.05);           // it's about to go
+      shake = Math.max(0, shake - dt);
       if (wobble >= 1) {
-        const f = height / order.height;                         // how far up it got decides what it becomes
+        const f = height / target;                         // how far up it got decides what it becomes
         collapseAs = f < 0.35 ? 'coaster' : f < 0.85 ? 'bowl' : 'art';
         phase = 'collapse';
         phaseT = 0;
         crashSound();
       }
-      else if (height > order.height + tolerance) { phase = 'lamp'; phaseT = 0; crashSound(); }
+      else if (height > target + tolerance) { phase = 'lamp'; phaseT = 0; crashSound(); }
       else if (timeLeft <= 0) finish(false, 'time');
       // Resting in the band, calm enough: it's done
-      const inBand = Math.abs(height - order.height) <= tolerance;
+      const inBand = Math.abs(height - target) <= tolerance;
       steadyInBand = inBand && !holding && wobble < 0.4 ? steadyInBand + dt : 0;
       if (steadyInBand > steadyFor) { phase = 'firing'; phaseT = 0; clackSound(1); }
       if (now > nextComment) {
@@ -308,21 +339,32 @@ export function playPottery(card, {
     if (now > sayUntil) sayEl.classList.remove('show');
     scoreEl.textContent = `CLASS ENDS ${Math.max(0, Math.ceil(timeLeft))}S`;
 
+    g.save();
+    if (shake > 0) g.translate(Math.round((Math.random() - 0.5) * 3), Math.round((Math.random() - 0.5) * 2));
     drawStudio(t);
     drawTarget();
     drawWheel(t);
     drawPot(t);
+    if (bubble && phase === 'class') {                             // the bubble, swelling in the wall
+      const r = 2 + (1 - bubble.t) * 3 + Math.sin(t * 30) * 0.6;
+      const by = WHEEL_Y - Math.min(bubble.y, height - 3);
+      const bx = CX + profile(order.shape, bubble.y, height, order.width) - 2;
+      g.fillStyle = '#e8c2a6'; g.beginPath(); g.arc(bx, by, r, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#8a5236'; g.lineWidth = 1; g.stroke();
+      text(g, '!', bx + 7, by - 8, '#e0332f', 2);
+    }
+    g.restore();
     drawWobbleMeter();
-    if (phase === 'lamp' || (phase === 'over' && height > order.height + tolerance)) {           // a bulb on top
+    if (phase === 'lamp' || (phase === 'over' && height > target + tolerance)) {           // a bulb on top
       g.fillStyle = 'rgba(255,210,63,0.25)'; g.beginPath(); g.arc(CX, WHEEL_Y - height - 6, 14, 0, Math.PI * 2); g.fill();
       g.fillStyle = '#ffd23f'; g.beginPath(); g.arc(CX, WHEEL_Y - height - 6, 6, 0, Math.PI * 2); g.fill();
     }
     if (collapseAs === 'art' && phase !== 'class') text(g, '£900', CX + 40, WHEEL_Y - height - 4, '#1f7a3a', 2);
-    if (lumpFlash > 0) text(g, 'LUMP!', CX, WHEEL_Y - height - 18, '#e0332f', 2);
+    if (popFlash > 0) text(g, 'POP!', CX, WHEEL_Y - height - 18, '#e0332f', 2);
     requestAnimationFrame(frame);
   }
   setup();
   requestAnimationFrame(frame);
   // Testing helper (?debug only): a perfect pot
-  return { cheat() { height = order.height; wobble = 0; holding = false; steadyInBand = 1; phase = 'firing'; phaseT = 0; } };
+  return { cheat() { height = target; wobble = 0; holding = false; steadyInBand = 1; phase = 'firing'; phaseT = 0; } };
 }
