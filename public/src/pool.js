@@ -240,17 +240,39 @@ export function playPool(card, { seconds = 45, target = 3 }, onDone) {
     for (let x = 4; x < W; x += 10) { g.fillStyle = '#4c1a1d'; g.fillRect(x, 0, 2, 46); }
     g.fillStyle = '#2a190f'; g.fillRect(0, 46, W, 3);
     for (let x = 0; x < W; x += 20) { g.fillStyle = '#4a2e1c'; g.fillRect(x + 2, 52, 16, 20); }
-    // Window with the sign that can't decide
-    g.fillStyle = '#1b1b1b'; g.fillRect(8, 6, 40, 34);
-    g.fillStyle = '#3d5a73'; g.fillRect(10, 8, 36, 30);
-    const shut = Math.floor(t / 0.8) % 2 === 1;
-    g.fillStyle = shut ? '#c81e3a' : '#2f9e44'; g.fillRect(16, 18, 24, 10);
-    pixelText(g, shut ? 'SHUT' : 'OPEN', 28, 21, '#fffaf0');
-    // Mirror
-    g.fillStyle = '#d9b54a'; g.fillRect(58, 6, 46, 30);
-    g.fillStyle = '#141414'; g.fillRect(60, 8, 42, 26);
-    pixelText(g, 'STOUT', 81, 13, '#d9b54a');
-    pixelText(g, 'IS GOOD', 81, 23, '#d9b54a');
+    // Window with the pub's name in gold
+    g.fillStyle = '#1b1b1b'; g.fillRect(6, 6, 52, 34);
+    g.fillStyle = '#3d5a73'; g.fillRect(8, 8, 48, 30);
+    g.fillStyle = '#4b6c87'; g.fillRect(8, 8, 48, 3);
+    g.fillStyle = '#1b1b1b'; g.fillRect(31, 8, 2, 30);                             // window bars
+    pixelText(g, 'THE', 32, 14, '#e8c766');
+    pixelText(g, 'VICTORY', 32, 22, '#e8c766');
+    g.fillStyle = '#d9b54a'; g.fillRect(12, 30, 40, 1);
+    // The jukebox, glowing and playing
+    const jx = 66;
+    g.fillStyle = '#1b1b1b'; g.fillRect(jx - 1, 13, 32, 62);
+    g.fillStyle = '#7a3b1f'; g.fillRect(jx, 18, 30, 56);                          // wooden body...
+    g.fillRect(jx + 3, 14, 24, 4); g.fillRect(jx + 6, 12, 18, 2);                 // ...with a rounded top
+    const glow = ['#ff5a8a', '#ffd23f', '#5cf072', '#3fd0ff', '#b26bff'];
+    for (let i = 0; i < 4; i++) {                                                 // light-up bands, cycling
+      g.fillStyle = glow[(i + Math.floor(t * 3)) % glow.length];
+      g.fillRect(jx + 2 + i, 18 + i * 2, 2, 50 - i * 4);
+      g.fillRect(jx + 26 - i, 18 + i * 2, 2, 50 - i * 4);
+    }
+    g.fillStyle = '#e9dcc0'; g.fillRect(jx + 8, 22, 14, 12);                      // song window...
+    g.fillStyle = '#1b1b1b'; for (let y = 24; y < 33; y += 2) g.fillRect(jx + 10, y, 10, 1); // ...with the song list
+    g.fillStyle = '#d9b54a'; g.fillRect(jx + 8, 38, 14, 2);                       // coin slot panel
+    g.fillStyle = '#3a1d10';                                                      // speaker grille
+    for (let y = 44; y < 70; y += 3) g.fillRect(jx + 8, y, 14, 2);
+    for (let i = 0; i < 3; i++) {                                                 // music notes floating up
+      const k = (t * 0.5 + i / 3) % 1;
+      const nx = jx + 30 + Math.round(Math.sin(t * 2 + i * 2) * 3) + i * 3;
+      const ny = Math.round(30 - k * 26);
+      g.globalAlpha = 1 - k;
+      g.fillStyle = glow[i + 1];
+      g.fillRect(nx, ny, 2, 2); g.fillRect(nx + 1, ny - 4, 1, 4); g.fillRect(nx + 2, ny - 4, 2, 1);
+      g.globalAlpha = 1;
+    }
     // David, stooped, leaning on his cue
     const dx = 132;
     const sway = Math.round(Math.sin(t * 1.5));
