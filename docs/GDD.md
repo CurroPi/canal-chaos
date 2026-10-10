@@ -240,10 +240,12 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - Win: "YOU WON! She chose you. The mallard is devastated." then the unlock. Lose: "SHE CHOSE THE MALLARD. Classic."
 - On the water, not the towpath; duck vs duck on purpose (no dogs). Settings: `CONFIG.challenges.courtship` (bpm, number of moves).
 
-## Pilar's wheel class (built): unlocks Pilar
-- Reach 500 steps, then make a customer's pot in a Hackney railway-arch studio ("WHEEL CLASS £65 · 2 HRS · BYO OAT MILK", wonky pots for sale at £340, Pilar in her clay-covered apron).
-- Random order with a dotted target line: a wonky mug (£45), a minimalist vase (£120), a bowl for one olive (£38).
-- Hold (button, table, Space or ↑) to pull the clay up; it wobbles more the longer you pull and the taller it gets, so let go to steady it. Air bubbles visibly swell in the clay wall with a pulsing "!" ("Air bubble! Stop pulling!") and pop after about a second: still pulling when it pops = a big jolt of wobble and a shake ("You pulled through a bubble."); let go in time = harmless. The first comes within ~2s. About halfway up the customer changes their mind ("Customer: Actually... can it be a bit taller?") and the line jumps up (+12, or +6 for the bowl). The screen shakes when the wobble is in the red. Rest on the dotted line, calm, for about a second to fire it. 25-second class. (Tried and dropped: left-right balancing and a joystick, too complicated / too passive.)
-- Win: "YOU WON! … Pilar will sell it for £340." Lose: wobble collapse low "IT'S A COASTER NOW. Pilar will sell it as a set of six.", halfway "IT'S A BOWL NOW. Wonky is a feature. That isn't.", near the top "IT'S ART NOW. Pilar is selling it for £900. You get nothing."; past the line "IT'S A LAMP NOW. Too tall. Pilar is putting a bulb in it." (bulb appears); time up "CLASS IS OVER. That'll be £65."
-- Pilar's comments: "Feel the clay." "Less pressure. Like your rent." "That's very... intentional." Settings: `CONFIG.challenges.pottery`.
+## Pilar's Open Studio Show (built): unlocks Pilar
+- Reach 500 steps, then get a mug into Pilar's show. Railway-arch studio with an "OPEN STUDIO · SHOW SAT · FREE WINE" poster.
+- A local brief at random, e.g. "A mug for a natural wine bar in Clapton. Earthy. Slightly wonky." / "…a Scandi coffee shop on Broadway Market. Calm. Beige. Minimal." / "…a Hackney Wick warehouse party. Loud. Weird. Very wonky." / "…a sourdough café on Chatsworth Road. Rustic. Honest. Brownish." / "…a Columbia Road flower stall. Green. Fresh. A bit bulgy."
+- 1/3 THROW: hold to pull up to the line, let go to steady; bubbles swell and pop (let go before they pop). Failing here ends the attempt with the jokes: coaster, bowl, art, lamp (too tall), class over (time).
+- 2/3 SHAPE: the hands climb the pot over ~4s; drag the joystick (or ← →) to push the clay IN or let it bulge OUT at each height.
+- 3/3 FINISH: pick a handle (classic, chunky, weird loop, none) and a glaze (speckled oat, sage, terracotta, Clapton blue, drippy); the mug shows them. "🔥 Fire it and show Pilar".
+- PILAR JUDGES, one category at a time: SHAPE (vs the brief), WONK (the right amount: too symmetrical is bad: "Did a machine make this?"), GLAZE, VIBE (mostly the handle). 28/40 or more: "YOU WON! You're in the show." Less: "NOT FOR THE SHOP."
+- Settings: `CONFIG.challenges.pottery` (throw timing, tolerance, bubbles, passMark).
 - Fairness: walkers that used to unlock by score alone (David, Pilar) stay unlocked for players who already had them (`keepIfUnlocked`); brand-new challenge walkers (Duck) never come free.

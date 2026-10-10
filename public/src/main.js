@@ -1398,6 +1398,7 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     camera(p) { Object.assign(camera.aspect < 0.8 ? CONFIG.cameraPortrait : cam, p); resize(); followCamera(); renderer.render(scene, camera); }, // try camera settings live
     introAt(p) { introT = p * introDur; followCamera(); renderer.render(scene, camera); }, // freeze the opening swing at 0..1
     winChallenge() { miniGame?.cheat(); }, // win the mini-game on screen
+    skipStep() { miniGame?.skip?.(); }, // jump to the next step of a multi-step mini-game
     challenge(id) { showChallenge(characterById(id), () => showSelect()); }, // play a walker's mini-game
     adNext(i) { gamesOver = CONFIG.ads.every - 1; if (i !== undefined) queueAd(i); }, // the next game over shows an ad (optionally which)
     // Fast-forward the game without waiting for the screen; onStep runs after every step

@@ -44,10 +44,10 @@ export const CHARACTERS = [
     challenge: {
       kind: 'pottery',
       keepIfUnlocked: true, // was a score-only unlock before
-      label: '🏺 Throw a pot in Pilar\'s class',
-      button: '🏺 Start the class',
-      offer: '🏺 Pilar\'s wheel class is starting!',
-      pitch: 'Pull the clay up to the line. Too fast and it\'s a bowl now.',
+      label: '🏺 Get into Pilar\'s show',
+      button: '🏺 Enter the show',
+      offer: '🏺 Pilar\'s Open Studio Show!',
+      pitch: 'Make a mug to the brief. Throw it, shape it, glaze it. Pilar judges.',
     },
     bio: 'Does pottery on Wednesdays. Talks about it the other six days.',
     emoji: '🍵',

@@ -590,3 +590,38 @@ body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
 }
 .card .pull-button.active { background: #8a5236; transform: translate(2px, 2px); box-shadow: 2px 2px 0 #1b1b1b; }
 .pottery-card .pool-stage canvas { height: min(60vh, 540px); }
+
+/* Pilar's Open Studio Show */
+.pottery-controls { margin-top: 8px; }
+.card .pottery-brief { margin: 0 0 8px; padding: 8px 10px; border: 3px solid #1b1b1b; background: #fffaf0; font-family: var(--pixel-body); font-size: 19px; line-height: 1.1; text-align: left; }
+.card .pottery-brief b { display: block; margin-bottom: 4px; font-family: var(--pixel); font-size: 10px; color: #b45309; }
+.card .pottery-go { display: block; width: 100%; margin: 8px 0 0; }
+.card .pottery-label { margin: 6px 0 4px; font-family: var(--pixel); font-size: 9px; text-align: left; }
+.pottery-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.pottery-options.glazes { grid-template-columns: repeat(5, 1fr); }
+.card .pottery-options button { margin: 0; padding: 8px 2px; font-size: 7px; line-height: 1.3; box-shadow: 2px 2px 0 #1b1b1b; background: #fffaf0; }
+.card .pottery-options.glazes button { color: #1b1b1b; text-shadow: 0 0 2px #fffaf0; }
+.card .pottery-options button.chosen { outline: 3px solid #e0332f; outline-offset: 1px; }
+.joystick {
+  position: relative; height: 58px;
+  border: 3px solid #1b1b1b; background: #e9dcc0; box-shadow: 4px 4px 0 #1b1b1b;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 12px;
+  touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab;
+}
+.joystick.active { cursor: grabbing; background: #e0d0b0; }
+.joy-arrow { font-family: var(--pixel); font-size: 9px; color: #8a5236; }
+.joy-knob {
+  position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px;
+  background: #b9805e; border: 3px solid #1b1b1b; box-shadow: inset -4px -4px 0 #8a5236; transition: transform 0.12s ease-out;
+}
+.joystick.active .joy-knob { transition: none; }
+.pool-result .judge-title { font-size: 18px; color: #ffd23f; }
+.judge-rows { width: 92%; display: flex; flex-direction: column; gap: 6px; }
+.judge-row { display: grid; grid-template-columns: auto auto; justify-content: space-between; row-gap: 2px; padding: 5px 7px; background: rgba(255,250,240,0.12); opacity: 0; transform: translateX(-12px); transition: opacity 0.3s, transform 0.3s; text-align: left; }
+.judge-row.show { opacity: 1; transform: none; }
+.judge-cat { font-family: var(--pixel); font-size: 10px; }
+.judge-score { font-family: var(--pixel); font-size: 10px; color: #ffd23f; }
+.judge-comment { grid-column: 1 / -1; font-family: var(--pixel-body); font-size: 17px; line-height: 1; color: #e9dcc0; }
+.pool-result .judge-total { font-family: var(--pixel); font-size: 13px; color: #fffaf0; opacity: 0; transition: opacity 0.3s; }
+.pool-result .judge-total.show { opacity: 1; }
+.judge-verdict { display: flex; flex-direction: column; align-items: center; gap: 4px; }
