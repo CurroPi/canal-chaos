@@ -46,5 +46,5 @@
 - Phone camera: tried less sky + bigger walker + sideways follow; reverted to the original framing (preferred).
 - Opening camera swing (first walk and after changing walker) with name + one-liner caption and whoosh.
 - Every walker spills and refills their own drink (own lines and icon).
-- Arcade on the game-over card to replay the mini-games.
+- Side Hustles on the game-over card to replay the mini-games.
 - Unlock mini-games: David's pool at The Victory (pot 3 before his pint is gone), Duck's courtship dance on the canal (rhythm game vs a mallard), Pilar's Open Studio Show (throw, shape, glaze a mug to a local brief; Pilar judges).

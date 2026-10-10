@@ -251,7 +251,10 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - Settings: `CONFIG.challenges.pottery` (throw timing, tolerance, bubbles, passMark).
 - Fairness: walkers that used to unlock by score alone (David, Pilar) stay unlocked for players who already had them (`keepIfUnlocked`); brand-new challenge walkers (Duck) never come free.
 
-## Arcade (built): replay the mini-games
-- An "🕹️ Arcade" button on the game-over card (Cause of death) opens a menu of every walker mini-game: 🎱 Pool at The Victory, 🏺 Pilar's Open Studio Show, 🦆 The Courtship Dance.
-- Won: "Play" (just for fun, no unlock screen again). Score reached but not won: "Play to unlock <name>". Not reached: "???" and "🔒 Reach N steps".
-- After a game you return to the Arcade; "◀ Back" returns to the game-over card. Ideas for later: personal bests per mini-game, separate leaderboards.
+## Side Hustles (built): replay the mini-games
+- A "🎨 Side Hustles" button on the game-over card (Cause of death). Every walker on the towpath has a side hustle:
+  - 🎱 Pool at The Victory: "Pot 3 before David finishes his pint. He's been undefeated since 1987." → Rack 'em up
+  - 🏺 Pilar's Open Studio Show: "Make a mug to the brief. Pilar decides if it's art." → Back to the wheel
+  - 🦆 The Courtship Dance: "Out-dance a mallard. A lady duck is watching." → Dance again
+- Already won: the replay button (just for fun, no unlock screen). Score reached but not won: "Win to unlock <name>". Not reached: "???" and "🔒 Reach N steps to find out".
+- After a game you come back to Side Hustles; "◀ Back to the towpath" returns to the game-over card. Ideas for later: personal bests per hustle, separate leaderboards.

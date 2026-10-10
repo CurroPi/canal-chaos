@@ -643,3 +643,4 @@ body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
 .arcade-name { font-family: var(--pixel); font-size: 10px; line-height: 1.5; text-align: left; }
 .card .arcade-game button { margin: 0; padding: 8px; font-size: 10px; }
 .arcade-lock { font-family: var(--pixel-body); font-size: 18px; text-align: left; }
+.arcade-pitch { font-family: var(--pixel-body); font-size: 18px; line-height: 1.05; text-align: left; color: #4a4a4a; }

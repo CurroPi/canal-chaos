@@ -842,7 +842,7 @@ function gameOver(e) {
       <div id="board"></div>
       <button>Try again</button>
       <button class="secondary share">📸 Share score</button>
-      <button class="secondary arcade">🕹️ Arcade</button>
+      <button class="secondary arcade">🎨 Side Hustles</button>
       <button class="secondary walker">${newest ? `Try ${newest.name} 🆕` : 'Change walker'}</button>
     `);
     overlay.querySelector('.arcade').addEventListener('click', () => showArcade(showCard));
@@ -950,23 +950,23 @@ function showChallenge(c, done, practice = false) {
   });
 }
 
-// ---------- The Arcade: replay the mini-games (from the game-over card) ----------
+// ---------- Side Hustles: replay the walkers' mini-games (from the game-over card) ----------
 function showArcade(back) {
   state = 'arcade';
   const games = CHARACTERS.filter((c) => c.challenge);
   showOverlay(`
-    <h2 class="arcade-title">🕹️ ARCADE</h2>
-    <p class="small">Replay the walkers' mini-games.</p>
+    <h2 class="arcade-title">🎨 SIDE HUSTLES</h2>
     <div class="arcade-list">${games.map((c) => {
       const won = wonChallenges.has(c.id);
       const ready = challengeReady(c);
-      const status = won ? `<button data-play="${c.id}">Play</button>`
-        : ready ? `<button data-play="${c.id}">Play to unlock ${c.name}</button>`
-          : `<span class="arcade-lock">🔒 Reach ${unlockAt(c).toLocaleString('en-GB')} steps</span>`;
+      const status = won ? `<button data-play="${c.id}">${c.challenge.replay}</button>`
+        : ready ? `<button data-play="${c.id}">Win to unlock ${c.name}</button>`
+          : `<span class="arcade-lock">🔒 Reach ${unlockAt(c).toLocaleString('en-GB')} steps to find out</span>`;
       return `<div class="arcade-game ${won || ready ? '' : 'locked'}">
-        <span class="arcade-name">${won || ready ? c.challenge.arcade : '???'}</span>${status}</div>`;
+        <span class="arcade-name">${won || ready ? c.challenge.arcade : '???'}</span>
+        ${won || ready ? `<span class="arcade-pitch">${c.challenge.hustle}</span>` : ''}${status}</div>`;
     }).join('')}</div>
-    <button class="secondary arcade-back">◀ Back</button>
+    <button class="secondary arcade-back">◀ Back to the towpath</button>
   `, null, 'arcade-card');
   overlay.querySelector('.arcade-back').addEventListener('click', back);
   overlay.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => {

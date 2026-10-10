@@ -44,6 +44,8 @@ export const CHARACTERS = [
     challenge: {
       kind: 'pottery',
       arcade: '🏺 Pilar\'s Open Studio Show',
+      hustle: 'Make a mug to the brief. Pilar decides if it\'s art.',
+      replay: 'Back to the wheel',
       keepIfUnlocked: true, // was a score-only unlock before
       label: '🏺 Get into Pilar\'s show',
       button: '🏺 Enter the show',
@@ -74,6 +76,8 @@ export const CHARACTERS = [
     challenge: {
       kind: 'pool',
       arcade: '🎱 Pool at The Victory',
+      hustle: 'Pot 3 before David finishes his pint. He\'s been undefeated since 1987.',
+      replay: 'Rack \'em up',
       keepIfUnlocked: true, // was a score-only unlock before
       label: '🎱 Beat David at pool',
       button: '🎱 Challenge David',
@@ -132,6 +136,8 @@ export const CHARACTERS = [
     challenge: {
       kind: 'courtship',
       arcade: '🦆 The Courtship Dance',
+      hustle: 'Out-dance a mallard. A lady duck is watching.',
+      replay: 'Dance again',
       label: '🦆 Win the courtship dance',
       button: '🦆 Start the courtship',
       offer: '🦆 It\'s mating season!',
