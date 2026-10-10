@@ -842,8 +842,10 @@ function gameOver(e) {
       <div id="board"></div>
       <button>Try again</button>
       <button class="secondary share">📸 Share score</button>
-      <button class="secondary">${newest ? `Try ${newest.name} 🆕` : 'Change walker'}</button>
+      <button class="secondary arcade">🕹️ Arcade</button>
+      <button class="secondary walker">${newest ? `Try ${newest.name} 🆕` : 'Change walker'}</button>
     `);
+    overlay.querySelector('.arcade').addEventListener('click', () => showArcade(showCard));
     const shareBtn = overlay.querySelector('.share');
     shareBtn.addEventListener('click', async () => {
       shareBtn.disabled = true;
@@ -855,7 +857,7 @@ function gameOver(e) {
       shareBtn.disabled = false;
       shareBtn.textContent = result === 'downloaded' ? '✓ Image saved, link copied' : '📸 Share score';
     });
-    overlay.querySelector('.secondary:not(.share)').addEventListener('click', () => {
+    overlay.querySelector('.secondary.walker').addEventListener('click', () => {
       if (newest) setCharacter(newest);
       showSelect();
     });
@@ -933,7 +935,7 @@ function showChallengeOffer(c, done) {
 
 // The mini-game itself. Win: "YOU WON!" and the unlock celebration
 let miniGame = null; // the one on screen (for the testing helper)
-function showChallenge(c, done) {
+function showChallenge(c, done, practice = false) {
   state = 'challenge';
   document.body.classList.add('in-mini-game'); // hides the sound buttons, which sit where the ✕ is on phones
   initAudio();
@@ -941,11 +943,36 @@ function showChallenge(c, done) {
   showOverlay('', null, 'pool-card');
   miniGame = MINI_GAMES[c.challenge.kind](overlay.querySelector('.pool-card'), CONFIG.challenges[c.challenge.kind], (won) => {
     document.body.classList.remove('in-mini-game');
-    if (won) {
+    if (won && !practice) {
       winChallenge(c);
       showUnlocks([c], () => done(true), true);
-    } else done(false);
+    } else done(won);
   });
+}
+
+// ---------- The Arcade: replay the mini-games (from the game-over card) ----------
+function showArcade(back) {
+  state = 'arcade';
+  const games = CHARACTERS.filter((c) => c.challenge);
+  showOverlay(`
+    <h2 class="arcade-title">🕹️ ARCADE</h2>
+    <p class="small">Replay the walkers' mini-games.</p>
+    <div class="arcade-list">${games.map((c) => {
+      const won = wonChallenges.has(c.id);
+      const ready = challengeReady(c);
+      const status = won ? `<button data-play="${c.id}">Play</button>`
+        : ready ? `<button data-play="${c.id}">Play to unlock ${c.name}</button>`
+          : `<span class="arcade-lock">🔒 Reach ${unlockAt(c).toLocaleString('en-GB')} steps</span>`;
+      return `<div class="arcade-game ${won || ready ? '' : 'locked'}">
+        <span class="arcade-name">${won || ready ? c.challenge.arcade : '???'}</span>${status}</div>`;
+    }).join('')}</div>
+    <button class="secondary arcade-back">◀ Back</button>
+  `, null, 'arcade-card');
+  overlay.querySelector('.arcade-back').addEventListener('click', back);
+  overlay.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => {
+    const c = characterById(b.dataset.play);
+    showChallenge(c, () => showArcade(back), wonChallenges.has(c.id)); // already won: just for fun
+  }));
 }
 
 // ---------- Leaderboard ----------
@@ -1103,7 +1130,7 @@ window.addEventListener('keydown', (e) => {
   if (e.repeat || e.target.tagName === 'INPUT') return; // typing your name isn't playing
   if (e.key === 'm' || e.key === 'M') { toggleMute(); showMute(); return; }
   if (state === 'intro') { introT = introDur; return; } // any key skips the swing
-  if (state === 'challenge') return; // the mini-game has its own controls
+  if (state === 'challenge' || state === 'arcade') return; // mini-games and their menu have their own controls
   if (state === 'select') {
     if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') browse(-1);
     else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') browse(1);

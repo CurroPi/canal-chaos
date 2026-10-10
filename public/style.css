@@ -633,3 +633,13 @@ body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
 .card .commission button { margin: 0; width: 100%; }
 .card .pottery-ticket { margin: 0 0 8px; padding: 5px 8px; border: 2px dashed #8a5236; background: #fffaf0; font-family: var(--pixel-body); font-size: 16px; line-height: 1.05; text-align: left; }
 .card .pottery-ticket b { font-family: var(--pixel); font-size: 8px; color: #b45309; }
+
+/* The Arcade (from the game-over card) */
+.card.arcade-card { max-width: 380px; }
+.card .arcade-title { font-size: 20px; color: #b45309; }
+.arcade-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+.arcade-game { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 10px; border: 3px solid #1b1b1b; background: #fffaf0; box-shadow: 3px 3px 0 #1b1b1b; }
+.arcade-game.locked { background: #e6e1d6; color: #8a857c; }
+.arcade-name { font-family: var(--pixel); font-size: 10px; line-height: 1.5; text-align: left; }
+.card .arcade-game button { margin: 0; padding: 8px; font-size: 10px; }
+.arcade-lock { font-family: var(--pixel-body); font-size: 18px; text-align: left; }

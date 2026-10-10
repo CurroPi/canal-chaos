@@ -43,6 +43,7 @@ export const CHARACTERS = [
     unlockLine: 'PILAR IS HERE. SHE\'S GOT CLAY ON YOU NOW.',
     challenge: {
       kind: 'pottery',
+      arcade: '🏺 Pilar\'s Open Studio Show',
       keepIfUnlocked: true, // was a score-only unlock before
       label: '🏺 Get into Pilar\'s show',
       button: '🏺 Enter the show',
@@ -72,6 +73,7 @@ export const CHARACTERS = [
     unlockLine: 'DAVID IS HERE. THE VICTORY MUST BE SHUT.',
     challenge: {
       kind: 'pool',
+      arcade: '🎱 Pool at The Victory',
       keepIfUnlocked: true, // was a score-only unlock before
       label: '🎱 Beat David at pool',
       button: '🎱 Challenge David',
@@ -129,6 +131,7 @@ export const CHARACTERS = [
     unlockLine: 'DUCK IS HERE. DUCK HAS READ THE SIGN.',
     challenge: {
       kind: 'courtship',
+      arcade: '🦆 The Courtship Dance',
       label: '🦆 Win the courtship dance',
       button: '🦆 Start the courtship',
       offer: '🦆 It\'s mating season!',

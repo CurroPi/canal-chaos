@@ -250,3 +250,8 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - PILAR JUDGES, one category at a time: SHAPE (vs the brief), WONK (the right amount: too symmetrical is bad: "Did a machine make this?"), GLAZE, VIBE (mostly the handle). 28/40 or more: "YOU WON! You're in the show." Less: "NOT FOR THE SHOP."
 - Settings: `CONFIG.challenges.pottery` (throw timing, tolerance, bubbles, passMark).
 - Fairness: walkers that used to unlock by score alone (David, Pilar) stay unlocked for players who already had them (`keepIfUnlocked`); brand-new challenge walkers (Duck) never come free.
+
+## Arcade (built): replay the mini-games
+- An "🕹️ Arcade" button on the game-over card (Cause of death) opens a menu of every walker mini-game: 🎱 Pool at The Victory, 🏺 Pilar's Open Studio Show, 🦆 The Courtship Dance.
+- Won: "Play" (just for fun, no unlock screen again). Score reached but not won: "Play to unlock <name>". Not reached: "???" and "🔒 Reach N steps".
+- After a game you return to the Arcade; "◀ Back" returns to the game-over card. Ideas for later: personal bests per mini-game, separate leaderboards.
