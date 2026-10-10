@@ -243,7 +243,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 ## Pilar's wheel class (built): unlocks Pilar
 - Reach 500 steps, then make a customer's pot in a Hackney railway-arch studio ("WHEEL CLASS £65 · 2 HRS · BYO OAT MILK", wonky pots for sale at £340, Pilar in her clay-covered apron).
 - Random order with a dotted target line: a wonky mug (£45), a minimalist vase (£120), a bowl for one olive (£38).
-- Hold (button, table, Space or ↑) to pull the clay up; it wobbles more the longer you pull and the taller it gets, so let go to steady it. The clay also drifts off-centre and leans (more while pulling, and when tall): keep it centred with ◀ ▶ (or ← →), shown on a CENTRE meter; lean too far and it collapses. Rest on the line, steady and centred, to fire it. Two-thumb game on phones.
-- Win: "YOU WON! … Pilar will sell it for £340." Lose: wobble too much → "IT'S A BOWL NOW. Wonky is a feature. That isn't." / too tall → "IT'S A LAMP NOW." (a bulb appears) / time up → "CLASS IS OVER. That'll be £65."
+- The clay rises by itself up to the order's line. Your only job: keep it centred. It drifts and leans to one side (switching every second or two, harder as it gets taller). On phones a joystick pad (drag the knob left/right, further = harder push, springs back); on computers ← →. A CENTRE meter shows the lean. Reach the line still standing to win.
+- Win: "YOU WON! … Pilar will sell it for £340." Lose (leans too far): "IT'S A BOWL NOW. Wonky is a feature. That isn't."
 - Pilar's comments: "Feel the clay." "Less pressure. Like your rent." "That's very... intentional." Settings: `CONFIG.challenges.pottery`.
 - Fairness: walkers that used to unlock by score alone (David, Pilar) stay unlocked for players who already had them (`keepIfUnlocked`); brand-new challenge walkers (Duck) never come free.

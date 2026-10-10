@@ -576,30 +576,29 @@ html, body {
 body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
 
 /* Mini-game: Pilar's wheel class */
-.pull-row { display: flex; gap: 8px; margin-top: 10px; }
-.card .lean-button {
-  flex: 0 0 22%;
-  margin: 0;
-  padding: 16px 0;
-  font-size: 20px;
+.joystick {
+  position: relative;
+  height: 58px;
+  margin-top: 10px;
+  border: 3px solid #1b1b1b;
   background: #e9dcc0;
+  box-shadow: 4px 4px 0 #1b1b1b;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+  cursor: grab;
 }
-.card .lean-button.active { background: #cdb8a6; transform: translate(2px, 2px); box-shadow: 2px 2px 0 #1b1b1b; }
-.card .pull-button {
-  display: block;
-  flex: 1;
-  width: 100%;
-  margin: 0;
-  line-height: 1.4;
-  padding: 16px 8px;
-  font-size: 14px;
+.joystick.active { cursor: grabbing; background: #e0d0b0; }
+.joy-arrow { font-size: 18px; color: #8a5236; }
+.joy-knob {
+  position: absolute; left: 50%; top: 50%;
+  width: 52px; height: 52px; margin: -26px 0 0 -26px;
   background: #b9805e;
-  color: #fffaf0;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
+  border: 3px solid #1b1b1b;
+  box-shadow: inset -4px -4px 0 #8a5236;
+  transition: transform 0.12s ease-out;
 }
-.card .pull-button.active { background: #8a5236; transform: translate(2px, 2px); box-shadow: 2px 2px 0 #1b1b1b; }
+.joystick.active .joy-knob { transition: none; }
+.pottery-card .pool-stage canvas { height: min(60vh, 540px); }
