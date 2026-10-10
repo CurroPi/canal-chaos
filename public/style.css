@@ -571,3 +571,6 @@ html, body {
   -webkit-user-select: none;
 }
 .card .dance-buttons small { display: block; margin-top: 6px; font-family: var(--pixel); font-size: 7px; }
+
+/* While a mini-game is open the sound buttons step aside (they'd cover its ✕ on phones) */
+body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }

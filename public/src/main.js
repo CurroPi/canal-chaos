@@ -927,10 +927,12 @@ function showChallengeOffer(c, done) {
 let miniGame = null; // the one on screen (for the testing helper)
 function showChallenge(c, done) {
   state = 'challenge';
+  document.body.classList.add('in-mini-game'); // hides the sound buttons, which sit where the ✕ is on phones
   initAudio();
   for (const e of entities) { e.model.group.visible = false; removeFlash(e); }
   showOverlay('', null, 'pool-card');
   miniGame = MINI_GAMES[c.challenge.kind](overlay.querySelector('.pool-card'), CONFIG.challenges[c.challenge.kind], (won) => {
+    document.body.classList.remove('in-mini-game');
     if (won) {
       winChallenge(c);
       showUnlocks([c], () => done(true), true);
