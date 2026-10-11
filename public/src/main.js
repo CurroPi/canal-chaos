@@ -10,6 +10,7 @@ import { titleFor } from './titles.js';
 import { playAd, queueAd } from './ads.js';
 import { snapshot, makeScoreCard, shareCard } from './share.js';
 import { playPool } from './pool.js';
+import { recordRun, recordHustle } from './stats.js';
 import { playCourtship } from './courtship.js';
 import { playPottery } from './pottery.js';
 import {
@@ -816,6 +817,7 @@ function gameOver(e) {
     near: entities.filter((o) => Math.abs(o.model.group.position.z) < 8)
       .map((o) => `${o.kind}${o.fromBehind ? '(behind)' : ''} L${o.lanes.join('')} z${o.model.group.position.z.toFixed(1)}`),
   });
+  recordRun({ steps: final, cause: `${e.kind}${e.fromBehind ? '-behind' : ''}`, seconds: elapsed, rush: rushLevel, walker: character.id });
   const isRecord = final > best;
   const before = best;
   if (isRecord) { best = final; saveBest(best); }
@@ -943,6 +945,7 @@ function showChallenge(c, done, practice = false) {
   showOverlay('', null, 'pool-card');
   miniGame = MINI_GAMES[c.challenge.kind](overlay.querySelector('.pool-card'), CONFIG.challenges[c.challenge.kind], (won) => {
     document.body.classList.remove('in-mini-game');
+    recordHustle({ game: c.challenge.kind, won: Boolean(won), walker: character.id });
     if (won && !practice) {
       winChallenge(c);
       showUnlocks([c], () => done(true), true);

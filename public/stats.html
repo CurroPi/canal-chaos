@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Canal Chaos · Playtest stats</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap">
+  <style>
+    :root {
+      --bg: #f4efe2; --card: #fffaf0; --ink: #1b1b1b; --ink-2: #4a4a4a; --ink-3: #7a7468;
+      --rule: #e2dccd; --bar: #1f7a3a; --bar-hover: #155a2a; --accent: #b45309;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #141712; --card: #1e221c; --ink: #f0ece2; --ink-2: #c9c4b8; --ink-3: #8f8a7f; --rule: #2e332b; --bar: #5cc47a; --bar-hover: #84dc9b; --accent: #f0a050; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px 16px 40px; background: var(--bg); color: var(--ink); font-family: "VT323", monospace; font-size: 20px; }
+    main { max-width: 900px; margin: 0 auto; }
+    h1 { font-family: "Press Start 2P", monospace; font-size: 16px; line-height: 1.6; margin: 0 0 4px; }
+    h2 { font-family: "Press Start 2P", monospace; font-size: 11px; margin: 0 0 12px; }
+    .sub { color: var(--ink-3); margin: 0 0 16px; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filters button { font-family: "Press Start 2P", monospace; font-size: 9px; padding: 8px 10px; border: 2px solid var(--ink); background: var(--card); color: var(--ink); cursor: pointer; }
+    .filters button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .tile { background: var(--card); border: 2px solid var(--ink); padding: 10px 12px; }
+    .tile .label { color: var(--ink-3); font-size: 17px; }
+    .tile .value { font-family: "Press Start 2P", monospace; font-size: 18px; margin-top: 6px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 12px; }
+    section { background: var(--card); border: 2px solid var(--ink); padding: 14px; }
+    .bars { display: flex; flex-direction: column; gap: 6px; }
+    .row { display: grid; grid-template-columns: minmax(90px, 40%) 1fr; align-items: center; gap: 8px; cursor: default; }
+    .row .name { color: var(--ink-2); line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .track { position: relative; height: 18px; display: flex; align-items: center; gap: 6px; }
+    .bar { height: 12px; background: var(--bar); border-radius: 0 4px 4px 0; min-width: 2px; }
+    .row:hover .bar { background: var(--bar-hover); }
+    .num { color: var(--ink); font-size: 18px; white-space: nowrap; }
+    .empty { color: var(--ink-3); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 5px 4px; border-bottom: 1px solid var(--rule); }
+    th { font-family: "Press Start 2P", monospace; font-size: 8px; color: var(--ink-3); font-weight: normal; }
+    #tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--card); padding: 4px 8px; font-size: 18px; display: none; z-index: 5; }
+    .note { color: var(--ink-3); font-size: 17px; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>CANAL CHAOS · PLAYTEST STATS</h1>
+    <p class="sub" id="status">Loading…</p>
+    <div class="filters" role="group" aria-label="Time range">
+      <button data-days="1">TODAY</button>
+      <button data-days="7" aria-pressed="true">7 DAYS</button>
+      <button data-days="30">30 DAYS</button>
+      <button data-days="0">ALL</button>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="grid">
+      <section><h2>WHAT GETS PEOPLE</h2><div class="bars" id="causes"></div></section>
+      <section><h2>HOW FAR THEY GET (STEPS)</h2><div class="bars" id="distance"></div></section>
+      <section><h2>WHICH WALKERS</h2><div class="bars" id="walkers"></div></section>
+      <section><h2>SIDE HUSTLES</h2><div id="hustles"></div></section>
+    </div>
+    <p class="note">Anonymous: no names or IDs, just one row per run. Add <b>?dev</b> to the address to see Claude's test runs instead.</p>
+  </main>
+  <div id="tip"></div>
+  <script type="module">
+    import { selectRows } from './src/leaderboard.js';
+
+    const CAUSES = {
+      runner: 'Runner', runClub: 'Run club', lime: 'Lime bike', 'lime-behind': 'Lime bike (from behind)',
+      'delivery-behind': 'Delivery bike (from behind)', delivery: 'Delivery bike', pram: 'Pram', dogWalker: 'Dog walker',
+      cargoBike: 'Cargo bike', monstera: 'Monstera', cafe: 'Café queue', bridge: 'Bridge',
+    };
+    const GAMES = { pool: '🎱 Pool at The Victory', pottery: "🏺 Pilar's show", courtship: '🦆 Courtship dance' };
+    const dev = new URLSearchParams(location.search).has('dev');
+    const tip = document.getElementById('tip');
+    let days = 7;
+
+    const median = (xs) => { if (!xs.length) return 0; const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2); };
+    const fmt = (n) => Number(n).toLocaleString('en-GB');
+    const countBy = (xs, key) => xs.reduce((m, x) => { const k = key(x); m.set(k, (m.get(k) || 0) + 1); return m; }, new Map());
+
+    function bars(el, entries, total, nameOf = (k) => k) {
+      if (!entries.length) { el.innerHTML = '<p class="empty">No runs yet.</p>'; return; }
+      const max = Math.max(...entries.map(([, v]) => v));
+      el.innerHTML = entries.map(([k, v]) => {
+        const pct = total ? Math.round((v / total) * 100) : 0;
+        return `<div class="row" data-tip="${nameOf(k)}: ${fmt(v)} (${pct}%)">
+          <span class="name">${nameOf(k)}</span>
+          <span class="track"><span class="bar" style="width:${Math.max(1, (v / max) * 78)}%"></span><span class="num">${fmt(v)} · ${pct}%</span></span>
+        </div>`;
+      }).join('');
+    }
+
+    function tiles(runs) {
+      const steps = runs.map((r) => r.steps || 0);
+      const secs = runs.map((r) => r.seconds || 0);
+      const phones = runs.filter((r) => r.phone).length;
+      const list = [
+        ['Runs', fmt(runs.length)],
+        ['Median steps', fmt(median(steps))],
+        ['Average steps', fmt(runs.length ? Math.round(steps.reduce((a, b) => a + b, 0) / runs.length) : 0)],
+        ['Best', fmt(Math.max(0, ...steps))],
+        ['Median run', `${median(secs)}s`],
+        ['On phones', runs.length ? `${Math.round((phones / runs.length) * 100)}%` : '–'],
+      ];
+      document.getElementById('tiles').innerHTML = list.map(([l, v]) => `<div class="tile"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
+    }
+
+    function hustles(rows) {
+      const el = document.getElementById('hustles');
+      if (!rows.length) { el.innerHTML = '<p class="empty">Nobody has tried a side hustle yet.</p>'; return; }
+      const by = new Map();
+      for (const r of rows) { const g = by.get(r.game) || { tries: 0, wins: 0 }; g.tries++; if (r.won) g.wins++; by.set(r.game, g); }
+      el.innerHTML = `<table><thead><tr><th>HUSTLE</th><th>TRIES</th><th>WINS</th><th>WIN RATE</th></tr></thead><tbody>${
+        [...by].sort((a, b) => b[1].tries - a[1].tries).map(([game, g]) => `<tr><td>${GAMES[game] || game}</td><td>${g.tries}</td><td>${g.wins}</td><td>${Math.round((g.wins / g.tries) * 100)}%</td></tr>`).join('')
+      }</tbody></table>`;
+    }
+
+    async function load() {
+      const status = document.getElementById('status');
+      status.textContent = 'Loading…';
+      const since = days ? `&created_at=gte.${encodeURIComponent(new Date(Date.now() - days * 864e5).toISOString())}` : '';
+      let rows;
+      try {
+        rows = await selectRows(`runs?select=kind,steps,cause,seconds,rush,walker,phone,game,won,created_at&source=eq.${dev ? 'dev' : 'live'}${since}&order=created_at.desc&limit=20000`);
+      } catch {
+        status.textContent = 'Could not load the stats (has the runs table been created in Supabase?).';
+        return;
+      }
+      const runs = rows.filter((r) => r.kind === 'run');
+      status.textContent = `${dev ? 'TEST RUNS · ' : ''}${days ? `Last ${days === 1 ? '24 hours' : `${days} days`}` : 'All time'} · updated ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+      tiles(runs);
+      const causes = [...countBy(runs, (r) => r.cause || '?')].sort((a, b) => b[1] - a[1]);
+      bars(document.getElementById('causes'), causes, runs.length, (k) => CAUSES[k] || k);
+      const buckets = ['0–249', '250–499', '500–749', '750–999', '1,000–1,499', '1,500–1,999', '2,000+'];
+      const bucketOf = (s) => (s < 250 ? 0 : s < 500 ? 1 : s < 750 ? 2 : s < 1000 ? 3 : s < 1500 ? 4 : s < 2000 ? 5 : 6);
+      const dist = buckets.map((b, i) => [b, runs.filter((r) => bucketOf(r.steps || 0) === i).length]);
+      bars(document.getElementById('distance'), dist, runs.length);
+      const walkers = [...countBy(runs, (r) => r.walker || '?')].sort((a, b) => b[1] - a[1]);
+      bars(document.getElementById('walkers'), walkers, runs.length, (k) => k.charAt(0).toUpperCase() + k.slice(1));
+      hustles(rows.filter((r) => r.kind === 'hustle'));
+    }
+
+    document.querySelectorAll('[data-days]').forEach((b) => b.addEventListener('click', () => {
+      days = Number(b.dataset.days);
+      document.querySelectorAll('[data-days]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      load();
+    }));
+    document.addEventListener('mousemove', (e) => {
+      const row = e.target.closest?.('[data-tip]');
+      if (!row) { tip.style.display = 'none'; return; }
+      tip.textContent = row.dataset.tip;
+      tip.style.display = 'block';
+      tip.style.left = `${Math.min(innerWidth - tip.offsetWidth - 8, e.clientX + 12)}px`;
+      tip.style.top = `${e.clientY + 14}px`;
+    });
+    load();
+  </script>
+</body>
+</html>

@@ -25,6 +25,15 @@ async function request(path, options = {}) {
   return res;
 }
 
+// For other tables (the anonymous play stats)
+export async function insertRow(table, row) {
+  await request(table, { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(row) });
+}
+export async function selectRows(path) {
+  const res = await request(path);
+  return res.json();
+}
+
 // "best_scores" is a database view with each name's best score. If it hasn't been created yet,
 // fall back to the raw scores and sort out the duplicates here.
 let useView = null;
