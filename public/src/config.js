@@ -90,6 +90,10 @@ export const CONFIG = {
   // towpath (~10s), each once per run. See src/gags.js
   gags: { everyTiles: 5 },
 
+  // Things moving on the canal now and then. chance = per stretch of towpath, at least minTiles apart.
+  // weights: how often each one comes up (the dinghy party is the rare easter egg)
+  traffic: { chance: 0.12, minTiles: 4, weights: { cruiser: 3, hireBoat: 1.5, paddleboard: 2, duckFight: 1.5, dinghyParty: 0.7 } },
+
   // The "BY DUDE LONDON" tag on the wall at the start (where along the path, its size and height)
   signature: { z: -4, length: 4.5, height: 2.25, y: 1.7, paint: '0,0,0' }, // paint: '255,255,255' = white, '0,0,0' = black
 

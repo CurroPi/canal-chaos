@@ -4,7 +4,7 @@ import { box, mat, makeLimeBike } from './models.js';
 import { FRONT_X, makeBuilding, makeOffice, makeGasholder, makeContainerville, makeSharks, makeCanalside, makePortraits } from './buildings.js';
 import { CONFIG } from './config.js';
 import { addGraffiti } from './graffiti.js';
-import { makeNarrowboat, addPosters, GAGS, animateGags, BOAT_X } from './gags.js';
+import { makeNarrowboat, addPosters, GAGS, TRAFFIC, animateGags, BOAT_X } from './gags.js';
 
 // Towpath geometry, all derived from the lane spacing in config.js, so narrowing the path
 // moves the wall, the canal edge and everything along them together.
@@ -88,9 +88,27 @@ export function createWorld(scene, cfg) {
     return gagPool.pop();
   }
 
+  // Canal traffic (boats, paddleboarders, ducks...): calm most of the time, something passing now and then
+  let sinceTraffic = 0;
+  function nextTraffic() {
+    if (world.forceTraffic) {
+      const kind = world.forceTraffic;
+      world.forceTraffic = null;
+      return kind;
+    }
+    sinceTraffic++;
+    if (sinceTraffic < cfg.traffic.minTiles || Math.random() > cfg.traffic.chance) return null;
+    sinceTraffic = 0;
+    const weights = Object.entries(cfg.traffic.weights);
+    let r = Math.random() * weights.reduce((a, [, w]) => a + w, 0);
+    for (const [kind, w] of weights) if ((r -= w) < 0) return kind;
+    return null;
+  }
+
   const world = {
     forceNext: null, // testing helper: the next tile's far bank
     forceGag: null,  // testing helper: the next tile's gag
+    forceTraffic: null, // testing helper: the next tile's canal traffic
 
     scroll(dz) {
       walked += dz;
@@ -110,6 +128,12 @@ export function createWorld(scene, cfg) {
             farBank = nextFarBank();
           }
           decorate(tile, L, farBank, nextGag());
+          const traffic = nextTraffic();
+          if (traffic) {
+            const item = TRAFFIC[traffic](0);
+            item.userData.traffic = traffic;
+            tile.userData.decor.add(item);
+          }
         }
       }
     },
@@ -125,6 +149,7 @@ export function createWorld(scene, cfg) {
       queued = null;
       gagPool = [];
       sinceGag = cfg.gags.everyTiles - 3; // the first one comes early
+      sinceTraffic = 0;
       for (const tile of tiles) {
         decorate(tile, L, tile === officeTile ? 'office' : tile === inFront ? 'gap' : nextFarBank());
       }

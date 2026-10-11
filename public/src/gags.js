@@ -293,6 +293,25 @@ function saunaBoat(z) {
   p.group.position.set(b.bx + 0.7, b.roofY, z + 5.6);
   p.group.rotation.y = Math.PI / 2;
   b.group.add(p.group);
+  // A big sign on the roof, so you know what it is
+  const board = textMaterial('sauna', 512, 256, (g, w, h) => {
+    g.fillStyle = '#6b4424';
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(0,0,0,0.15)';
+    for (let y = 0; y < h; y += 32) g.fillRect(0, y, w, 3); // planks
+    g.fillStyle = '#f6e7c8';
+    g.textAlign = 'center';
+    g.font = 'bold 120px Georgia, serif';
+    g.fillText('SAUNA', w / 2, 125);
+    g.font = 'bold 30px Georgia, serif';
+    g.fillText('£35 · 45 MINS', w / 2, 180);
+    g.font = 'italic 26px Georgia, serif';
+    g.fillText('cold plunge included (it\'s the canal)', w / 2, 225);
+  });
+  for (const dz of [-0.9, 0.9]) b.group.add(box(0.06, 0.7, 0.06, 0x4a2f18, b.bx + 0.3, b.roofY + 0.35, z + 1 + dz));
+  const s = sign(board, 2.2, 1.1, b.bx + 0.35, b.roofY + 1.1, z + 1);
+  s.rotation.y = Math.PI / 2 - 0.35; // turned towards you
+  b.group.add(s);
   return b.group;
 }
 
@@ -479,6 +498,249 @@ function communityCanoe(z) {
   g.add(sign(tag, 1.6, 0.5, WALL - 0.03, 0.5, z - 0.9, false)); // white graffiti behind it
   return g;
 }
+
+
+// ---------- Canal traffic: things that move along the water now and then ----------
+// `dir` -1 = going the same way as you, +1 = coming towards you. Speeds are in world units per second.
+const LANE_OUT = -8.6;   // middle of the canal, heading away from you
+const LANE_IN = -11.2;   // the far side, coming towards you
+const laneFor = (dir) => (dir < 0 ? LANE_OUT : LANE_IN);
+const wakeGeo = new THREE.BoxGeometry(0.06, 0.02, 1);
+const wakeMat = new THREE.MeshBasicMaterial({ color: 0xe8f1ee, transparent: true, opacity: 0.55 });
+
+// Drift along from z0, bob on the water, and (optionally) do something else every frame
+function cruise(g, z0, dir, speed, extra) {
+  let t0 = null;
+  g.position.z = z0;
+  animate(g, (t) => {
+    t0 ??= t;
+    g.position.z = z0 + (t - t0) * speed * dir;
+    g.position.y = Math.sin(t * 1.7) * 0.025;
+    extra?.(t);
+  });
+}
+
+// A V of ripples spreading out behind something moving (z = its back end)
+function wake(g, x, z, dir, length = 2.4, spread = 0.5) {
+  for (const side of [-1, 1]) {
+    const w = new THREE.Mesh(wakeGeo, wakeMat);
+    w.scale.z = length;
+    w.position.set(x + side * spread, WATER_Y + 0.03, z - dir * length / 2);
+    w.rotation.y = side * dir * -0.25;
+    g.add(w);
+  }
+}
+
+function lPlate() {
+  return textMaterial('lplate', 128, 128, (g, w, h) => {
+    g.fillStyle = '#fff';
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = '#d62828';
+    g.font = 'bold 110px Arial, sans-serif';
+    g.textAlign = 'center';
+    g.fillText('L', w / 2, 104);
+  });
+}
+
+// Something held in a hand (pint, phone, can...)
+const hold = (arm, item) => { item.position.y = -0.68; item.position.z = 0.06; arm.add(item); };
+
+// A narrowboat on the move, someone at the tiller, and a joke
+function cruiser(z) {
+  const dir = pick([-1, 1]);
+  const bx = laneFor(dir);
+  const joke = pick(['pint', 'laptop', 'learner', 'tea']);
+  const names = { pint: 'BITTER END', laptop: 'OUT OF OFFICE', learner: 'FIRST TIME', tea: 'NOWHERE FAST' };
+  const g = new THREE.Group();
+  const b = makeNarrowboat({ z: 0, bx, name: names[joke], withClutter: joke !== 'laptop' });
+  g.add(b.group);
+  const stern = -dir * 6.1; // the back end
+  const steerer = person({ shirt: joke === 'laptop' ? 0x4b5563 : pick([0x065f46, 0x7f1d1d, 0x1e3a8a, 0xb45309]) });
+  steerer.group.position.set(bx, 0, stern);
+  steerer.group.rotation.y = dir < 0 ? Math.PI : 0; // facing where the boat is going
+  g.add(steerer.group);
+  g.add(box(0.06, 0.06, 1.0, 0x6b4a2f, bx + 0.25, 0.8, stern + dir * 0.4)); // tiller
+  steerer.armR.rotation.x = -0.6;
+  if (joke === 'pint') { steerer.armL.rotation.x = -1.4; hold(steerer.armL, box(0.13, 0.22, 0.13, 0xc98a2b)); }
+  if (joke === 'tea') { steerer.armL.rotation.x = -1.4; hold(steerer.armL, box(0.13, 0.13, 0.13, 0xf2f2f2)); }
+  if (joke === 'laptop') { // on a call, laptop open on the roof, steering with an elbow
+    g.add(box(0.4, 0.03, 0.3, 0x9aa0a6, bx, b.roofY + 0.02, stern + dir * 1.2));
+    const screen = box(0.4, 0.28, 0.02, 0x2b3a42, bx, b.roofY + 0.16, stern + dir * 1.05);
+    g.add(screen);
+    steerer.armL.rotation.x = -2.6;
+    hold(steerer.armL, box(0.08, 0.16, 0.03, 0x111111));
+  }
+  if (joke === 'learner') for (const dz of [-5.6, 5.6]) g.add(sign(lPlate(), 0.45, 0.45, bx + 0.96, -0.3, dz));
+  wake(g, bx, -dir * 6.5, dir, 3.5, 0.6);
+  // The learner can't steer: drifting from side to side
+  cruise(g, z, dir, joke === 'learner' ? 1.2 : 1.6, joke === 'learner' ? (t) => { g.position.x = Math.sin(t * 0.8) * 0.6; } : null);
+  return g;
+}
+
+// Hire boat: a little open electric boat, a hen do, prosecco, one captain's hat
+function hireBoat(z) {
+  const dir = pick([-1, 1]);
+  const bx = laneFor(dir);
+  const g = new THREE.Group();
+  g.add(box(2.2, 0.6, 5.2, 0xf2f2f2, bx, WATER_Y + 0.1, 0));         // hull
+  g.add(box(2.3, 0.12, 5.3, 0x2bb3c0, bx, WATER_Y + 0.42, 0));       // teal rim
+  g.add(box(0.8, 0.3, 1.8, 0x8a6a4a, bx, WATER_Y + 0.55, 0));        // picnic table
+  const board = textMaterial('hire', 512, 96, (c, w, h) => {
+    c.fillStyle = '#2bb3c0';
+    c.fillRect(0, 0, w, h);
+    c.fillStyle = '#fff';
+    c.font = 'bold 40px Arial, sans-serif';
+    c.textAlign = 'center';
+    c.fillText('BOAT HIRE · NO EXPERIENCE NEEDED', w / 2, 62);
+  });
+  g.add(sign(board, 4, 0.36, bx + 1.11, WATER_Y + 0.15, 0));
+  const seats = [[-0.7, -1.4], [-0.7, 0], [-0.7, 1.4], [0.7, -1.4], [0.7, 0], [0.7, 1.4]];
+  seats.forEach(([dx, dz], i) => {
+    const p = person({ shirt: i === 0 ? 0xffffff : pick([0xff6b9a, 0xff9ad5]) }); // matching hen-do pink
+    p.group.position.set(bx + dx, WATER_Y - 0.15, dz);
+    p.group.rotation.y = dx < 0 ? Math.PI / 2 : -Math.PI / 2;
+    p.legL.rotation.x = p.legR.rotation.x = -1.4;
+    p.rig.position.y = -0.35;
+    if (i === 0) p.head.add(box(0.4, 0.12, 0.4, 0x1d2f5c, 0, 0.24, 0)); // the captain (has never driven a boat)
+    if (i % 2) { p.armR.rotation.x = -2.0; hold(p.armR, box(0.07, 0.24, 0.07, 0x3a6b3a)); } // prosecco
+    g.add(p.group);
+    const phase = rand(0, 6);
+    if (i % 2) animate(p.group, (t) => { p.armR.rotation.x = -2.0 + Math.sin(t * 3 + phase) * 0.3; });
+  });
+  wake(g, bx, -dir * 2.6, dir, 2.4, 0.9);
+  cruise(g, z, dir, 2.2, (t) => { g.position.x = Math.sin(t * 0.6) * 0.3; });
+  return g;
+}
+
+// Paddleboarder: flat white on the nose of the board, filming herself
+function paddleboard(z) {
+  const dir = pick([-1, 1]);
+  const x = laneFor(dir) + 1.2;
+  const g = new THREE.Group();
+  g.add(box(0.75, 0.1, 3.0, 0xffd23f, x, WATER_Y + 0.05, 0));
+  g.add(box(0.1, 0.16, 0.1, 0xffffff, x, WATER_Y + 0.18, dir * 1.2)); // the flat white, obviously
+  const p = person({ shirt: pick([0x111111, 0x2b6cb0, 0xf4c2c2]), legs: 0x111111 });
+  p.group.position.set(x, WATER_Y + 0.1, 0);
+  p.group.rotation.y = dir < 0 ? Math.PI : 0;
+  g.add(p.group);
+  p.armL.rotation.x = -2.5;
+  p.armL.rotation.z = 0.5;
+  hold(p.armL, box(0.08, 0.16, 0.03, 0x111111)); // phone up for the selfie
+  const paddle = new THREE.Group();
+  paddle.add(box(0.06, 2.0, 0.06, 0x222222, 0, -0.6, 0));
+  paddle.add(box(0.06, 0.45, 0.22, 0xff7a1a, 0, -1.6, 0));
+  hold(p.armR, paddle);
+  paddle.rotation.z = 0.45; // out to the side, into the water
+  p.armR.rotation.x = -0.6;
+  wake(g, x, -dir * 1.5, dir, 1.4, 0.25);
+  cruise(g, z, dir, 1.3, (t) => {
+    p.armR.rotation.x = -0.6 + Math.sin(t * 2.2) * 0.6;  // paddling
+    p.group.rotation.z = Math.sin(t * 1.3) * 0.06;       // a bit wobbly
+  });
+  return g;
+}
+
+function mallard(male) {
+  const d = new THREE.Group();
+  const body = male ? 0x9ea3a8 : 0x8a6a45;
+  d.add(box(0.3, 0.2, 0.46, body, 0, 0.08, 0));
+  d.add(box(0.26, 0.16, 0.14, male ? 0x6b3d26 : 0x7a5a38, 0, 0.12, 0.22)); // chest
+  d.add(box(0.14, 0.15, 0.17, male ? 0x1f7a3a : 0x7a5a38, 0, 0.3, 0.25)); // head
+  if (male) d.add(box(0.15, 0.03, 0.15, 0xfafafa, 0, 0.21, 0.23));        // white collar
+  d.add(box(0.07, 0.04, 0.12, male ? 0xe3c33a : 0xd88a2b, 0, 0.27, 0.38)); // beak
+  d.add(box(0.1, 0.1, 0.1, male ? 0x1b1b1b : 0x6a4a2a, 0, 0.17, -0.25));  // tail
+  const wingL = box(0.04, 0.12, 0.3, body, -0.17, 0.14, 0);
+  const wingR = box(0.04, 0.12, 0.3, body, 0.17, 0.14, 0);
+  d.add(wingL, wingR);
+  return { d, wingL, wingR };
+}
+
+// Duck fight: two drakes going at it, feathers everywhere, the duck they're fighting over unimpressed
+function duckFight(z) {
+  const g = new THREE.Group();
+  const cx = -7.5;
+  const a = mallard(true);
+  const b = mallard(true);
+  const her = mallard(false);
+  for (const duck of [a, b, her]) duck.d.scale.setScalar(1.7); // big enough to see from the towpath
+  her.d.position.set(cx + 1.9, WATER_Y, 1.8);
+  her.d.rotation.y = -2.2;
+  g.add(a.d, b.d, her.d);
+  const splash = [];
+  for (let i = 0; i < 10; i++) {
+    const f = box(0.06, 0.02, 0.1, i % 3 ? 0xf2f2f2 : 0x8a6a45);
+    splash.push(f);
+    g.add(f);
+  }
+  g.position.z = z;
+  animate(g, (t) => {
+    const spin = t * 2.4;
+    for (const [k, duck] of [[0, a], [Math.PI, b]]) {
+      duck.d.position.set(cx + Math.cos(spin + k) * 0.7, WATER_Y + Math.abs(Math.sin(t * 9 + k)) * 0.25, Math.sin(spin + k) * 0.7);
+      duck.d.rotation.y = -(spin + k);                 // facing each other round the circle
+      duck.d.rotation.x = -0.35;                        // chest up, ready
+      duck.wingL.rotation.z = Math.sin(t * 22 + k) * 0.9;
+      duck.wingR.rotation.z = -Math.sin(t * 22 + k) * 0.9;
+    }
+    splash.forEach((f, i) => { // feathers flying up and settling
+      const k = (t * 0.9 + i / splash.length) % 1;
+      const ang = i * 2.4;
+      f.position.set(cx + Math.cos(ang) * k * 1.1, WATER_Y + 0.1 + Math.sin(k * Math.PI) * 1.0, Math.sin(ang) * k * 1.1);
+      f.rotation.set(t * 3 + i, t * 2, 0);
+    });
+  });
+  return g;
+}
+
+// The easter egg: an inflatable dinghy party. Cans, a speaker, a flamingo in tow, nobody steering
+const ringGeo = new THREE.TorusGeometry(1.1, 0.28, 8, 16);
+const dinghyFloorGeo = new THREE.CylinderGeometry(1.1, 1.1, 0.08, 16);
+function dinghyParty(z) {
+  const g = new THREE.Group();
+  const dir = pick([-1, 1]);
+  const x = laneFor(dir);
+  const raft = new THREE.Group();
+  raft.position.set(x, 0, 0);
+  g.add(raft);
+  const ring = new THREE.Mesh(ringGeo, mat(pick([0xffd23f, 0xff6b9a, 0x2bb3c0])));
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = WATER_Y + 0.15;
+  const floor = new THREE.Mesh(dinghyFloorGeo, mat(0x333333));
+  floor.position.y = WATER_Y;
+  raft.add(ring, floor);
+  raft.add(box(0.25, 0.35, 0.25, 0x111111, 0, WATER_Y + 0.2, 0)); // speaker
+  const dancers = [];
+  for (let i = 0; i < 4; i++) {
+    const ang = (i / 4) * Math.PI * 2 + 0.4;
+    const p = person({ shirt: pick([0xff3d7f, 0x39ff88, 0xffe14a, 0x31c8ff, 0xffffff]) });
+    p.group.position.set(Math.cos(ang) * 1.1, WATER_Y - 0.2, Math.sin(ang) * 1.1);
+    p.group.rotation.y = Math.atan2(-Math.cos(ang), -Math.sin(ang)); // facing into the middle
+    p.legL.rotation.x = p.legR.rotation.x = -1.4;
+    p.rig.position.y = -0.35;
+    p.armR.rotation.x = -2.6;
+    hold(p.armR, box(0.08, 0.14, 0.08, pick([0xc0392b, 0xd0d0d0, 0x2e86de, 0xf1c40f]))); // cans up
+    raft.add(p.group);
+    dancers.push(p);
+  }
+  // The inflatable flamingo, tied on behind
+  const flamingo = new THREE.Group();
+  flamingo.add(box(0.5, 0.3, 0.8, 0xff7eb6, 0, 0, 0));
+  flamingo.add(box(0.12, 0.7, 0.12, 0xff7eb6, 0, 0.45, 0.3));
+  flamingo.add(box(0.15, 0.15, 0.3, 0xff7eb6, 0, 0.8, 0.4));
+  flamingo.add(box(0.08, 0.08, 0.12, 0x222222, 0, 0.77, 0.6));
+  flamingo.position.set(x, WATER_Y + 0.1, -dir * 2.8);
+  flamingo.rotation.y = dir < 0 ? 0 : Math.PI;
+  g.add(flamingo);
+  g.add(box(0.02, 0.02, 1.3, 0xdddddd, x, WATER_Y + 0.2, -dir * 1.85)); // the rope
+  cruise(g, z, dir, 0.6, (t) => {
+    raft.rotation.y = t * 0.25; // slowly spinning, nobody's in charge
+    dancers.forEach((p, i) => { p.rig.position.y = -0.35 + Math.abs(Math.sin(t * 6 + i)) * 0.08; p.armR.rotation.z = Math.sin(t * 6 + i) * 0.3; });
+  });
+  return g;
+}
+
+// What can turn up on the water (how often each comes up is in CONFIG.traffic.weights)
+export const TRAFFIC = { cruiser, hireBoat, paddleboard, duckFight, dinghyParty };
 
 // The one-off gags. `boat: true` ones replace that stretch's normal moored boat.
 export const GAGS = {

@@ -1439,6 +1439,7 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     godMode() { invulnUntil = Infinity; },
     landmark(kind) { world.forceNext = kind; },
     gag(kind) { world.forceGag = kind; },
+    traffic(kind) { world.forceTraffic = kind; }, // cruiser, hireBoat, paddleboard, duckFight, dinghyParty
     special(kind) { specialsPool = [kind]; specialTimer = 0; },
     delivery() { deliveryTimer = 0; },
     cafe() { nextCafeAt = score; },
