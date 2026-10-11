@@ -644,3 +644,5 @@ body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
 .card .arcade-game button { margin: 0; padding: 8px; font-size: 10px; }
 .arcade-lock { font-family: var(--pixel-body); font-size: 18px; text-align: left; }
 .arcade-pitch { font-family: var(--pixel-body); font-size: 18px; line-height: 1.05; text-align: left; color: #4a4a4a; }
+/* David's comments sit up in the pub scene, clear of the table */
+.pool-say.in-pub { top: 2%; left: 3%; right: 30%; font-size: 16px; }

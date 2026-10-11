@@ -46,7 +46,7 @@ export function playPool(card, { seconds = 45, target = 3 }, onDone) {
     </div>
     <div class="pool-stage">
       <canvas width="${W}" height="${H}"></canvas>
-      <div class="pool-say"></div>
+      <div class="pool-say in-pub"></div>
       <div class="pool-score"></div>
       <div class="pool-result hidden"></div>
     </div>
