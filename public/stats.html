@@ -165,7 +165,7 @@
       for (let n = 1; n <= Math.min(maxN, 9); n++) stopped.push([`${n} run${n > 1 ? 's' : ''}`, Math.max(0, reached(n) - reached(n + 1))]);
       if (maxN >= 10) stopped.push(['10+ runs', runs.filter((r) => r.run_no === 10).length]);
       const avg = sessions ? (runs.length / sessions).toFixed(1) : 0;
-      note.textContent = `${fmt(sessions)} play sessions · ${avg} runs per session on average`;
+      note.textContent = `${fmt(sessions)} play session${sessions === 1 ? '' : 's'} · ${avg} runs per session on average`;
       bars(document.getElementById('streaks'), stopped, sessions, (k) => `Stopped after ${k}`);
       const every = CONFIG.ads.every;
       const keep = [];
