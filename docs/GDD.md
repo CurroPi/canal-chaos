@@ -68,6 +68,8 @@ Reserve cast ideas for later: Rafe (Startup Founder), Juniper (Natural Wine Pers
 ```
 - **Canal edge:** pressing left in lane 1 does nothing. You can't fall in.
 - **Wall:** scenery, with jokes painted on it (signs, graffiti, prices).
+- **Wall graffiti** (from Curro's canal photos): bubble pieces with drips, silver throw-ups, marker tags, grey "buffed" council patches, tagged electrical boxes. Tags are invented (plus a few local opinions: YUPPIES OUT, NO2LIME). Code: `public/src/graffiti.js`.
+- **Far bank:** warehouses and flats; the gaps are low canal-side houses (brick terraces, white render) and trees. Landmarks: the gasholder flats, Containerville (black stacked containers, grilles, walkways, outside stairs, "SPACES AVAILABLE"), the **ONE HUNDRED YEARS** portrait wall (seven invented faces from 0 to 100 on the railings), and the sharks.
 - **Exits (the trap):** now and then the wall has an **exit** (stairs or a ramp up to the street).
   If you're in lane 3 and press right *while passing an exit*, you **leave the towpath, which is game over**.
   Cause of death examples: "Gave up and got the Overground.", "Left for a £7 flat white on Kingsland Road."

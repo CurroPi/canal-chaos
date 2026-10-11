@@ -1512,5 +1512,6 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
       return m;
     },
     pause(on = true) { paused = on; clock.getDelta(); },
+    get scene() { return scene; }, // for poking at scenery while testing
   };
 }

@@ -52,4 +52,5 @@
 - Opening camera swing (first walk and after changing walker) with name + one-liner caption and whoosh.
 - Every walker spills and refills their own drink (own lines and icon).
 - Side Hustles on the game-over card to replay the mini-games.
+- Canal from Curro's photos: realistic wall graffiti, houses and trees in the far-bank gaps, ONE HUNDRED YEARS portrait wall, a proper Containerville.
 - Unlock mini-games: David's pool at The Victory (pot 3 before his pint is gone), Duck's courtship dance on the canal (rhythm game vs a mallard), Pilar's Open Studio Show (throw, shape, glaze a mug to a local brief; Pilar judges).

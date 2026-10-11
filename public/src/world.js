@@ -1,8 +1,9 @@
 // The scrolling canal scenery: towpath, canal, narrowboats, brick wall, far bank.
 import * as THREE from 'three';
 import { box, mat, makeLimeBike } from './models.js';
-import { FRONT_X, makeBuilding, makeOffice, makeGasholder, makeContainerville, makeSharks } from './buildings.js';
+import { FRONT_X, makeBuilding, makeOffice, makeGasholder, makeContainerville, makeSharks, makeCanalside, makePortraits } from './buildings.js';
 import { CONFIG } from './config.js';
+import { addGraffiti } from './graffiti.js';
 import { makeNarrowboat, addPosters, GAGS, animateGags, BOAT_X } from './gags.js';
 
 // Towpath geometry, all derived from the lane spacing in config.js, so narrowing the path
@@ -16,7 +17,6 @@ const pick = (list) => list[Math.floor(Math.random() * list.length)];
 const rand = (min, max) => min + Math.random() * (max - min);
 
 const BOAT_COLOURS = [0x1f5f3a, 0x8c1c1c, 0x1d2f5c, 0x5b2a5e, 0x2a6f73, 0x222222];
-const GRAFFITI = [0xff5fa2, 0x3fd3ff, 0xffd23f, 0x7cff6b, 0xffffff, 0xff7a1a];
 
 const WATER_Y = -0.7;
 const waterMat = new THREE.MeshLambertMaterial({ color: 0x3d5f52, transparent: true, opacity: 0.68 });
@@ -27,8 +27,6 @@ const bottleGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.34, 8);
 const cupGeo = new THREE.CylinderGeometry(0.08, 0.06, 0.2, 8);
 const coneGeo = new THREE.ConeGeometry(0.25, 0.7, 8);
 
-const trunkGeo = new THREE.CylinderGeometry(0.15, 0.2, 1.4, 6);
-const crownGeo = new THREE.IcosahedronGeometry(1.4, 0);
 
 export function createWorld(scene, cfg) {
   const L = cfg.tile.length;
@@ -53,7 +51,7 @@ export function createWorld(scene, cfg) {
     if (sinceLandmark >= 6 && Math.random() < 0.3) {
       // Leave a low gap in front of a landmark so you can see it coming
       sinceLandmark = 0;
-      queued = pick(['gasholder', 'gasholder', 'containerville', 'containerville', 'sharks']);
+      queued = pick(['gasholder', 'gasholder', 'containerville', 'containerville', 'portraits', 'portraits', 'sharks']);
       return 'gap';
     }
     return Math.random() < 0.15 ? 'gap' : 'warehouses';
@@ -389,11 +387,7 @@ function decorate(tile, L, farBank, gag = null) {
   }
 
   // Graffiti and posters on the wall
-  const tags = Math.floor(rand(0, 3));
-  for (let i = 0; i < tags; i++) {
-    // each patch at its own depth, so overlapping ones don't flicker
-    decor.add(box(0.03, rand(0.4, 1.3), rand(1, 3.5), pick(GRAFFITI), WALL - 0.02 - i * 0.006, rand(0.6, 2.2), rand(-L / 2 + 2, L / 2 - 2)));
-  }
+  addGraffiti(decor, L, WALL);
   addPosters(decor, L);
 
   addRubbish(decor, L);
@@ -411,15 +405,8 @@ function decorate(tile, L, farBank, gag = null) {
       decor.add(makeBuilding(-L / 2 + split / 2, split - 0.3));
       decor.add(makeBuilding(split / 2, L - split - 0.3));
     }
-  } else {
-    // A gap between buildings, with a scruffy canal-side tree
-    const z = rand(-5, 5);
-    const trunk = new THREE.Mesh(trunkGeo, mat(0x6b4a2f));
-    trunk.position.set(FRONT_X - 2, 0.6, z);
-    const crown = new THREE.Mesh(crownGeo, mat(pick([0x4f8a3c, 0x3f7a35, 0x5f9a45])));
-    crown.position.set(FRONT_X - 2, 2.4, z);
-    decor.add(trunk, crown);
-  }
+  } else if (farBank === 'portraits') decor.add(makePortraits(0));
+  else decor.add(makeCanalside(0, L)); // a gap: low houses and trees
 }
 
 // Cans, bottles, bags, coffee cups and the odd dumped Lime bike
