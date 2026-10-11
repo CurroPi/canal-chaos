@@ -18,6 +18,11 @@
 9. [ ] **Weather**: a rain stretch (everyone runs faster, puddles splash).
 10. [ ] **Golden hour / night stretch**: sunset, fairy lights on the boats.
 
+### Side hustles (mini-games)
+- [ ] **Personal bests per hustle** (fastest pool win, most PERFECT dance hits, Pilar's top mark), shown in Side Hustles; maybe online boards later.
+- [ ] **More hustles for other walkers**: Spike (pogo to the beat at a Camden gig), Fern (Columbia Road haggle: catch plants, "everything a tenner!"), Tanner (finish two litres before the walk), Josh (vape-cloud rhythm? band gig?).
+- [ ] Tune difficulty of pool / dance / pottery from real play.
+
 ### Later: bigger content
 11. [ ] **The journey**: Victoria Park → Camden, with banners for real stretches (Broadway Market, Haggerston, Islington Tunnel) and a Camden finale (Spike's mates as the "boss").
 12. [ ] **More fake ads and walkers** (ongoing; reserve names in the GDD).
@@ -28,7 +33,7 @@
 - [ ] Instagrammer enemy redesign (ring light or selfie stick), then re-enable in src/config.js.
 
 ## 🧑 For Curro (outside the code)
-- [ ] GitHub → Settings → Pages: re-add the custom domain if needed, then tick **Enforce HTTPS** once allowed.
+- [ ] GitHub → Settings → Pages: check **Enforce HTTPS** is ticked (the site already loads over https).
 - [ ] Delete the old Netlify site.
 - [ ] Replace [LINK] in `Marketing Materials/captions.md` with https://playcanalchaos.com.
 - [ ] Push origin in GitHub Desktop after each session.
