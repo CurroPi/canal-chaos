@@ -817,7 +817,7 @@ function gameOver(e) {
     near: entities.filter((o) => Math.abs(o.model.group.position.z) < 8)
       .map((o) => `${o.kind}${o.fromBehind ? '(behind)' : ''} L${o.lanes.join('')} z${o.model.group.position.z.toFixed(1)}`),
   });
-  recordRun({ steps: final, cause: `${e.kind}${e.fromBehind ? '-behind' : ''}`, seconds: elapsed, rush: rushLevel, walker: character.id });
+  recordRun({ steps: final, cause: `${e.kind}${e.fromBehind ? '-behind' : ''}`, seconds: elapsed, rush: rushLevel, walker: character.id, runNo: gamesOver + 1 });
   const isRecord = final > best;
   const before = best;
   if (isRecord) { best = final; saveBest(best); }

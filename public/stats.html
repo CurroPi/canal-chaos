@@ -61,12 +61,15 @@
       <section><h2>HOW FAR THEY GET (STEPS)</h2><div class="bars" id="distance"></div></section>
       <section><h2>WHICH WALKERS</h2><div class="bars" id="walkers"></div></section>
       <section><h2>SIDE HUSTLES</h2><div id="hustles"></div></section>
+      <section><h2>RUNS IN A ROW</h2><p class="sub" id="streak-note"></p><div class="bars" id="streaks"></div></section>
+      <section><h2>KEEP PLAYING AFTER…</h2><p class="sub">Of the people who finished run N, how many started another. 📺 = an ad break comes after that run.</p><div class="bars" id="keep"></div></section>
     </div>
     <p class="note">Anonymous: no names or IDs, just one row per run. Add <b>?dev</b> to the address to see Claude's test runs instead.</p>
   </main>
   <div id="tip"></div>
   <script type="module">
     import { selectRows } from './src/leaderboard.js';
+    import { CONFIG } from './src/config.js';
 
     const CAUSES = {
       runner: 'Runner', runClub: 'Run club', lime: 'Lime bike', 'lime-behind': 'Lime bike (from behind)',
@@ -124,8 +127,10 @@
       status.textContent = 'Loading…';
       const since = days ? `&created_at=gte.${encodeURIComponent(new Date(Date.now() - days * 864e5).toISOString())}` : '';
       let rows;
+      const query = (cols) => selectRows(`runs?select=${cols}&source=eq.${dev ? 'dev' : 'live'}${since}&order=created_at.desc&limit=20000`);
+      const cols = 'kind,steps,cause,seconds,rush,walker,phone,game,won,created_at';
       try {
-        rows = await selectRows(`runs?select=kind,steps,cause,seconds,rush,walker,phone,game,won,created_at&source=eq.${dev ? 'dev' : 'live'}${since}&order=created_at.desc&limit=20000`);
+        try { rows = await query(`${cols},run_no`); } catch { rows = await query(cols); } // before the run_no column existed
       } catch {
         status.textContent = 'Could not load the stats (has the runs table been created in Supabase?).';
         return;
@@ -142,6 +147,41 @@
       const walkers = [...countBy(runs, (r) => r.walker || '?')].sort((a, b) => b[1] - a[1]);
       bars(document.getElementById('walkers'), walkers, runs.length, (k) => k.charAt(0).toUpperCase() + k.slice(1));
       hustles(rows.filter((r) => r.kind === 'hustle'));
+      streaks(runs.filter((r) => r.run_no));
+    }
+
+    // How many runs in a row, and who keeps going after each run (ad breaks marked)
+    function streaks(runs) {
+      const note = document.getElementById('streak-note');
+      if (!runs.length) {
+        note.textContent = '';
+        for (const id of ['streaks', 'keep']) document.getElementById(id).innerHTML = '<p class="empty">No data yet (needs the run_no column in Supabase).</p>';
+        return;
+      }
+      const reached = (n) => runs.filter((r) => r.run_no === n).length;      // sessions that got to run n
+      const maxN = Math.max(...runs.map((r) => r.run_no));
+      const sessions = reached(1);
+      const stopped = [];
+      for (let n = 1; n <= Math.min(maxN, 9); n++) stopped.push([`${n} run${n > 1 ? 's' : ''}`, Math.max(0, reached(n) - reached(n + 1))]);
+      if (maxN >= 10) stopped.push(['10+ runs', runs.filter((r) => r.run_no === 10).length]);
+      const avg = sessions ? (runs.length / sessions).toFixed(1) : 0;
+      note.textContent = `${fmt(sessions)} play sessions · ${avg} runs per session on average`;
+      bars(document.getElementById('streaks'), stopped, sessions, (k) => `Stopped after ${k}`);
+      const every = CONFIG.ads.every;
+      const keep = [];
+      for (let n = 1; n <= Math.min(maxN, 9); n++) {
+        const from = reached(n);
+        if (!from) break;
+        keep.push([`After run ${n}${n % every === 0 ? ' 📺' : ''}`, reached(n + 1), from]);
+      }
+      const el = document.getElementById('keep');
+      el.innerHTML = keep.map(([name, kept, from]) => {
+        const pct = Math.round((kept / from) * 100);
+        return `<div class="row" data-tip="${name}: ${kept} of ${from} played again (${pct}%)">
+          <span class="name">${name}</span>
+          <span class="track"><span class="bar" style="width:${Math.max(1, pct * 0.78)}%"></span><span class="num">${pct}% · ${kept}/${from}</span></span>
+        </div>`;
+      }).join('') || '<p class="empty">No data yet.</p>';
     }
 
     document.querySelectorAll('[data-days]').forEach((b) => b.addEventListener('click', () => {
