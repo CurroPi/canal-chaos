@@ -7,7 +7,7 @@
 2. [x] **Phone polish**: tried a new phone camera; Curro prefers the original framing, so it stays as it was.
 
 ### Next: real players
-3. [ ] **Friends playtest** (5–10 people, one week). Before it starts: anonymous stats (score, cause of death, seconds, walker) so we can see where and why people die.
+3. [ ] **Friends playtest** (5–10 people, one week). ✅ Anonymous stats are live (Supabase `runs`; page: playcanalchaos.com/stats.html). Next: Curro sends the link to friends; after a week, read the stats together.
 4. [ ] **Weekly leaderboard**: a "This week" tab that resets every Monday, next to "All time".
 5. [ ] **Tune difficulty from the playtest**: rush levels after ~1,000 points, enemy mix (rebalance step 2), café and unlock spacing.
 
