@@ -83,6 +83,7 @@ Reserve cast ideas for later: Rafe (Startup Founder), Juniper (Natural Wine Pers
 - **Any** hit (bike, runner or obstacle) while holding coffee: you **spill it**, slow down briefly and lose some points.
 - **Any** hit with no coffee: **game over**.
 - You can get a new coffee (rarely) at the **narrowboat café** (see 6.4).
+- **Cafés close at 3,000 steps** (`CONFIG.cafe.closeAt`): a banner says "OAT MILK SOLD OUT. CAFÉS CLOSED." and there are no more refills, so expert runs end. Coffees you're holding are kept.
 
 ### 6.2 Fairness rule (golden rule)
 **There is always at least one escape path.** At every moment at least one lane is free, with enough time

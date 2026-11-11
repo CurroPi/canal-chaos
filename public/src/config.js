@@ -54,7 +54,9 @@ export const CONFIG = {
 
   // The narrowboat café turns up with a coffee to grab: first at `first` points, then the gaps
   // grow (500, 1250, 2250, 3500...), so coffee gets rarer the longer you last
-  cafe: { first: 500, gap: 750, growth: 250, speed: 0, hitZ: 2.6, bonusIfFull: 100 },
+  // After `closeAt` points the cafés close for good (a banner says so): no more refills, so great runs end.
+  // Keep closeAt a multiple of titles.every, so the banner lands on a milestone.
+  cafe: { first: 500, gap: 750, growth: 250, speed: 0, hitZ: 2.6, bonusIfFull: 100, closeAt: 3000 },
 
   // After the first ~100s, things keep heating up: every `every` points walking speed goes up
   // a notch and gaps between people shrink, so even great runs eventually end

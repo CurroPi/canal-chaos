@@ -383,7 +383,9 @@ function celebrate(points) {
   lastTitle = m.title;
   const rush = points % CONFIG.rush.every === 0
     ? `<span class="rush">🔥 ${CONFIG.rush.names[(points / CONFIG.rush.every - 1) % CONFIG.rush.names.length]}: everyone speeds up</span>` : '';
-  milestoneEl.innerHTML = `<span class="pts">${points} steps</span><strong>${m.title}</strong><span class="line">${m.line}</span>${rush}`;
+  const closed = points === CONFIG.cafe.closeAt
+    ? '<span class="rush closed">☕🚫 OAT MILK SOLD OUT. CAFÉS CLOSED.<br>Every spill is for good now.</span>' : '';
+  milestoneEl.innerHTML = `<span class="pts">${points} steps</span><strong>${m.title}</strong><span class="line">${m.line}</span>${rush}${closed}`;
   milestoneEl.classList.remove('show');
   void milestoneEl.offsetWidth; // restart the animation
   milestoneEl.classList.add('show');
@@ -1278,7 +1280,7 @@ function step(dt, t) {
       bridgeTimer = spawnBridge() ? rushGap(lerp(b.gapStart, b.gapMin, progress()) * (0.8 + Math.random() * 0.4)) : 0.5;
     }
 
-    if (score >= nextCafeAt && spawnCafe()) {
+    if (score >= nextCafeAt && nextCafeAt < CONFIG.cafe.closeAt && spawnCafe()) {
       cafesServed++;
       nextCafeAt += CONFIG.cafe.gap + CONFIG.cafe.growth * (cafesServed - 1);
     }

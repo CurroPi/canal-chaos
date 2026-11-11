@@ -348,6 +348,7 @@ html, body {
 #milestone .line { font-size: 24px; color: #fffaf0; }
 
 #milestone .rush { display: block; margin-top: 8px; font-family: var(--pixel); font-size: 11px; color: #ff7a1a; }
+#milestone .rush.closed { color: #d62828; line-height: 1.5; }
 .float.close { color: #7cff6b; }
 
 .top10 li.ghost { background: rgba(31, 95, 58, 0.15); color: #1f5f3a; }
