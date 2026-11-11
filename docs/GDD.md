@@ -180,20 +180,21 @@ Jump/duck, character customisation (outfits), accounts and logins.
 
 ## Walker unlocks (built)
 - Free from the start: **Sophie, Alex, Joe, Jasper**.
-- Unlocked by best score (saved on the device, so players who already scored high get them automatically):
+- Unlocked by **total steps** (all runs added up, saved on the device; older saves start from their best score), or straight away by the **one-run fast track** (the old best-score numbers). Changed after the playtest: about half of sessions never unlocked anyone.
 
-| Walker | Unlocks at | Celebration line |
-|---|---|---|
-| Pilar | 500 + wheel class | 🎉 PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW. |
-| Fern | 600 | 🎉 FERN IS HERE. SHE CAN'T SEE WHERE SHE'S GOING. |
-| David | 700 | 🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT. |
-| Spike | 800 | 🎉 SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO. |
-| Josh | 900 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
-| Ross | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
-| Tanner | 1,100 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
-| Duck | 1,200 + courtship dance | 🎉 DUCK IS HERE. DUCK HAS READ THE SIGN. |
+| Walker | Total steps | Or in one run | Celebration line |
+|---|---|---|---|
+| Pilar | 1,000 + wheel class | 500 | 🎉 PILAR IS HERE. SHE'S GOT CLAY ON YOU NOW. |
+| Fern | 1,750 | 600 | 🎉 FERN IS HERE. SHE CAN'T SEE WHERE SHE'S GOING. |
+| David | 2,500 | 700 | 🎉 DAVID IS HERE. THE VICTORY MUST BE SHUT. |
+| Spike | 3,250 | 800 | 🎉 SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO. |
+| Josh | 4,250 | 900 | 🎉 JOSH IS FULLY CHARGED. SO IS HIS VAPE. |
+| Ross | 5,250 | 1,000 | 🎉 ROSS IS HERE. HE BROUGHT HIS OWN MUG. |
+| Tanner | 6,500 | 1,100 | 🎉 TANNER HAS HYDRATED. TANNER IS READY. |
+| Duck | 8,000 + courtship dance | 1,200 | 🎉 DUCK IS HERE. DUCK HAS READ THE SIGN. |
 
-- Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 Reach 1,000 points"; drink hidden.
+- Selection screen: locked walkers shown as "???" and a dark silhouette with "🔒 1,240 more steps · or 700 in one run"; drink hidden.
+- Game-over card: "🔒 Next walker in N steps" with a progress bar.
 - Game over: a "New walker unlocked!" screen (silhouette turns into the walker, fanfare), then the usual card with a "Try <name> 🆕" button. Thresholds live in config.js.
 
 ## Fake ad breaks (built)
@@ -260,5 +261,5 @@ Jump/duck, character customisation (outfits), accounts and logins.
   - 🎱 Pool at The Victory: "Pot 2 before David finishes his pint. He's been undefeated since 1987." → Rack 'em up
   - 🏺 Pilar's Open Studio Show: "Make a mug to the brief. Pilar decides if it's art." → Back to the wheel
   - 🦆 The Courtship Dance: "Out-dance a mallard. A lady duck is watching." → Dance again
-- Already won: the replay button (just for fun, no unlock screen). Score reached but not won: "Win to unlock <name>". Not reached: "???" and "🔒 Reach N steps to find out".
+- Already won: the replay button (just for fun, no unlock screen). Score reached but not won: "Win to unlock <name>". Not reached: "???" and "🔒 Unlock this walker to find out".
 - After a game you come back to Side Hustles; "◀ Back to the towpath" returns to the game-over card. Ideas for later: personal bests per hustle, separate leaderboards.

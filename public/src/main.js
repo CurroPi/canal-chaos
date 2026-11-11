@@ -72,9 +72,15 @@ resize();
 
 const world = createWorld(scene, CONFIG);
 // ---------- Your walker ----------
-// Some walkers unlock when your best score (on this device) reaches a threshold
+// Some walkers unlock when your total steps (all runs added up, on this device) reach a threshold,
+// or straight away with one great run (the fast track)
 const unlockAt = (c) => CONFIG.unlocks[c.id] || 0;
-const reachedScore = (c) => unlockAt(c) <= loadBest();
+const oneRunAt = (c) => CONFIG.unlocksOneRun[c.id];
+let totalSteps = loadTotal();
+const reachedScore = (c) => unlockAt(c) <= totalSteps || (oneRunAt(c) !== undefined && oneRunAt(c) <= loadBest());
+const fmt = (n) => n.toLocaleString('en-GB');
+// What a locked walker still needs, e.g. "1,240 more steps · or 700 in one run"
+const unlockNeed = (c) => `${fmt(unlockAt(c) - totalSteps)} more steps${oneRunAt(c) !== undefined ? ` · or ${fmt(oneRunAt(c))} in one run` : ''}`;
 
 // Some walkers also have to be beaten in a mini-game (David: pool at The Victory)
 const MINI_GAMES = { pool: playPool, courtship: playCourtship, pottery: playPottery };
@@ -182,6 +188,16 @@ function loadBest() {
 function saveBest(value) {
   try { localStorage.setItem('canal-best', String(value)); } catch { /* storage unavailable */ }
 }
+// Total steps walked, all runs added up. Older saves start from their best score.
+function loadTotal() {
+  try {
+    const saved = localStorage.getItem('canal-total');
+    return saved === null ? loadBest() : Number(saved) || 0;
+  } catch { return 0; }
+}
+function saveTotal(value) {
+  try { localStorage.setItem('canal-total', String(value)); } catch { /* storage unavailable */ }
+}
 
 // Walking speed multiplier: you stumble after spilling, then recover
 function speedFactor() {
@@ -273,8 +289,8 @@ function showPick() {
   document.getElementById('pickName').textContent = open || ready ? character.name : '???'; // locked: name is a surprise
   document.getElementById('pickDrink').innerHTML = open
     ? `<span class="pick-drink">${drinkSvg(character.drink)}</span> ${character.drink.name}`
-    : ready ? `✓ ${unlockAt(character).toLocaleString('en-GB')} steps · ${character.challenge.label}`
-      : `🔒 Reach ${unlockAt(character).toLocaleString('en-GB')} steps`;
+    : ready ? `✓ Unlocked · ${character.challenge.label}`
+      : `🔒 ${unlockNeed(character)}`;
   document.getElementById('pickBio').textContent = open ? character.bio || '' : '';
   const go = overlay.querySelector('.go');
   if (go) {
@@ -298,7 +314,7 @@ function showReady() {
 function updateHud() {
   scoreEl.textContent = Math.floor(score);
   bestEl.textContent = best ? `Best ${best}` : '';
-  const open = unlockAt(character) <= best && (!character.challenge || wonChallenges.has(character.id));
+  const open = isUnlocked(character);
   const key = `${character.id}-${coffees}-${open}`;
   if (livesEl.dataset.key !== key) {
     let cups = '';
@@ -821,9 +837,11 @@ function gameOver(e) {
   });
   recordRun({ steps: final, cause: `${e.kind}${e.fromBehind ? '-behind' : ''}`, seconds: elapsed, rush: rushLevel, walker: character.id, runNo: gamesOver + 1 });
   const isRecord = final > best;
-  const before = best;
+  const reachedBefore = new Set(CHARACTERS.filter(reachedScore));
   if (isRecord) { best = final; saveBest(best); }
-  const crossed = CHARACTERS.filter((c) => unlockAt(c) > before && unlockAt(c) <= best);
+  totalSteps += final;
+  saveTotal(totalSteps);
+  const crossed = CHARACTERS.filter((c) => !reachedBefore.has(c) && reachedScore(c));
   const unlocked = crossed.filter((c) => !c.challenge);
   const challenges = crossed.filter(challengeReady); // these have to be won first
   updateHud();
@@ -842,6 +860,7 @@ function gameOver(e) {
       <h2>${message}</h2>
       <p class="big">${final}</p>
       ${lastTitle ? `<p class="small last-title">Last title: <b>${lastTitle}</b></p>` : ''}
+      ${nextUnlockHtml()}
       <p class="small">${isRecord ? '🎉 NEW PB!' : `Best ${best} steps`}</p>
       <div id="board"></div>
       <button>Try again</button>
@@ -955,6 +974,16 @@ function showChallenge(c, done, practice = false) {
   });
 }
 
+// Progress towards the next locked walker, for the game-over card (their name stays a secret)
+function nextUnlockHtml() {
+  const next = CHARACTERS.filter((c) => !reachedScore(c)).sort((a, b) => unlockAt(a) - unlockAt(b))[0];
+  if (!next) return '';
+  const prev = Math.max(0, ...CHARACTERS.filter((c) => unlockAt(c) < unlockAt(next)).map(unlockAt));
+  const pct = Math.max(0, Math.min(100, ((totalSteps - prev) / (unlockAt(next) - prev)) * 100));
+  return `<div class="next-unlock"><p class="small">🔒 Next walker in <b>${fmt(unlockAt(next) - totalSteps)}</b> steps</p>
+    <div class="next-bar"><span style="width:${pct.toFixed(0)}%"></span></div></div>`;
+}
+
 // ---------- Side Hustles: replay the walkers' mini-games (from the game-over card) ----------
 function showArcade(back) {
   state = 'arcade';
@@ -966,7 +995,7 @@ function showArcade(back) {
       const ready = challengeReady(c);
       const status = won ? `<button data-play="${c.id}">${c.challenge.replay}</button>`
         : ready ? `<button data-play="${c.id}">Win to unlock ${c.name}</button>`
-          : `<span class="arcade-lock">🔒 Reach ${unlockAt(c).toLocaleString('en-GB')} steps to find out</span>`;
+          : `<span class="arcade-lock">🔒 Unlock this walker to find out</span>`;
       return `<div class="arcade-game ${won || ready ? '' : 'locked'}">
         <span class="arcade-name">${won || ready ? c.challenge.arcade : '???'}</span>
         ${won || ready ? `<span class="arcade-pitch">${c.challenge.hustle}</span>` : ''}${status}</div>`;

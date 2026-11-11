@@ -114,8 +114,11 @@ export const CONFIG = {
   challenges: { pool: { seconds: 45, target: 2 }, courtship: { bpm: 104, notes: 28 }, pottery: { seconds: 22, tolerance: 6, pullSpeed: 26, wobbleRate: 0.36, calmRate: 0.5, steadyFor: 0.8, bubbleEvery: 3, passMark: 28 }, // throw, shape, finish; Pilar judges out of 40
   },
 
-  // Walkers unlocked by your best score (on this device). Anyone not listed is free from the start.
-  unlocks: { pilar: 500, fern: 600, david: 700, spike: 800, josh: 900, ross: 1000, tanner: 1100, duck: 1200 },
+  // Walkers unlock when your total steps (all runs added up, on this device) reach these numbers.
+  // Anyone not listed is free from the start.
+  unlocks: { pilar: 1000, fern: 1750, david: 2500, spike: 3250, josh: 4250, ross: 5250, tanner: 6500, duck: 8000 },
+  // Fast track: one great single run unlocks them straight away (set to {} to switch it off)
+  unlocksOneRun: { pilar: 500, fern: 600, david: 700, spike: 800, josh: 900, ross: 1000, tanner: 1100, duck: 1200 },
 
   playerScale: 0.89, // size of your walker (1 = same as everyone else)
 
