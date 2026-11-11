@@ -231,7 +231,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 ## Unlock mini-games (built): David's pool challenge
 - Some walkers need a score *and* a mini-game win. David: reach 700 steps, then beat him at pool in The Victory.
 - After the run that reaches 700: "🎱 David challenges you!" (Play now / Later). On the selection screen David shows "✓ 700 steps · 🎱 Beat David at pool" with a "🎱 Challenge David" button.
-- The game: top-down pixel pool table inside The Victory (THE VICTORY in gold on the window, a glowing jukebox with music notes, David stooped with his cue). Pot 3 balls before David finishes his pint (the pint drains as the 45s timer). Drag back from the white ball to aim and set power, let go to shoot. Potting the white = foul, it comes back.
+- The game: top-down pixel pool table inside The Victory (THE VICTORY in gold on the window, a glowing jukebox with music notes, David stooped with his cue). Pot 2 balls before David finishes his pint (the pint drains as the 45s timer). Drag back from the white ball to aim and set power, let go to shoot. Potting the white = foul, it comes back.
 - David heckles: "Hey hey!!" (he always says it when he sees you), "Bit of a slow one, son", "Foul! That's my round you're buying", "Last orders, son"...
 - Win: "YOU WON!" then the unlock celebration. Lose: "DAVID WINS. David always wins." (Rematch / Later).
 - Players who already had David keep him. Settings: `CONFIG.challenges.pool`. Ideas for later: Pilar (pottery wheel), Fern (Columbia Road haggle), Spike (pogo to the beat), Tanner (drink two litres).
@@ -256,7 +256,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 
 ## Side Hustles (built): replay the mini-games
 - A "🎨 Side Hustles" button on the game-over card (Cause of death). Every walker on the towpath has a side hustle:
-  - 🎱 Pool at The Victory: "Pot 3 before David finishes his pint. He's been undefeated since 1987." → Rack 'em up
+  - 🎱 Pool at The Victory: "Pot 2 before David finishes his pint. He's been undefeated since 1987." → Rack 'em up
   - 🏺 Pilar's Open Studio Show: "Make a mug to the brief. Pilar decides if it's art." → Back to the wheel
   - 🦆 The Courtship Dance: "Out-dance a mallard. A lady duck is watching." → Dance again
 - Already won: the replay button (just for fun, no unlock screen). Score reached but not won: "Win to unlock <name>". Not reached: "???" and "🔒 Reach N steps to find out".

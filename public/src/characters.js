@@ -76,13 +76,13 @@ export const CHARACTERS = [
     challenge: {
       kind: 'pool',
       arcade: '🎱 Pool at The Victory',
-      hustle: 'Pot 3 before David finishes his pint. He\'s been undefeated since 1987.',
+      hustle: 'Pot 2 before David finishes his pint. He\'s been undefeated since 1987.',
       replay: 'Rack \'em up',
       keepIfUnlocked: true, // was a score-only unlock before
       label: '🎱 Beat David at pool',
       button: '🎱 Challenge David',
       offer: '🎱 David challenges you!',
-      pitch: 'Hey hey!! Pool. At The Victory. Pot 3 before he finishes his pint.',
+      pitch: 'Hey hey!! Pool. At The Victory. Pot 2 before he finishes his pint.',
     },
     emoji: '🍺',
     spill: ['MY PINT!', 'That was a perfect pour.'],
