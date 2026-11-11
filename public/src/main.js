@@ -13,6 +13,7 @@ import { playPool } from './pool.js';
 import { recordRun, recordHustle } from './stats.js';
 import { playCourtship } from './courtship.js';
 import { playPottery } from './pottery.js';
+import { playPlants } from './plants.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, whooshSound, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -83,7 +84,7 @@ const fmt = (n) => n.toLocaleString('en-GB');
 const unlockNeed = (c) => `${fmt(unlockAt(c) - totalSteps)} more steps${oneRunAt(c) !== undefined ? ` · or ${fmt(oneRunAt(c))} in one run` : ''}`;
 
 // Some walkers also have to be beaten in a mini-game (David: pool at The Victory)
-const MINI_GAMES = { pool: playPool, courtship: playCourtship, pottery: playPottery };
+const MINI_GAMES = { pool: playPool, courtship: playCourtship, pottery: playPottery, plants: playPlants };
 const wonChallenges = (() => {
   const read = (key) => { try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : null; } catch { return null; } };
   const won = new Set(read('canal-challenges') || []);
@@ -1460,6 +1461,7 @@ if (isLocal && new URLSearchParams(location.search).has('debug')) {
     introAt(p) { introT = p * introDur; followCamera(); renderer.render(scene, camera); }, // freeze the opening swing at 0..1
     winChallenge() { miniGame?.cheat(); }, // win the mini-game on screen
     skipStep() { miniGame?.skip?.(); }, // jump to the next step of a multi-step mini-game
+    get miniGame() { return miniGame; }, // the mini-game on screen (some have test helpers)
     challenge(id) { showChallenge(characterById(id), () => showSelect()); }, // play a walker's mini-game
     adNext(i) { gamesOver = CONFIG.ads.every - 1; if (i !== undefined) queueAd(i); }, // the next game over shows an ad (optionally which)
     // Fast-forward the game without waiting for the screen; onStep runs after every step

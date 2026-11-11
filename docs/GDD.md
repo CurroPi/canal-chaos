@@ -256,6 +256,16 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - Settings: `CONFIG.challenges.pottery` (throw timing, tolerance, bubbles, passMark).
 - Fairness: walkers that used to unlock by score alone (David, Pilar) stay unlocked for players who already had them (`keepIfUnlocked`); brand-new challenge walkers (Duck) never come free.
 
+## A Week with Fern (built): unlocks Fern
+- Fern is back from Columbia Road with three plants (price stickers still on): **monstera £45, fiddle-leaf fig £60, snake plant £25**. Keep them alive and growing a new leaf each until Sunday.
+- Pixel-art flat with three spots: **hallway** (dark, door and bike), **window** (net curtain, bright indirect light), **sunny sill** (direct sun). A week passes in about 35 seconds (MON to SUN along the top, the sun crossing the window, nights).
+- **Tap a plant to water it, drag it to move it.** Real care needs: monstera and fig want the bright window (hallway = leans to the light; sunny sill burns the monstera), the snake plant is happy anywhere and rots if you water it much.
+- The plants show how they're doing: pale cracked soil and drooping = thirsty (plus a blinking drop), yellow leaves = too much water, brown edges = sunburn, a health bar under each pot, sparkles and a new leaf when happy ("FENESTRATION!!").
+- The fig hates being moved: the first move is free, every move after that it drops a leaf. "Don't move it. It knows."
+- Events: **heatwave on Wednesday** (the sill is a grill), **Fern at a festival Friday night to Sunday morning** (you can't touch anything, so water before she goes).
+- Win: all three alive and grown by Sunday ("THEY ALL MADE IT! Fern is unbearable about it."). Lose: a plant dies ("RIP THE FIDDLE-LEAF FIG. Fern is writing a eulogy for Instagram.") or no new leaf ("ALIVE. BARELY.").
+- Players who already had Fern keep her (`keepIfUnlocked`). Code: `public/src/plants.js`; tuning in `CONFIG.challenges.plants`.
+
 ## Side Hustles (built): replay the mini-games
 - A "🎨 Side Hustles" button on the game-over card (Cause of death). Every walker on the towpath has a side hustle:
   - 🎱 Pool at The Victory: "Pot 2 before David finishes his pint. He's been undefeated since 1987." → Rack 'em up

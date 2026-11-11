@@ -62,6 +62,17 @@ export const CHARACTERS = [
     id: 'fern', // the Columbia Road Sunday shopper, hugging a huge plant
     name: 'Fern',
     unlockLine: 'FERN IS HERE. SHE CAN\'T SEE WHERE SHE\'S GOING.',
+    challenge: {
+      kind: 'plants',
+      arcade: '🪴 A Week with Fern',
+      hustle: 'Keep her Columbia Road plants alive till Sunday. Light, water, and do NOT move the fig.',
+      replay: 'Another week',
+      keepIfUnlocked: true, // was a score-only unlock before
+      label: '🪴 Keep Fern\'s plants alive',
+      button: '🪴 Plant-sit for Fern',
+      offer: '🪴 Fern needs a plant-sitter!',
+      pitch: 'Monstera, fiddle-leaf fig, snake plant. One week. Keep them alive and growing.',
+    },
     bio: 'Went to Columbia Road for a cactus. Came back with a tree.',
     emoji: '🥤',
     spill: ['MY ICED OAT LATTE!', 'The fig is fine. The latte is not.'],

@@ -20,7 +20,7 @@
 
 ### Side hustles (mini-games)
 - [ ] **Personal bests per hustle** (fastest pool win, most PERFECT dance hits, Pilar's top mark), shown in Side Hustles; maybe online boards later.
-- [ ] **More hustles for other walkers**: Spike (pogo to the beat at a Camden gig), Fern (Columbia Road haggle: catch plants, "everything a tenner!"), Tanner (finish two litres before the walk), Josh (vape-cloud rhythm? band gig?).
+- [ ] **More hustles for other walkers**: Spike (pogo to the beat at a Camden gig), Tanner (finish two litres before the walk), Josh (vape-cloud rhythm? band gig?).
 - [ ] Tune difficulty of pool / dance / pottery from real play (pool: target lowered 3 → 2 after the playtest, 2 of 12 wins; check again).
 
 ### Later: bigger content
@@ -55,4 +55,5 @@
 - Canal from Curro's photos: realistic wall graffiti, houses and trees in the far-bank gaps, ONE HUNDRED YEARS portrait wall, a proper Containerville.
 - Canal traffic now and then (cruising boats with jokes, hire boat, paddleboarder, duck fight, inflatable dinghy party); the sauna boat has a SAUNA sign.
 - After the playtest: walkers unlock by total steps (Pilar 1,000 … Duck 8,000) or one great run, with a 'next walker' bar on the game-over card; pool needs 2 pots instead of 3; cafés close at 3,000 steps ("OAT MILK SOLD OUT") so expert runs end.
+- Fern's mini-game: A Week with Fern (keep a monstera, fiddle-leaf fig and snake plant alive till Sunday).
 - Unlock mini-games: David's pool at The Victory (pot 2 before his pint is gone), Duck's courtship dance on the canal (rhythm game vs a mallard), Pilar's Open Studio Show (throw, shape, glaze a mug to a local brief; Pilar judges).

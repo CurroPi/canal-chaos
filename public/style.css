@@ -652,3 +652,10 @@ body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
 .arcade-pitch { font-family: var(--pixel-body); font-size: 18px; line-height: 1.05; text-align: left; color: #4a4a4a; }
 /* David's comments sit up in the pub scene, clear of the table */
 .pool-say.in-pub { top: 2%; left: 3%; right: 30%; font-size: 16px; }
+
+/* Fern's plant-sitting week */
+.card .plant-say { height: 2.2em; overflow: hidden; margin: 8px 0 0; font-family: var(--pixel-body); font-size: 19px; line-height: 1.05; text-align: left; }
+.card .plant-say b { font-family: var(--pixel); font-size: 10px; color: #3f7a2e; font-weight: 400; }
+.card .plant-say.pop { animation: plantSay 0.3s ease-out; }
+@keyframes plantSay { from { transform: translateY(4px); opacity: 0.3; } to { transform: none; opacity: 1; } }
+.plants-stage canvas { cursor: grab; }
