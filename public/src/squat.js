@@ -17,16 +17,16 @@ const rand = (a, b) => a + Math.random() * (b - a);
 
 // The businesses trying to open (parody names, our own signs)
 const SHOPS = [
-  { sign: 'GIALS', board: '#1f3d33', ink: '#f3e6c8', intro: 'A GIALS. The surest sign your rent is about to double.', open: '£7 toast. Your rent just doubled.' },
-  { sign: 'GOATLY', board: '#f4f1ea', ink: '#1b1b1b', intro: 'Goat milk lattes. Where the launderette used to be.', open: 'Goat milk flat whites, £6.80.<br>The launderette is a memory.' },
-  { sign: 'CEREAL THRILLER', board: '#e8487a', ink: '#fff6a0', intro: '£9 cereal. Next door to the food bank.', open: '£9 for Coco Pops.<br>The food bank queue can watch.' },
-  { sign: 'BRULE', board: '#d9a441', ink: '#3a2412', intro: 'A shop that ONLY does creme brulee. For people who own three flats.', open: 'Creme brulee only. £14.<br>Landlords love it.' },
-  { sign: 'FUNKY JUICE', board: '#6a2c5a', ink: '#ffd6f0', intro: 'Natural wine. It\'s just wine that went off, at £68.', open: 'Cloudy wine, £68 a bottle.<br>The pub it replaced did pints for £3.' },
-  { sign: 'DOWNWARD DOG CO', board: '#9fd8c8', ink: '#1b3a33', intro: 'Dog yoga. Those dogs have more space than my whole flat.', open: 'Dog yoga, £30 a class.<br>The dogs pay less rent than you.' },
-  { sign: 'AESNOB', board: '#2b2b26', ink: '#d8cfb8', intro: 'A whole shop for ONE £45 hand soap.', open: '£45 hand soap.<br>It smells of "displacement".' },
-  { sign: 'HOXHO HOUSE', board: '#14233d', ink: '#e8d9a8', intro: 'A members\' club. Members of the landlord class.', open: 'Membership £2,000.<br>Locals can look through the window.' },
-  { sign: 'WHOLE PAYCHEQUE', board: '#2f5a2a', ink: '#f2ece0', intro: '£12 avocados. On a street where people work three jobs.', open: '£12 avocados.<br>Organic. Ethical. Unaffordable.' },
-  { sign: 'FOXDENS', board: '#2a6a3a', ink: '#ffd23f', intro: 'An ESTATE AGENT. They\'re selling the street back to itself.', open: 'Studio flats from £2,400 a month.<br>"Original damp."' },
+  { sign: 'GIALS', icon: 'loaf', poster: ['YET ANOTHER', 'SOURDOUGH'], board: '#1f3d33', ink: '#f3e6c8', intro: 'A GIALS. The surest sign your rent is about to double.', open: '£7 toast. Your rent just doubled.' },
+  { sign: 'GOATLY', icon: 'cup', poster: ['YET ANOTHER', 'COFFEE PLACE'], board: '#f4f1ea', ink: '#1b1b1b', intro: 'Goat milk lattes. Where the launderette used to be.', open: 'Goat milk flat whites, £6.80.<br>The launderette is a memory.' },
+  { sign: 'CEREAL THRILLER', icon: 'bowl', poster: ['CEREAL.', 'JUST CEREAL.'], board: '#e8487a', ink: '#fff6a0', intro: '£9 cereal. Next door to the food bank.', open: '£9 for Coco Pops.<br>The food bank queue can watch.' },
+  { sign: 'BRULE', icon: 'ramekin', poster: ['PUDDING FOR', 'LANDLORDS'], board: '#d9a441', ink: '#3a2412', intro: 'A shop that ONLY does creme brulee. For people who own three flats.', open: 'Creme brulee only. £14.<br>Landlords love it.' },
+  { sign: 'FUNKY JUICE', icon: 'bottle', poster: ['WINE, BUT', 'CLOUDY'], board: '#6a2c5a', ink: '#ffd6f0', intro: 'Natural wine. It\'s just wine that went off, at £68.', open: 'Cloudy wine, £68 a bottle.<br>The pub it replaced did pints for £3.' },
+  { sign: 'DOWNWARD DOG CO', icon: 'dog', poster: ['YOGA.', 'FOR DOGS.'], board: '#9fd8c8', ink: '#1b3a33', intro: 'Dog yoga. Those dogs have more space than my whole flat.', open: 'Dog yoga, £30 a class.<br>The dogs pay less rent than you.' },
+  { sign: 'AESNOB', icon: 'soap', poster: ['ONE SOAP.', '£45.'], board: '#2b2b26', ink: '#d8cfb8', intro: 'A whole shop for ONE £45 hand soap.', open: '£45 hand soap.<br>It smells of "displacement".' },
+  { sign: 'HOXHO HOUSE', icon: 'rope', poster: ['MEMBERS ONLY.', 'NOT YOU.'], board: '#14233d', ink: '#e8d9a8', intro: 'A members\' club. Members of the landlord class.', open: 'Membership £2,000.<br>Locals can look through the window.' },
+  { sign: 'WHOLE PAYCHEQUE', icon: 'avocado', poster: ['ORGANIC.', '£12 AVOCADOS'], board: '#2f5a2a', ink: '#f2ece0', intro: '£12 avocados. On a street where people work three jobs.', open: '£12 avocados.<br>Organic. Ethical. Unaffordable.' },
+  { sign: 'FOXDENS', icon: 'house', poster: ['SELLING YOUR', 'STREET BACK'], board: '#2a6a3a', ink: '#ffd23f', intro: 'An ESTATE AGENT. They\'re selling the street back to itself.', open: 'Studio flats from £2,400 a month.<br>"Original damp."' },
 ];
 
 // Things Spike throws: fall speed (gravity), hit radius, how much they knock the opening back
@@ -58,24 +58,27 @@ const CREW = {
 
 // What they say as they walk in, so you know who's who
 const BUBBLES = {
-  fitter: ['RIP OUT THE SOUL', 'BIN THE MURAL', 'EXPOSE THAT BRICK', 'PAINT IT GREIGE'],
-  barista: ['OAT OR NOTHING', 'FLAT WHITE: £8', 'CASH? EW.', 'NO, WE DON\'T DO TEA'],
-  hipster: ['SO GRITTY. LOVE IT', 'DAD PAID MY DEPOSIT', 'IT WAS SO DIRTY B4', 'I\'M BASICALLY LOCAL'],
-  influencer: ['POVERTY AESTHETIC!', 'SO RAW. SO REAL.', 'POOR PEOPLE CORE', 'LINK IN BIO'],
-  agent: ['RENT UP 40%', 'EVICT BY FRIDAY', 'VIBRANT AREA!', 'ORIGINAL DAMP', 'SHOEBOX: £2,400'],
-  nan: ['JUST GETTING BREAD', 'MORNING SPIKE!'],
+  fitter: ['RIP OUT THE SOUL', 'PAINT IT GREIGE', 'KEEP THE GRIT. FRAME IT', 'REGENERATION!', 'MORE EDISON BULBS', 'SAVE ONE BRICK. ART.'],
+  barista: ['FLAT WHITE: £8', 'CASH? EW.', 'WE LOVE LOCALS!', 'COMMUNITY PRICE: £9', 'ETHICALLY OVERPRICED', 'OAT MILK IS A RIGHT'],
+  hipster: ['SO GRITTY. LOVE IT', 'DAD PAID MY DEPOSIT', 'I\'M BASICALLY LOCAL', 'SUCH CHARACTER!', 'I WAS HERE FIRST. 2019', 'I\'M AN ALLY'],
+  influencer: ['POVERTY AESTHETIC!', 'SO RAW. SO REAL.', 'SUPPORTING LOCAL!', 'AUTHENTIC HACKNEY!', 'LINK IN BIO', 'MY SAFE SPACE'],
+  agent: ['RENT UP 40%', 'VIBRANT AREA!', 'ORIGINAL DAMP', 'UP AND COMING!', 'AFFORDABLE: £3K', 'COSY MEANS TINY', 'NO DSS, NO PETS, NO'],
+  nan: ['JUST GETTING BREAD', 'MORNING SPIKE!', '60 YEARS HERE, LOVE'],
   kid: ['WHEEEE!', 'HI SPIKE!'],
-  oldboy: ['50 YEARS ON THIS ROAD', 'ALRIGHT SPIKE'],
+  oldboy: ['50 YEARS ON THIS ROAD', 'ALRIGHT SPIKE', 'WAS A PUB, THAT'],
 };
 
 const LINES = {
   start: ['They\'re opening something under my squat. Not on my watch.'],
   hit: ['THIS WAS A SQUAT IN \'79!', 'We don\'t want your FLAT WHITES!', 'Oi! That was MY telly!', 'Go back to Shoreditch!',
     'RENT IS THEFT!', 'No sourdough, no masters!', 'This is still CAMDEN!', 'Take your Edison bulbs and GO!',
+    'Oh lovely, ANOTHER coffee place. Just what we needed.', 'Supporting local? I AM local!', 'Regeneration! Nice and soggy now.',
+    'You love the community? Meet the community: a TELLY.', 'Welcome to the neighbourhood! Here\'s a housewarming microwave.',
+    'Authentic Hackney experience, that. You\'re welcome.', 'Vibrant area, innit? VIBRANT.',
     'Social cleansing? Get CLEANSED.', 'Daddy\'s money can\'t buy you a DRY SHIRT!', 'Back to your trust fund!', 'Take your lanyard and LEAVE!'],
   oops: { nan: 'NOT NAN! Sorry, Nan! Aim for the LANYARDS, Spike.', kid: 'Sorry, kid! That was meant for a landlord.', oldboy: 'Oi, he\'s been here 50 years! Sorry, Dave!' },
-  miss: ['Missed. That telly worked, an\' all.', 'Oi, stand STILL.', 'Nearly. NEARLY.'],
-  close: ['THEY\'RE HANGING THE FAIRY LIGHTS!', 'There\'s a queue already. A QUEUE.', 'They\'re writing the menu on a CHALKBOARD!'],
+  miss: ['Missed. Must be all the "vibrancy".', 'Missed. That telly worked, an\' all.', 'Oi, stand STILL.', 'Nearly. NEARLY.'],
+  close: ['Fairy lights. Gorgeous. I\'m going to be sick.', 'THEY\'RE HANGING THE FAIRY LIGHTS!', 'There\'s a queue already. A QUEUE.', 'They\'re writing the menu on a CHALKBOARD!'],
   agent: ['An ESTATE AGENT. Get the mattress.', 'Is that a FOXDENS clipboard? Have THIS.'],
   influencer: ['Is she… filming it? For CONTENT?', 'She\'s doing a "day in my life". Not today.'],
 };
@@ -326,17 +329,60 @@ export function playSquat(card, cfg, onDone) {
     if (progress > 0.4) for (let i = 0; i < 4; i++) { g.fillStyle = '#ffd36a'; g.fillRect(48 + i * 30 + (i > 1 ? 28 : 0), 87, 2, 3); g.fillStyle = '#333'; g.fillRect(48 + i * 30 + (i > 1 ? 28 : 0) + 0.5, 81, 1, 6); }
     if (progress > 0.6) { g.fillStyle = '#3a8a3c'; g.fillRect(62, 112, 6, 8); g.fillRect(150, 110, 6, 10); g.fillStyle = '#b06a3a'; g.fillRect(62, 120, 6, 5); g.fillRect(150, 120, 6, 5); }
     if (progress > 0.75) for (let x = 30; x < 170; x += 5) { g.fillStyle = ['#ff5fa2', '#ffd23f', '#7cff6b', '#3fd3ff'][(x / 5 + Math.floor(t * 4)) % 4]; g.fillRect(x, 80 + Math.round(Math.sin(x / 9) * 1.5), 2, 2); }
-    if (progress < 0.5) { // COMING SOON poster, from the very start
-      g.fillStyle = shop.board; g.fillRect(114, 86, 50, 24);
-      g.fillStyle = '#f4f1ea'; g.fillRect(115, 87, 48, 9);
-      text(g, 'COMING SOON', 139, 89, '#c0262d', 1, null);
-      const nm = shop.sign.length > 11 ? shop.sign.split(' ')[0] : shop.sign;
-      text(g, nm, 139, 100, shop.ink, 1, null);
+    if (progress < 0.6) { // COMING SOON poster, from the very start
+      g.fillStyle = '#1b1b1b'; g.fillRect(110, 82, 58, 44);
+      g.fillStyle = shop.board; g.fillRect(111, 83, 56, 42);
+      g.fillStyle = '#f4f1ea'; g.fillRect(111, 83, 56, 9);
+      text(g, 'COMING SOON', 139, 85, '#c0262d', 1, null);
+      drawIcon(shop.icon, 139, 94, t);
+      text(g, shop.poster[0], 139, 110, shop.ink, 1, null);
+      text(g, shop.poster[1], 139, 117, shop.ink, 1, null);
     }
     // Pavement
     g.fillStyle = '#8f8f8a'; g.fillRect(0, 128, W, 22);
     g.fillStyle = '#7d7d78'; for (let x = 0; x < W; x += 20) g.fillRect(x, 128, 1, 22);
     g.fillStyle = '#6a6a66'; g.fillRect(0, 128, W, 1);
+  }
+
+  // Little pixel drawings for the COMING SOON posters (about 16x14, top-centre at cx, y)
+  function drawIcon(kind, cx, y, t) {
+    const r = (c, x, yy, w, h) => { g.fillStyle = c; g.fillRect(cx + x, y + yy, w, h); };
+    const steam = Math.floor(t * 3) % 2;
+    switch (kind) {
+      case 'loaf':
+        r('#5a3418', -8, 5, 16, 8); r('#c98a44', -7, 4, 14, 8); r('#e0a860', -5, 3, 10, 2);
+        r('#f3dcae', -4, 6, 2, 1); r('#f3dcae', -1, 7, 2, 1); r('#f3dcae', 2, 6, 2, 1); break;
+      case 'cup':
+        r('#ffffff', -5, 5, 9, 9); r('#ffffff', 4, 7, 3, 1); r('#ffffff', 6, 7, 1, 4); r('#ffffff', 4, 10, 3, 1);
+        r('#7a4a2a', -4, 5, 7, 2); r('#f3e6c8', -2, 5, 3, 1);
+        r('#d8d8d8', -1 + steam, 0, 1, 3); r('#d8d8d8', 2 - steam, 1, 1, 3); break;
+      case 'bowl':
+        r('#ffffff', -8, 7, 16, 3); r('#ffffff', -6, 10, 12, 2); r('#ffffff', -4, 12, 8, 1);
+        r('#ffd23f', -6, 5, 2, 2); r('#ff5fa2', -3, 4, 2, 2); r('#3fd3ff', 0, 5, 2, 2); r('#7cff6b', 3, 4, 2, 2); r('#ff7a1a', 5, 5, 2, 2); break;
+      case 'ramekin':
+        r('#ffffff', -6, 6, 12, 7); r('#d9d9d9', -6, 8, 12, 1); r('#d9d9d9', -6, 11, 12, 1); r('#c07a2a', -6, 5, 12, 2);
+        r('#ff7a1a', 6, 1 + steam, 2, 3); r('#ffd23f', 6, 2 + steam, 1, 1); r('#555', 7, 4, 3, 2); break;
+      case 'bottle':
+        r('#2f4a2a', -2, 0, 3, 4); r('#2f4a2a', -4, 4, 7, 10); r('#c9b98a', -3, 7, 5, 6); r('#f4f1ea', -3, 8, 5, 3);
+        r('#ffffff', 5, 6, 4, 4); r('#c9b98a', 5, 8, 4, 2); r('#ffffff', 6, 10, 2, 3); r('#ffffff', 5, 13, 4, 1); break;
+      case 'dog': // downward dog on a yoga mat
+        r('#ff5fa2', -8, 13, 16, 1);
+        r('#c98a44', -6, 8, 2, 5); r('#c98a44', 4, 8, 2, 5); r('#c98a44', -4, 5, 3, 3); r('#c98a44', 1, 5, 3, 3); r('#c98a44', -2, 4, 4, 2);
+        r('#c98a44', 5, 9, 3, 3); r('#5a3418', 7, 10, 1, 1); r('#5a3418', 5, 9, 1, 2); r('#c98a44', -7, 4, 1, 2); break;
+      case 'soap':
+        r('#cfcfcf', -1, 0, 2, 3); r('#cfcfcf', 1, 1, 3, 1); r('#1b1b1b', -2, 3, 4, 2);
+        r('#9a5a1a', -4, 5, 8, 9); r('#f4f1ea', -3, 8, 6, 3); r('#9a5a1a', -2, 9, 4, 1); break;
+      case 'rope':
+        r('#d9a441', -8, 2, 2, 12); r('#d9a441', 6, 2, 2, 12); r('#d9a441', -9, 13, 4, 1); r('#d9a441', 5, 13, 4, 1);
+        r('#c0262d', -6, 4, 2, 1); r('#c0262d', -4, 5, 2, 1); r('#c0262d', -2, 6, 4, 1); r('#c0262d', 2, 5, 2, 1); r('#c0262d', 4, 4, 2, 1); break;
+      case 'avocado':
+        r('#2f5a1a', -5, 1, 10, 13); r('#b8d86a', -4, 2, 8, 11); r('#7a4a2a', -2, 6, 4, 4);
+        r('#ffffff', 4, 9, 8, 5); r('#c0262d', 5, 10, 1, 1); r('#c0262d', 7, 10, 1, 3); r('#c0262d', 9, 10, 2, 1); r('#c0262d', 9, 12, 2, 1); break;
+      case 'house':
+        r('#c0262d', -6, 4, 12, 1); r('#c0262d', -4, 2, 8, 2); r('#c0262d', -2, 0, 4, 2);
+        r('#f4f1ea', -5, 5, 10, 9); r('#4a6878', -3, 7, 2, 2); r('#4a6878', 1, 7, 2, 2); r('#5a3418', -1, 10, 2, 4);
+        r('#ffd23f', 6, 6, 6, 5); r('#1b1b1b', 8, 7, 2, 1); r('#1b1b1b', 8, 8, 1, 2); r('#1b1b1b', 8, 9, 3, 1); r('#5a3418', 8, 11, 1, 3); break;
+    }
   }
 
   // The locals: Nan with her tartan trolley, a kid on a scooter, the old boy with his pint
