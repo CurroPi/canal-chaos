@@ -273,6 +273,7 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - **Locals walk past too** (Nan with her tartan trolley, a kid on a scooter, the old boy with his Guinness; white bubbles). Hit one and the shop jumps closer to opening ("NOT NAN! Sorry, Nan!").
 - The shop's name is on a COMING SOON poster from the start; the sign spells itself out fast, then Edison bulbs, plants and fairy lights appear.
 - Parody shops: GIALS, GOATLY, CEREAL THRILLER, BRULE, FUNKY JUICE, DOWNWARD DOG CO, AESNOB, HOXHO HOUSE, WHOLE PAYCHEQUE, FOXDENS. Each has a brutal intro and an "IT'S OPEN" line.
+- Losing first plays a GRAND OPENING (confetti, balloons, giant scissors cut the ribbon, a cheering queue, flashing banner, Spike's mohawk wilts), then the verdict.
 - Win: "THE UNIT STAYS EMPTY!" + twist (the landlord lists your squat on Airbnb, "Authentic punk experience, £340/night"). Lose: "IT'S OPEN: GIALS. £7 toast. Your rent just doubled. Spike is moving back to Camden."
 - Players who already had Spike keep him. Code: `public/src/squat.js`; tuning in `CONFIG.challenges.squat`.
 

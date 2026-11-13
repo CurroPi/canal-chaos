@@ -63,6 +63,7 @@ const BUBBLES = {
   hipster: ['SO GRITTY. LOVE IT', 'DAD PAID MY DEPOSIT', 'I\'M BASICALLY LOCAL', 'SUCH CHARACTER!', 'I WAS HERE FIRST. 2019', 'I\'M AN ALLY'],
   influencer: ['POVERTY AESTHETIC!', 'SO RAW. SO REAL.', 'SUPPORTING LOCAL!', 'AUTHENTIC HACKNEY!', 'LINK IN BIO', 'MY SAFE SPACE'],
   agent: ['RENT UP 40%', 'VIBRANT AREA!', 'ORIGINAL DAMP', 'UP AND COMING!', 'AFFORDABLE: £3K', 'COSY MEANS TINY', 'NO DSS, NO PETS, NO'],
+  party: ['OMG IT\'S OPEN!', 'NEIGHBOURHOOD GEM!', 'SO AUTHENTIC!', 'QUEUE STARTS HERE', 'FINALLY, CULTURE!'],
   nan: ['JUST GETTING BREAD', 'MORNING SPIKE!', '60 YEARS HERE, LOVE'],
   kid: ['WHEEEE!', 'HI SPIKE!'],
   oldboy: ['50 YEARS ON THIS ROAD', 'ALRIGHT SPIKE', 'WAS A PUB, THAT'],
@@ -78,6 +79,7 @@ const LINES = {
     'Social cleansing? Get CLEANSED.', 'Daddy\'s money can\'t buy you a DRY SHIRT!', 'Back to your trust fund!', 'Take your lanyard and LEAVE!'],
   oops: { nan: 'NOT NAN! Sorry, Nan! Aim for the LANYARDS, Spike.', kid: 'Sorry, kid! That was meant for a landlord.', oldboy: 'Oi, he\'s been here 50 years! Sorry, Dave!' },
   miss: ['Missed. Must be all the "vibrancy".', 'Missed. That telly worked, an\' all.', 'Oi, stand STILL.', 'Nearly. NEARLY.'],
+  party: ['They\'ve got a DJ. At 11am.', 'Free tasters. Of TOAST.', 'Is that... a ribbon? With GIANT SCISSORS?'],
   close: ['Fairy lights. Gorgeous. I\'m going to be sick.', 'THEY\'RE HANGING THE FAIRY LIGHTS!', 'There\'s a queue already. A QUEUE.', 'They\'re writing the menu on a CHALKBOARD!'],
   agent: ['An ESTATE AGENT. Get the mattress.', 'Is that a FOXDENS clipboard? Have THIS.'],
   influencer: ['Is she… filming it? For CONTENT?', 'She\'s doing a "day in my life". Not today.'],
@@ -117,6 +119,8 @@ export function playSquat(card, cfg, onDone) {
   const sayEl = card.querySelector('.spike-say');
 
   let shop, crew, falling, bits, queue, progress, left, spawnIn, cool, phase, spikeX, throwT, saidAt, flags, elapsed;
+  let confetti = [];
+  let partyT = 0;
   let running = true;
 
   function say(line, force = false) {
@@ -140,6 +144,8 @@ export function playSquat(card, cfg, onDone) {
     spawnIn = 0.6;
     cool = 0;
     phase = 'play';
+    confetti = [];
+    partyT = 0;
     spikeX = 100;
     throwT = 1;
     saidAt = 0;
@@ -270,8 +276,22 @@ export function playSquat(card, cfg, onDone) {
       <p class="squat-twist">…the landlord just listed your squat on Airbnb.<br>"Authentic punk experience, £340/night."</p>
       <button class="pool-continue">Continue</button>`, true);
   }
+  // Losing: they throw a GRAND OPENING first (confetti, balloons, a ribbon, a queue), then the verdict
   function lose() {
     progress = 1;
+    phase = 'party';
+    partyT = 0;
+    falling = [];
+    fanfare();
+    say(pick(LINES.party), true);
+    for (const c of crew) if (c.state !== 'flee' && !CREW[c.kind].local) { c.state = 'cheer'; c.bubble = pick(BUBBLES.party); c.bubbleT = rand(0.5, 2.5); }
+    for (let i = 0; i < 5; i++) { // the queue arrives
+      const kind = pick(['hipster', 'influencer', 'hipster', 'barista']);
+      crew.push({ kind, hp: 1, x: W + 10 + i * 14, dir: -1, target: 116 + i * 10, state: 'walk', speed: 45, rate: 0, t: Math.random() * 5,
+        wet: 0, flash: 0, bubble: pick(BUBBLES.party), bubbleT: i === 1 ? 2.5 : 0 });
+    }
+  }
+  function verdict() {
     say('That\'s it. I\'m going back to Camden.', true);
     finish(`<p class="pool-big lose">IT'S OPEN: ${shop.sign}</p>
       <p>${shop.open}<br>Spike is moving back to Camden.</p>
@@ -311,7 +331,9 @@ export function playSquat(card, cfg, onDone) {
     g.fillStyle = '#f0c8a0'; g.fillRect(sx - 3, 35 + lean, 6, 7);             // head
     g.fillStyle = '#1b1b1b'; g.fillRect(sx - 2, 37 + lean, 1, 1); g.fillRect(sx + 1, 37 + lean, 1, 1);
     g.fillStyle = '#3fe04a';
-    for (let i = 0; i < 4; i++) g.fillRect(sx - 2 + i, 28 + lean + (i % 2) * 2 + Math.round(Math.sin(t * 9 + i)), 1, 8 - (i % 2) * 2);
+    if (progress >= 1) { // wilted
+      for (let i = 0; i < 4; i++) g.fillRect(sx - 3 + i, 33 + lean, 1, 2), g.fillRect(sx + 1 + i, 34 + lean + i, 1, 2);
+    } else for (let i = 0; i < 4; i++) g.fillRect(sx - 2 + i, 28 + lean + (i % 2) * 2 + Math.round(Math.sin(t * 9 + i)), 1, 8 - (i % 2) * 2);
     if (throwT < 0.25) { g.fillStyle = '#1b1b1b'; g.fillRect(sx + 5, 46, 6, 2); g.fillStyle = '#f0c8a0'; g.fillRect(sx + 10, 46, 2, 2); }
 
     // The shop unit
@@ -433,7 +455,8 @@ export function playSquat(card, cfg, onDone) {
   function drawPerson(c, t) {
     if (CREW[c.kind].local) { drawLocal(c); return; }
     const x = Math.round(c.x);
-    const y = GROUND;
+    const cheering = c.state === 'cheer';
+    const y = GROUND - (cheering ? Math.abs(Math.round(Math.sin(c.t * 9) * 3)) : 0);
     const walk = c.state !== 'work' ? Math.round(Math.sin(c.t * (c.state === 'flee' ? 22 : 12)) * 1.5) : 0;
     const body = { fitter: '#ff8a1a', barista: '#1b1b1b', hipster: '#c0262d', influencer: '#ff8fc8', agent: '#1f2f5a' }[c.kind];
     // legs
@@ -453,7 +476,9 @@ export function playSquat(card, cfg, onDone) {
     if (c.kind === 'influencer') { g.fillStyle = '#f2d16a'; g.fillRect(x - 3, y - 20, 7, 2); g.fillRect(x - 3, y - 18, 1, 5); }
     if (c.kind === 'agent') { g.fillStyle = '#3a2a1e'; g.fillRect(x - 2, y - 20, 5, 1); }
     const arm = c.dir > 0 ? 1 : -1;
-    if (c.state === 'flee') { // arms up, dripping
+    if (cheering) { // arms up, whooping
+      g.fillStyle = body; g.fillRect(x - 4, y - 21, 1, 6); g.fillRect(x + 4, y - 21, 1, 6);
+    } else if (c.state === 'flee') { // arms up, dripping
       g.fillStyle = body; g.fillRect(x - 4, y - 20, 1, 6); g.fillRect(x + 4, y - 20, 1, 6);
       if (c.wet > 0) { g.fillStyle = '#7fd0ff'; g.fillRect(x - 3, y - 4 + ((c.t * 40) % 6), 1, 2); g.fillRect(x + 3, y - 8 + ((c.t * 40 + 3) % 8), 1, 2); }
     } else if (c.state === 'walk') {
@@ -496,6 +521,45 @@ export function playSquat(card, cfg, onDone) {
     g.restore();
   }
 
+  // The GRAND OPENING: balloons, a ribbon and giant scissors, a flashing banner, confetti
+  function drawParty(t, dt) {
+    for (const [bx, cols] of [[34, ['#ff5fa2', '#ffd23f', '#3fd3ff']], [166, ['#7cff6b', '#ff5fa2', '#ffd23f']]]) {
+      cols.forEach((c, i) => {
+        const x = bx + (i - 1) * 5;
+        const y = 70 + i % 2 * 4 + Math.round(Math.sin(t * 3 + i) * 1.5);
+        g.fillStyle = '#d8d8d8'; g.fillRect(x, y + 6, 1, 14);
+        g.fillStyle = c; g.fillRect(x - 2, y, 5, 6); g.fillRect(x - 1, y - 1, 3, 1);
+      });
+    }
+    // Ribbon across the door, cut after a second
+    const cut = partyT > 1.2 || phase === 'over';
+    g.fillStyle = '#e8203a';
+    if (!cut) {
+      g.fillRect(86, 108, 28, 2);
+      g.fillStyle = '#c8c8c8'; // giant scissors closing in
+      const open = Math.round(Math.abs(Math.sin(partyT * 6)) * 3);
+      g.fillRect(96, 104 - open, 10, 1); g.fillRect(96, 112 + open, 10, 1);
+      g.fillStyle = '#ff3b3b'; g.fillRect(106, 103 - open, 3, 3); g.fillRect(106, 112 + open, 3, 3);
+    } else {
+      g.fillRect(86, 108, 6, 2); g.fillRect(91, 109, 2, 8);
+      g.fillRect(108, 108, 6, 2); g.fillRect(107, 109, 2, 8);
+    }
+    // Banner
+    const flash = Math.floor(t * 4) % 2;
+    g.fillStyle = '#1b1b1b'; g.fillRect(44, 89, 112, 11);
+    g.fillStyle = flash ? '#ffd23f' : '#ff5fa2'; g.fillRect(45, 90, 110, 9);
+    text(g, 'GRAND OPENING!', 100, 92, flash ? '#c0262d' : '#ffffff', 1, null);
+    // Confetti
+    if (confetti.length < 160) for (let i = 0; i < 4; i++) confetti.push({ x: rand(0, W), y: rand(-10, 12), vy: rand(18, 40), ph: rand(0, 6), c: pick(['#ff5fa2', '#ffd23f', '#7cff6b', '#3fd3ff', '#ff7a1a', '#ffffff']) });
+    for (const p of confetti) {
+      p.y += p.vy * dt; p.ph += dt * 5;
+      if (p.y > GROUND + 6) { p.y = rand(-10, 12); p.x = rand(0, W); }
+    }
+  }
+  function drawConfetti() {
+    for (const p of confetti) { g.fillStyle = p.c; g.fillRect(Math.round(p.x + Math.sin(p.ph) * 2), Math.round(p.y), Math.sin(p.ph) > 0 ? 2 : 1, 1); }
+  }
+
   // ---------- Loop ----------
   let last = performance.now();
   function frame(now) {
@@ -504,8 +568,18 @@ export function playSquat(card, cfg, onDone) {
     last = now;
     const t = now / 1000;
     if (phase === 'play') update(dt);
+    if (phase === 'party') {
+      partyT += dt;
+      for (const c of crew) {
+        c.t += dt; c.bubbleT -= dt;
+        if (c.state === 'walk') { c.x += c.dir * c.speed * dt; if (c.x <= c.target) c.state = 'cheer'; }
+        else if (c.state === 'flee' || c.state === 'pass') c.x += c.dir * c.speed * dt;
+      }
+      if (partyT > 3.8) verdict();
+    }
 
     drawBuilding(t);
+    if (progress >= 1) drawParty(t, dt);
     for (const c of crew) drawPerson(c, t);
     for (const c of crew) drawBubble(c);
     for (const f of falling) drawItem(f.kind, f.x, f.y, f.spin);
@@ -515,6 +589,7 @@ export function playSquat(card, cfg, onDone) {
       g.fillStyle = b.c; g.fillRect(Math.round(b.x), Math.round(b.y), 2, 2);
     }
 
+    if (progress >= 1) drawConfetti();
     // Top bar: time left, what's next, and the GRAND OPENING bar
     g.fillStyle = '#1b1b1b'; g.fillRect(0, 0, W, 12);
     text(g, `0:${String(Math.max(0, Math.ceil(left))).padStart(2, '0')}`, 14, 4, left < 10 ? '#ff5a5a' : '#fffaf0', 1, null);
@@ -524,10 +599,7 @@ export function playSquat(card, cfg, onDone) {
     g.fillStyle = progress > 0.75 ? (Math.floor(t * 6) % 2 ? '#ff3b3b' : '#ffd23f') : '#ff8a1a';
     g.fillRect(108, 2, Math.round(88 * clamp(progress)), 8);
     text(g, 'OPENING', 152, 4, '#fffaf0', 1, '#1b1b1b');
-    if (phase === 'over' && progress >= 1) {
-      g.fillStyle = 'rgba(20,20,20,0.7)'; g.fillRect(40, 88, 120, 14);
-      text(g, 'GRAND OPENING!', 100, 92, '#ffd23f');
-    }
+
     requestAnimationFrame(frame);
   }
   setup();
@@ -537,6 +609,7 @@ export function playSquat(card, cfg, onDone) {
     drop(x) { cool = 0; drop(x); },
     advance(sec) { for (let i = 0; i < sec * 20 && phase === 'play'; i++) update(0.05); },
     cheat() { left = 0.01; progress = 0; },
+    party() { progress = 1; lose(); },
     get state() { return { left: +left.toFixed(1), progress: +progress.toFixed(2), crew: crew.map((c) => [c.kind, c.state, Math.round(c.x)]), shop: shop.sign }; },
   };
 }
