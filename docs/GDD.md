@@ -266,6 +266,16 @@ Jump/duck, character customisation (outfits), accounts and logins.
 - Win: all three alive and grown by Sunday ("THEY ALL MADE IT! Fern is unbearable about it."). Lose: a plant dies ("RIP THE FIDDLE-LEAF FIG. Fern is writing a eulogy for Instagram.") or no new leaf ("ALIVE. BARELY.").
 - Players who already had Fern keep her (`keepIfUnlocked`). Code: `public/src/plants.js`; tuning in `CONFIG.challenges.plants`.
 
+## Not Under My Squat (built): unlocks Spike
+- Spike squats the flat above an empty shop unit (banner: "THIS IS STILL CAMDEN"). Gentrifiers turn up to open something artisan underneath. 35 seconds.
+- **Tap the pavement to drop the next thing out of the window:** bucket of water, old telly (big splash radius), microwave, mattress. A hit sends them running off soaked and knocks the OPENING bar back.
+- Gentrifiers say awful things in yellow bubbles so you know who's who: builders ("RIP OUT THE SOUL"), baristas ("FLAT WHITE: £8"), hipsters ("DAD PAID MY DEPOSIT"), influencers ("POVERTY AESTHETIC!", they fit out faster) and the estate agent ("RENT UP 40%", takes 2 hits).
+- **Locals walk past too** (Nan with her tartan trolley, a kid on a scooter, the old boy with his Guinness; white bubbles). Hit one and the shop jumps closer to opening ("NOT NAN! Sorry, Nan!").
+- The shop's name is on a COMING SOON poster from the start; the sign spells itself out fast, then Edison bulbs, plants and fairy lights appear.
+- Parody shops: GIALS, GOATLY, CEREAL THRILLER, BRULE, FUNKY JUICE, DOWNWARD DOG CO, AESNOB, HOXHO HOUSE, WHOLE PAYCHEQUE, FOXDENS. Each has a brutal intro and an "IT'S OPEN" line.
+- Win: "THE UNIT STAYS EMPTY!" + twist (the landlord lists your squat on Airbnb, "Authentic punk experience, £340/night"). Lose: "IT'S OPEN: GIALS. £7 toast. Your rent just doubled. Spike is moving back to Camden."
+- Players who already had Spike keep him. Code: `public/src/squat.js`; tuning in `CONFIG.challenges.squat`.
+
 ## Side Hustles (built): replay the mini-games
 - A "🎨 Side Hustles" button on the game-over card (Cause of death). Every walker on the towpath has a side hustle:
   - 🎱 Pool at The Victory: "Pot 2 before David finishes his pint. He's been undefeated since 1987." → Rack 'em up

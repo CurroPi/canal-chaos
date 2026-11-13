@@ -103,6 +103,17 @@ export const CHARACTERS = [
   {
     id: 'spike', // the Camden punk who walked the wrong way
     name: 'Spike',
+    challenge: {
+      kind: 'squat',
+      arcade: '🏚️ Not Under My Squat',
+      hustle: 'They\'re opening something artisan in the shop under Spike\'s squat. Drop stuff on them till they give up.',
+      replay: 'Defend it again',
+      keepIfUnlocked: true, // was a score-only unlock before
+      label: '🏚️ Defend Spike\'s squat',
+      button: '🏚️ Hold the squat',
+      offer: '🏚️ Spike needs backup!',
+      pitch: 'Something artisan is trying to open under his squat. Grab the telly.',
+    },
     unlockLine: 'SPIKE WALKED FROM CAMDEN. NOBODY ASKED HIM TO.',
     bio: 'Walked from Camden. Thinks this is still Camden.',
     emoji: '🍺',

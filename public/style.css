@@ -659,3 +659,9 @@ body.in-mini-game #mute, body.in-mini-game #sfx { display: none; }
 .card .plant-say.pop { animation: plantSay 0.3s ease-out; }
 @keyframes plantSay { from { transform: translateY(4px); opacity: 0.3; } to { transform: none; opacity: 1; } }
 .plants-stage canvas { cursor: grab; }
+
+/* Spike's squat */
+.card .spike-say { height: 3.2em; }
+.card .spike-say b { color: #c0262d; }
+.squat-stage canvas { cursor: crosshair; }
+.card .squat-twist { font-size: 0.8em; opacity: 0.85; font-style: italic; }

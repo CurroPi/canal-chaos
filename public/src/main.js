@@ -14,6 +14,7 @@ import { recordRun, recordHustle } from './stats.js';
 import { playCourtship } from './courtship.js';
 import { playPottery } from './pottery.js';
 import { playPlants } from './plants.js';
+import { playSquat } from './squat.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, whooshSound, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
@@ -84,7 +85,7 @@ const fmt = (n) => n.toLocaleString('en-GB');
 const unlockNeed = (c) => `${fmt(unlockAt(c) - totalSteps)} more steps${oneRunAt(c) !== undefined ? ` · or ${fmt(oneRunAt(c))} in one run` : ''}`;
 
 // Some walkers also have to be beaten in a mini-game (David: pool at The Victory)
-const MINI_GAMES = { pool: playPool, courtship: playCourtship, pottery: playPottery, plants: playPlants };
+const MINI_GAMES = { pool: playPool, courtship: playCourtship, pottery: playPottery, plants: playPlants, squat: playSquat };
 const wonChallenges = (() => {
   const read = (key) => { try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : null; } catch { return null; } };
   const won = new Set(read('canal-challenges') || []);
