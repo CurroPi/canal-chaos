@@ -111,7 +111,7 @@ export const CONFIG = {
   intro: { full: 1.3, quick: 0, radius: 4.2, height: 1.3, lookY: 1.1, side: -1, caption: 1.9 },
 
   // Unlock mini-games: some walkers also have to be beaten (David: pot `target` balls before his pint is gone)
-  challenges: { plants: { day: 6, tap: 0.35, awaySpeed: 2, damage: 0.4, heal: 0.25 }, // Fern: seconds per day, water per tap, festival fast-forward, how fast plants suffer/recover
+  challenges: { plants: { day: 6.9, tap: 0.4, awaySpeed: 2, damage: 0.34, heal: 0.29 }, // Fern: seconds per day, water per tap, festival fast-forward, how fast plants suffer/recover
     pool: { seconds: 45, target: 2 }, courtship: { bpm: 104, notes: 28 }, pottery: { seconds: 22, tolerance: 6, pullSpeed: 26, wobbleRate: 0.36, calmRate: 0.5, steadyFor: 0.8, bubbleEvery: 3, passMark: 28 }, // throw, shape, finish; Pilar judges out of 40
   },
 
