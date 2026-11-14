@@ -1,5 +1,5 @@
 # On Your Right: A Hackney Towpath Survival Game
-(Called "Canal Chaos" until Nov 2026. The website domain is still playcanalchaos.com, the GitHub repo is still canal-chaos, and saved-data keys in the browser still start with `canal-`: all deliberately unchanged.)
+(Called "Canal Chaos" until Nov 2026. The website moved from playcanalchaos.com to onyourright.app on 14 Nov 2026. The GitHub repo is still canal-chaos and saved-data keys in the browser still start with `canal-`: both deliberately unchanged.)
 
 A satirical endless-runner browser game set on the Regent's Canal towpath in London on a busy Saturday.
 Inspired by Subway Surfers, but the enemies are cyclists and runners, and the tone is MAXIMUM SATIRE.
@@ -27,6 +27,6 @@ Inspired by Subway Surfers, but the enemies are cyclists and runners, and the to
   with no external art files needed. 2D overlays (speech bubbles, banners, signs) carry the jokes.
 - **Engine:** Three.js, using plain JavaScript in the browser. Three.js and the fonts ship inside `public/` (no CDN), so the game works offline.
 - **Phone apps:** Capacitor, app id `app.onyourright`, free, bundled (the game lives inside the app, so the apps do NOT update when we push: every update needs a new store build). Signing keys never go in git (`.gitignore` blocks them).
-- **Hosting:** GitHub Pages (moving from Netlify, whose free plan charges credits per deploy). `.github/workflows/publish.yml` publishes `public/` automatically on every push to main. Domain: playcanalchaos.com (Squarespace DNS).
+- **Hosting:** GitHub Pages (moving from Netlify, whose free plan charges credits per deploy). `.github/workflows/publish.yml` publishes `public/` automatically on every push to main. Domain: onyourright.app (bought at Squarespace, DNS there too: four A records on `@` and a `www` CNAME to curropi.github.io; set as the custom domain in the repo's Pages settings).
 - **Leaderboard backend:** Supabase, project "CurroPi's Project", table `public.scores` (name, score, walker). Code in `public/src/leaderboard.js` (REST API, no SDK). RLS: anon can select + insert only; deleting/editing needs the Supabase dashboard.
   Only the public "anon/publishable" key goes in the game code. Never secret keys or passwords.

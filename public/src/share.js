@@ -5,7 +5,7 @@ const PIXEL = '"Press Start 2P", monospace';
 const BODY = '"VT323", monospace';
 const INK = '#1b1b1b';
 const CREAM = '#fffaf0';
-export const GAME_URL = 'https://playcanalchaos.com';
+export const GAME_URL = 'https://onyourright.app';
 
 // A copy of what's on screen right now (call it the moment you crash)
 export function snapshot(renderer, scene, camera) {
@@ -138,7 +138,7 @@ export async function makeScoreCard({ shot, score, message, walker, drinkSvg, ti
 
   // Call to action
   g.font = `26px ${PIXEL}`;
-  const cta = 'BEAT MY STEPS: PLAYCANALCHAOS.COM';
+  const cta = 'BEAT MY STEPS: ONYOURRIGHT.APP';
   const cw = g.measureText(cta).width + 60;
   box(g, (W - cw) / 2, H - 92, cw, 62, '#ffd23f', 5, 8);
   g.fillStyle = INK;
