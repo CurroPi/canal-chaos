@@ -68,7 +68,7 @@ Reserve cast ideas for later: Rafe (Startup Founder), Juniper (Natural Wine Pers
 ```
 - **Canal edge:** pressing left in lane 1 does nothing. You can't fall in.
 - **Wall:** scenery, with jokes painted on it (signs, graffiti, prices).
-- **Wall graffiti** (from Curro's canal photos): bubble pieces with drips, silver throw-ups, marker tags, grey "buffed" council patches, tagged electrical boxes. Tags are invented (plus a few local opinions: YUPPIES OUT, NO2LIME). Code: `public/src/graffiti.js`.
+- **Wall graffiti** (from Curro's canal photos): bubble pieces with drips, silver throw-ups, marker tags, grey "buffed" council patches, tagged electrical boxes. Tags are invented (plus a few local opinions: YUPPIES OUT, NO2LEMON). Code: `public/src/graffiti.js`.
 - **Far bank:** warehouses and flats; the gaps are low canal-side houses (brick terraces, white render) and trees. Landmarks: the gasholder flats, Containerville (black stacked containers, grilles, walkways, outside stairs, "SPACES AVAILABLE"), the **ONE HUNDRED YEARS** portrait wall (seven invented faces from 0 to 100 on the railings), and the sharks.
 - **Canal traffic** (calm most of the time, something passing now and then; `CONFIG.traffic`): narrowboats cruising with someone at the tiller (pint, tea, on a work call with a laptop on the roof, a learner with L-plates drifting side to side), a hire boat of a hen do with prosecco and one captain's hat, a paddleboarder filming herself with a flat white on the board, a duck fight (two drakes, feathers everywhere, the female unimpressed), and the rare easter egg: an inflatable dinghy party with cans up and a flamingo in tow. Code: `TRAFFIC` in `public/src/gags.js`.
 - **Exits (the trap):** now and then the wall has an **exit** (stairs or a ramp up to the street).
@@ -99,7 +99,7 @@ to reach it. The game must never combine bridges, enemies and obstacles in a way
 |---|---|---|---|---|---|
 | Solo runner | Ahead | Slow | 1 | Runs straight at you and never moves aside. | 1 Victoria Park |
 | Regular cyclist | Ahead or behind | Medium | 1 | Stays in its lane. From behind, rings the bell first. | 2 Mile End |
-| Lime bike | Ahead | Medium | 1 | Wobbles and drifts into the next lane once, at random. | 4 Haggerston |
+| Lemon bike (the hired e-bike; was "Lime", renamed for the app stores) | Ahead | Medium | 1 | Wobbles and drifts into the next lane once, at random. | 4 Haggerston |
 | Running club | Ahead | Slow | **max 2** | A wide wall of matching shirts. In later zones it comes as a **staggered formation**: several rows, each blocking 2 lanes, with the gap moving, so you weave. | 7 King's Cross |
 | Delivery e-bike | Behind | Very fast | 1 | Short warning, then zooms past. Later on it changes lane at the last second. **The final boss.** | 8 Camden |
 
@@ -143,7 +143,7 @@ _First draft, all open to change:_
 | 1 | Victoria Park | "Brunch queue: 45 mins" | Solo runners, geese |
 | 2 | Hertford Union / Mile End | "Saturday parkrun just finished" | Regular cyclists |
 | 3 | Broadway Market | "Sourdough is £9 now" | Dog walkers, prams, crowds |
-| 4 | Haggerston | "Every warehouse is now a coffee roastery" | Lime bikes |
+| 4 | Haggerston | "Every warehouse is now a coffee roastery" | Lemon bikes |
 | 5 | Kingsland Road / De Beauvoir | "Houseboat wood smoke advisory" | More frequent bridges |
 | 6 | Islington Tunnel (detour over the streets at Angel) | "The towpath stops. Good luck, Angel." | A special street section? |
 | 7 | King's Cross / Granary Square | "Tech bros on scooters" | Running clubs |
@@ -160,8 +160,8 @@ _First draft, all open to change:_
   - "I'm a local" aura: tourists step aside.
 - **Causes of death** (shown on game over):
   - "Deliveroo'd. Your order is 2 minutes away."
-  - "Overtaken by a running club. Strava will remember."
-  - "Lime bike'd. It wasn't even being ridden."
+  - "Overtaken by a running club. Strova will remember."
+  - "Lemon bike'd. It wasn't even being ridden."
   - "Tangled in an extendable dog lead. The dog is fine."
 - **Rank titles by score:** Tourist → Day-tripper → Zone 2 Renter → Hackney Local → Houseboat Owner → Canal Legend.
 - **Leaderboard flavour:** player name + postcode area ("E8" vs "N1" rivalry?).
@@ -202,9 +202,9 @@ Jump/duck, character customisation (outfits), accounts and logins.
 
 | Ad | Headline | Button → after pressing |
 |---|---|---|
-| The Victory (pub sign flips OPEN/SHUT) | GOOGLE SAYS OPEN. GOOGLE IS WRONG. | GET DIRECTIONS → SORRY, WE'RE SHUT |
+| The Victory (pub sign flips OPEN/SHUT) | THE MAPS SAY OPEN. THE MAPS ARE WRONG. | GET DIRECTIONS → SORRY, WE'RE SHUT |
 | Community Canoe (chained, a duck sitting in it) | SENT TO THE GROUP CHAT 31 TIMES. BOOKED 0 TIMES. | BOOK NOW → MAYBE NEXT SUMMER |
-| DUDE London (the black warehouse, drinks upstairs) | CRAZY SHIT. THAT WORKS. LIKE THIS GAME. | HIRE US → NOT NOW, WE'RE AT THE VICTORY (2nd press opens dude.it/london) |
+| DUDE London (the black warehouse, drinks upstairs) | CRAZY IDEAS. THAT WORK. LIKE THIS GAME. | HIRE US → NOT NOW, WE'RE AT THE VICTORY (2nd press opens dude.it/london) |
 | Hot Tub Time (floating sauna; Dave drops the towel, censored by a pixel mosaic, jumps in, surfaces wearing a cone/bag/duck) | MISSING THE HEATWAVE? 90°C ON A BOAT. 4°C IN THE CANAL. | BOOK A SESSION → FULLY BOOKED BY CONSULTANTS |
 | Narrowboat for sale (£85,000 ONO; the boat keeps moving to a new mooring) | MOVE EVERY 14 DAYS. LIKE RENTING, BUT WET. | ENQUIRE NOW → YOUR TOILET IS NOW FULL |
 | Soft Launch Run Club (matching neon kit, a couple holding hands drifts to the back, hearts instead of sweat) | 5K. 3 DATES. 0 PERSONAL BESTS. | JOIN THE CLUB → MATCHED WITH YOUR EX |
@@ -284,3 +284,10 @@ Jump/duck, character customisation (outfits), accounts and logins.
   - 🦆 The Courtship Dance: "Out-dance a mallard. A lady duck is watching." → Dance again
 - Already won: the replay button (just for fun, no unlock screen). Score reached but not won: "Win to unlock <name>". Not reached: "???" and "🔒 Unlock this walker to find out".
 - After a game you come back to Side Hustles; "◀ Back to the towpath" returns to the game-over card. Ideas for later: personal bests per hustle, separate leaderboards.
+
+## Store-safe rules (built, for the App Store and Google Play)
+- **No real brand names in anything the player sees.** Parody or generic instead, in the same spirit as GIALS and GOATLY (change a letter, or say what it is). Used so far: Lemon bikes (not Lime), Strova, Maps, the 'gram, Airbunk, Bugaboom, "a pint of stout", Chelsea tractor, "the estate car", "chocolate puffs", "the nursery group chat", "the Hackney neighbours' group". Real places (Hackney, Regent's Canal, Broadway Market) are fine, and so is the DUDE London sponsor.
+- **Keep it Teen-friendly:** mild cartoon mishaps, cheeky humour, pub and vape jokes are fine; no swearing and no genitals jokes (the sauna ad says "PIXELATED BITS", the DUDE ad says "CRAZY IDEAS", the graffiti tag is HOTSOX).
+- **Leaderboard names** are filtered (capitals and numbers only, blocklist in `leaderboard.js`) and can be reported with the flag next to a name. Reports land in the private Supabase table `reports` (`docs/supabase/06-reports.sql`).
+- The game must work **offline** (Three.js and fonts ship with it) and pause its sound when the app goes to the background.
+- A privacy page and a support page live at `public/privacy.html` and `public/support.html`, linked from the title card. Update the privacy page whenever the game starts storing something new.

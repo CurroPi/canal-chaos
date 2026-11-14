@@ -26,19 +26,42 @@
 ### Later: bigger content
 11. [ ] **The journey**: Victoria Park → Camden, with banners for real stretches (Broadway Market, Haggerston, Islington Tunnel) and a Camden finale (Spike's mates as the "boss").
 12. [ ] **More fake ads and walkers** (ongoing; reserve names in the GDD).
-13. [ ] **App stores** (Capacitor wrap; parody brand names first) and **money**: local sponsors first, ads only if it takes off.
+13. [ ] **App stores** (App Store + Google Play; free; Individual developer accounts; Capacitor wrap that bundles the game, so it works offline). Apps do NOT update when we push: every game update needs a new build in each store.
+    - [x] Self-contained game: Three.js and the pixel fonts ship in `public/vendor/` and `public/fonts/` (no CDN).
+    - [x] Store-safe content: real brands made parody (Lime → **Lemon** bikes, Strova, Maps, 'gram, Airbunk, Bugaboom…), three crude bits toned down (lower age rating).
+    - [x] Phone-app basics: sound and walk pause when the app goes to the background; flag next to leaderboard names to report them (needs `docs/supabase/06-reports.sql`); `public/privacy.html` + `public/support.html` (linked from the title card); 1024px app icon in `store-assets/`.
+    - [ ] **Decide the game's name.** Curro is thinking of "On Your Right" because a similar app called "canalchaos" is already in the App Store. Blocks the app id, listing and any rename in the game (title card, share card, manifest, privacy pages).
+    - [ ] Capacitor wrap: `ios/` and `android/` projects, native share + in-app browser (`public/src/links.js`, `share.js`), icons and splash. Needs the name decided and Xcode + Android Studio installed.
+    - [ ] Test on iOS Simulator, Android emulator, then real phones (swipes, sound after first tap, share, notch, background, offline, landscape on tablets).
+    - [ ] Android closed test: 12 testers opted in for 14 days (Google rule for new personal accounts), then apply for production. iOS: TestFlight.
+    - [ ] Listings (`docs/STORE_LISTING.md`), screenshots from the game, age rating + privacy answers, submit (Curro presses Submit).
+    - [ ] `docs/RELEASING.md`: how to ship an update to both stores.
+    - [ ] **Money**: local sponsors first, ads only if it takes off.
 
 ### Maybe
 - [ ] Pixel-style DOOM PIGEONS print for Josh, to match Alex's ARIES.
 - [ ] Instagrammer enemy redesign (ring light or selfie stick), then re-enable in src/config.js.
 
 ## 🧑 For Curro (outside the code)
+**App stores (start the waiting ones first):**
+- [ ] Decide the game's name (see item 13). Check it in both store searches before committing to it.
+- [ ] Enrol in the **Apple Developer Program** as an Individual ($99/year): https://developer.apple.com/programs/enroll/ (can take days).
+- [ ] Create a **Google Play Console** account ($25 once, ID + phone check): https://play.google.com/console/signup
+- [ ] Install **Xcode** (Mac App Store) and **Android Studio**, open each once. Tell Claude when done.
+- [ ] Create the public contact email, then replace `[Contact email coming soon]` in `public/privacy.html` and `public/support.html` (it shows publicly once you push).
+- [ ] In Supabase → SQL Editor, run `docs/supabase/06-reports.sql` (so name reports get stored). Until then the flag still hides the name for that player.
+- [ ] Read `public/privacy.html` and check it says what you're happy with.
+- [ ] Line up 15+ people with Android phones for the Google closed test (can be the playtest friends).
+- [ ] Mention to DUDE that their ad line is now "CRAZY IDEAS. THAT WORK. LIKE THIS GAME."
+
+**Website:**
 - [ ] GitHub → Settings → Pages: check **Enforce HTTPS** is ticked (the site already loads over https).
 - [ ] Delete the old Netlify site.
 - [ ] Replace [LINK] in `Marketing Materials/captions.md` with https://playcanalchaos.com.
 - [ ] Push origin in GitHub Desktop after each session.
 
 ## ✅ Done so far
+- App-store prep (Nov 2026): game bundles Three.js + fonts (works offline); real brands renamed; crude bits toned down; background pause; report-a-name flag; privacy + support pages; 1024px icon. Still to do: see item 13.
 - Design: GDD, satire tone, cast, enemies, towpath lanes.
 - Game: 3-lane endless runner in Three.js; Lime bikes, delivery e-bikes (fair: one warning at a time, no last-second swerves), runners, run clubs, dog walkers, prams, cargo bikes, specials, bridges, café coffee refills, close calls, rush levels, Hackney milestone titles, speech bubbles, 14+ canal gags, East London far bank, DUDE office.
 - Walkers: 12 (free: Sophie, Alex, Joe, Jasper; unlocks: Pilar 500 + Pilar's show, Fern 600, David 700 + pool, Spike 800, Josh 900, Ross 1,000, Tanner 1,100, Duck 1,200 + courtship dance), own drinks, one-liners, unlock screen with fanfare.
