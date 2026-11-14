@@ -33,8 +33,8 @@
     - [x] **Name decided: "On Your Right"** (a similar app called "canalchaos" is already in the App Store). Renamed in the title card, page title, manifest, privacy/support/stats pages, share file name and docs. The website address moved too (see the domain item below). Deliberately NOT changed: the GitHub repo name and the `canal-` saved-data keys (changing those would wipe players' scores).
     - [ ] Still shows "Canal Chaos": the Marketing Materials stills and `captions.md` (they also say "Lime bikes"). Regenerate with the `?debug` promo tools before posting; the tool's text is already updated.
     - [ ] **New domain that matches the name** (Curro's decision, to be consistent). `onyourright.com` is taken (registered 2021 through 2028); **Chosen: `onyourright.app`** (the `.app` registry showed it unregistered on 14 Nov 2026, so buy it before someone else does). `.app` sites only load over HTTPS, so the new site will not open at all until GitHub has issued its certificate (can take a while after DNS is set). Order of work:
-      1. ✅ Bought 14 Nov 2026 at Squarespace (paid to 14 Nov 2027: switch on auto-renew).
-      2. ✅ DNS done in Squarespace (four **A** records on `@` → 185.199.108-111.153, **CNAME** `www` → `curropi.github.io`; checked from outside, all correct) and `onyourright.app` set as the custom domain in GitHub Pages. Live on https with a Let's Encrypt certificate (checked 14 Nov 2026). Still to tick: **Enforce HTTPS** (plain http still answers).
+      1. ✅ Bought 14 Nov 2026 at Squarespace (paid to 14 Nov 2027; auto-renew is on by default).
+      2. ✅ DNS done in Squarespace (four **A** records on `@` → 185.199.108-111.153, **CNAME** `www` → `curropi.github.io`; checked from outside, all correct) and `onyourright.app` set as the custom domain in GitHub Pages. Live on https with a Let's Encrypt certificate (checked 14 Nov 2026). **Enforce HTTPS** ticked by Curro.
       3. ✅ Game links switched to the new domain (`GAME_URL` and the share card line in `share.js`, `public/privacy.html`, docs). Takes effect on the live site when Curro pushes.
       4. ✅ Old `playcanalchaos.com` and `www.playcanalchaos.com` forward to `https://onyourright.app` (Squarespace domain forwarding, 301, paths kept; checked 14 Nov 2026, e.g. `/stats.html` lands on `onyourright.app/stats.html`). Its old GitHub DNS records are gone. Remember `playcanalchaos.com` is also paid yearly: keep it renewed as long as old links matter.
       5. The app id is the new domain written backwards (see the Capacitor item); the stores' privacy and support links use the new domain.
@@ -52,7 +52,7 @@
 
 ## 🧑 For Curro (outside the code)
 **App stores (start the waiting ones first):**
-- [ ] **Finish the domain move:** tick **Enforce HTTPS** in GitHub → repo Settings → Pages; switch on **auto-renew** for `onyourright.app` (the forwarding from `playcanalchaos.com` is done).
+- [x] **Finish the domain move:** Enforce HTTPS ticked, `playcanalchaos.com` forwards to the new address. Auto-renew is on by default at Squarespace and was not checked; first renewal is due 14 Nov 2027 (Squarespace emails about 15 days before: keep the card valid).
 - [ ] Check "On Your Right" is free: in the App Store and Google Play searches now, and by reserving it the moment each account is ready (names are first come, first served).
 - [ ] Enrol in the **Apple Developer Program** as an Individual ($99/year): https://developer.apple.com/programs/enroll/ (can take days).
 - [ ] Create a **Google Play Console** account ($25 once, ID + phone check): https://play.google.com/console/signup
