@@ -267,7 +267,7 @@ export function playPlants(card, cfg, onDone) {
     p.health = 0;
     say('It\'s fine. I\'ll get another one on Sunday. And a bigger one.');
     finish(`<p class="pool-big lose">RIP THE ${PLANTS[p.kind].name.toUpperCase()}</p>
-      <p>Fern is writing a eulogy<br>for Instagram.</p>${retry}`, false);
+      <p>Fern is writing a eulogy<br>for the 'gram.</p>${retry}`, false);
   }
   function loseSlow(slow) {
     say('Alive, sure. But where are the NEW LEAVES?');

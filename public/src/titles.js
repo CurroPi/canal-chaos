@@ -24,7 +24,7 @@ export const TIERS = [
       t('DALSTON AFTER DARK', 'You\'ve been to a gig in a former bank.'),
       t('NATURAL WINE CERTIFIED', 'It\'s a bit funky. In a good way.'),
       t('BROADWAY MARKET VIP', 'The cheese man knows your name.'),
-      t('SHARED SPACE DIPLOMAT', 'You said sorry to a Lime bike.'),
+      t('SHARED SPACE DIPLOMAT', 'You said sorry to a Lemon bike.'),
       t('COLUMBIA ROAD SUNDAY', 'You bought eucalyptus you didn\'t need.'),
     ],
   },

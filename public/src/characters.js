@@ -98,7 +98,7 @@ export const CHARACTERS = [
     emoji: '🍺',
     spill: ['MY PINT!', 'That was a perfect pour.'],
     refill: ['Ah. A proper pint.'],
-    drink: { name: 'Pint of Guinness', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
+    drink: { name: 'Pint of stout', kind: 'pint', body: 0x1a120d, head: 0xf3e6c8, splash: 0x2b1d14 },
   },
   {
     id: 'spike', // the Camden punk who walked the wrong way

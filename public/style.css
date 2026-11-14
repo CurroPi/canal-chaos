@@ -294,7 +294,7 @@ html, body {
 .top10 { list-style: none; margin: 8px 0; padding: 0; text-align: left; }
 .top10 li {
   display: grid;
-  grid-template-columns: 26px 1fr 16px 64px;
+  grid-template-columns: 26px 1fr 16px 64px 22px;
   align-items: center;
   gap: 6px;
   padding: 3px 6px;
@@ -305,6 +305,22 @@ html, body {
 .top10 li.me { background: #ffd23f; }
 .top10 .pts { text-align: right; }
 .top10 .walker svg { width: 12px; height: 16px; display: block; }
+/* The little flag for reporting a rude name: quiet until you tap it, then red until you confirm */
+.top10 .flag {
+  margin: 0;
+  padding: 2px;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.35;
+  cursor: pointer;
+}
+.top10 .flag:hover, .top10 .flag:focus-visible { opacity: 0.9; }
+.top10 .flag.sure { opacity: 1; background: #ff3b3b; border-radius: 4px; }
 
 /* ---------- Milestone titles ---------- */
 #milestone {
@@ -372,6 +388,15 @@ html, body {
     -2px -2px 0 #1b1b1b, 2px -2px 0 #1b1b1b, -2px 2px 0 #1b1b1b, 2px 2px 0 #1b1b1b,
     0 3px 0 #1b1b1b;
 }
+/* "Privacy · Support" (the app stores want the privacy policy reachable from inside the game) */
+.legal-line {
+  margin: 10px 0 0;
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: #fffaf0;
+  text-shadow: -1px -1px 0 #1b1b1b, 1px -1px 0 #1b1b1b, -1px 1px 0 #1b1b1b, 1px 1px 0 #1b1b1b;
+}
+.legal-line a { color: #fffaf0; padding: 6px 4px; } /* padding: a bigger tap target on phones */
 #overlay.clear { justify-content: flex-end; align-items: center; }
 
 /* Sound effects toggle, under the music one */

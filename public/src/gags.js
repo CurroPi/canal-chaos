@@ -141,7 +141,7 @@ const POSTERS = [
   ['FREE SOFA', 'slightly haunted', '#ffffff'],
   ['SOURDOUGH STARTER', 'needs a loving home', '#f6ead2'],
   ['VINTAGE MARKET', 'everything £45', '#e3f7e3'],
-  ['HAVE YOU SEEN', 'my Lime bike? last seen in the canal', '#ffffff'],
+  ['HAVE YOU SEEN', 'my Lemon bike? last seen in the canal', '#ffffff'],
   ['CERAMICS CLASS', 'make a mug you\'ll never use', '#ffe9d6'],
   ['COMEDY NIGHT', 'in a laundrette, Thursdays', '#f0e6ff'],
   ['BAND SEEKS DRUMMER', 'must own a van', '#fff3a8'],

@@ -1,6 +1,8 @@
 // Fake, ironic "ad breaks" between runs: pixel-art scenes in the style of cheap mobile-game ads.
 // Each scene is drawn on a tiny 160x120 canvas and scaled up, so every rectangle is one chunky pixel.
 
+import { openLink } from './links.js';
+
 const W = 160;
 const H = 120;
 let g = null; // the canvas being drawn on
@@ -173,7 +175,7 @@ function makeTag() {
   c.height = 20;
   const s = c.getContext('2d');
   seed = 77;
-  const words = 'RUSHT GEWEY HOTSEX PISTOL PETE';
+  const words = 'RUSHT GEWEY HOTSOX PISTOL PETE';
   const x0 = Math.round(W / 2 - textWidth(words) / 2) + 1;
   [...words].forEach((ch, i) => {
     const p = FONT[ch];
@@ -472,7 +474,7 @@ export const ADS = [
   {
     logo: 'V', logoBg: '#141414', logoFg: '#e8c766',
     brand: 'THE VICTORY', sub: 'Sponsored · Pub · Hackney',
-    headline: 'GOOGLE SAYS OPEN.<br>GOOGLE IS WRONG.',
+    headline: 'THE MAPS SAY OPEN.<br>THE MAPS ARE WRONG.',
     small: '*Opening hours subject to vibes. Happy hour also subject to vibes.',
     stars: '★★★☆☆ "it was shut"',
     cta: 'GET DIRECTIONS', ctaAfter: 'SORRY, WE\'RE SHUT',
@@ -490,9 +492,9 @@ export const ADS = [
   {
     logo: 'D', logoBg: '#111', logoFg: '#fffaf0',
     brand: 'DUDE LONDON', sub: 'Sponsored · Creative agency',
-    headline: 'CRAZY SHIT.<br>THAT WORKS.<br>LIKE THIS GAME.',
+    headline: 'CRAZY IDEAS.<br>THAT WORK.<br>LIKE THIS GAME.',
     small: 'You are literally playing the portfolio.',
-    stars: '★★★★★ "crazy shit"',
+    stars: '★★★★★ "crazy ideas"',
     cta: 'HIRE US', ctaAfter: 'NOT NOW, WE\'RE AT THE VICTORY',
     link: 'https://dude.it/london/', // the second press opens it
     draw: dude,
@@ -500,7 +502,7 @@ export const ADS = [
   {
     logo: 'H', logoBg: '#8a5a32', logoFg: '#ffcf7a',
     brand: 'HOT TUB TIME', sub: 'Sponsored · Floating sauna · Regent\'s Canal',
-    badge: 'RATED PG: PIXELATED GENITALS',
+    badge: 'RATED PG: PIXELATED BITS',
     headline: 'MISSING THE HEATWAVE?<br>90°C ON A BOAT.<br>4°C IN THE CANAL.',
     small: 'Towels optional. Dignity not included. Canal water not tested.',
     stars: '★★★★★ "my pores have never been so open. or so scared."',
@@ -570,7 +572,7 @@ export function playAd(container, { skipAfter }, done) {
 
   let pressed = false;
   cta.addEventListener('click', () => {
-    if (pressed && ad.link) window.open(ad.link, '_blank', 'noopener');
+    if (pressed && ad.link) openLink(ad.link);
     pressed = true;
     cta.textContent = ad.ctaAfter;
   });

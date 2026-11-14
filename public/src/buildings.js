@@ -384,7 +384,7 @@ export function makeOffice(z) {
   }
 
   // Graffiti along the bottom
-  tagMat ||= new THREE.MeshBasicMaterial({ map: graffitiTexture('RUSHT  GEWEY  HOTSEX  PISTOL PETE'), transparent: true });
+  tagMat ||= new THREE.MeshBasicMaterial({ map: graffitiTexture('RUSHT  GEWEY  HOTSOX  PISTOL PETE'), transparent: true });
   tagGeo ||= new THREE.PlaneGeometry(length - 1, 1.3);
   const tag = new THREE.Mesh(tagGeo, tagMat);
   tag.rotation.y = Math.PI / 2;

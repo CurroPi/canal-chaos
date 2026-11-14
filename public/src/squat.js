@@ -19,7 +19,7 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const SHOPS = [
   { sign: 'GIALS', icon: 'loaf', poster: ['YET ANOTHER', 'SOURDOUGH'], board: '#1f3d33', ink: '#f3e6c8', intro: 'A GIALS. The surest sign your rent is about to double.', open: '£7 toast. Your rent just doubled.' },
   { sign: 'GOATLY', icon: 'cup', poster: ['YET ANOTHER', 'COFFEE PLACE'], board: '#f4f1ea', ink: '#1b1b1b', intro: 'Goat milk lattes. Where the launderette used to be.', open: 'Goat milk flat whites, £6.80.<br>The launderette is a memory.' },
-  { sign: 'CEREAL THRILLER', icon: 'bowl', poster: ['CEREAL.', 'JUST CEREAL.'], board: '#e8487a', ink: '#fff6a0', intro: '£9 cereal. Next door to the food bank.', open: '£9 for Coco Pops.<br>The food bank queue can watch.' },
+  { sign: 'CEREAL THRILLER', icon: 'bowl', poster: ['CEREAL.', 'JUST CEREAL.'], board: '#e8487a', ink: '#fff6a0', intro: '£9 cereal. Next door to the food bank.', open: '£9 for chocolate puffs.<br>The food bank queue can watch.' },
   { sign: 'BRULE', icon: 'ramekin', poster: ['PUDDING FOR', 'LANDLORDS'], board: '#d9a441', ink: '#3a2412', intro: 'A shop that ONLY does creme brulee. For people who own three flats.', open: 'Creme brulee only. £14.<br>Landlords love it.' },
   { sign: 'FUNKY JUICE', icon: 'bottle', poster: ['WINE, BUT', 'CLOUDY'], board: '#6a2c5a', ink: '#ffd6f0', intro: 'Natural wine. It\'s just wine that went off, at £68.', open: 'Cloudy wine, £68 a bottle.<br>The pub it replaced did pints for £3.' },
   { sign: 'DOWNWARD DOG CO', icon: 'dog', poster: ['YOGA.', 'FOR DOGS.'], board: '#9fd8c8', ink: '#1b3a33', intro: 'Dog yoga. Those dogs have more space than my whole flat.', open: 'Dog yoga, £30 a class.<br>The dogs pay less rent than you.' },
@@ -273,7 +273,7 @@ export function playSquat(card, cfg, onDone) {
     say('Still a squat. Still CAMDEN. Kind of.', true);
     finish(`<p class="pool-big win">THE UNIT STAYS EMPTY!</p>
       <p>Just a broken fridge and a<br>community noticeboard. Perfect.</p>
-      <p class="squat-twist">…the landlord just listed your squat on Airbnb.<br>"Authentic punk experience, £340/night."</p>
+      <p class="squat-twist">…the landlord just listed your squat on Airbunk.<br>"Authentic punk experience, £340/night."</p>
       <button class="pool-continue">Continue</button>`, true);
   }
   // Losing: they throw a GRAND OPENING first (confetti, balloons, a ribbon, a queue), then the verdict

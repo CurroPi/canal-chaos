@@ -34,6 +34,11 @@ export async function selectRows(path) {
   return res.json();
 }
 
+// "Report this name" on the Top 10. Goes into a private table (docs/supabase/06-reports.sql) that only the owner can read.
+export async function reportName(name, score) {
+  await insertRow('reports', { name: String(name).slice(0, 12), score: Math.max(0, Math.floor(Number(score)) || 0) });
+}
+
 // "best_scores" is a database view with each name's best score. If it hasn't been created yet,
 // fall back to the raw scores and sort out the duplicates here.
 let useView = null;

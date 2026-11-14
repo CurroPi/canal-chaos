@@ -22,7 +22,7 @@ export const ENEMIES = {
     build: ([l]) => at(makeRunner(), X[l]),
     animate: (m, t) => animateWalk(m, t + m.phase, 13),
     deaths: [
-      'Flattened by a jogger. Strava will remember.',
+      'Flattened by a jogger. Strova will remember.',
       'Run over mid-tempo. They didn\'t even pause their watch.',
       'Collided with a marathon trainee. It\'s their taper week.',
       'Jogged into oblivion. They said "sorry" without stopping.',
@@ -60,10 +60,10 @@ export const ENEMIES = {
     build: ([l]) => at(makeLimeRider(), X[l]),
     animate: (m, t) => animateLime(m, t + m.phase),
     deaths: [
-      'Lime\'d. They were doing 15mph while checking Google Maps.',
-      'Hit by a Lime bike. It\'ll be in the canal by 6pm.',
+      'Lemon\'d. They were doing 15mph while checking Maps.',
+      'Hit by a Lemon bike. It\'ll be in the canal by 6pm.',
       'Run over by someone who "hasn\'t really cycled since uni".',
-      'Mown down by a Lime. Their trip cost £4.20. Yours cost everything.',
+      'Mown down by a Lemon. Their trip cost £4.20. Yours cost everything.',
     ],
     behindDeaths: [
       '"ON YOUR LEFT!" You went left.',
@@ -88,9 +88,9 @@ export const ENEMIES = {
     build: ([l]) => at(makePramPusher(), X[l]),
     animate: (m, t) => animateWalk(m, t + m.phase, 6),
     deaths: [
-      'Rammed by a £1,400 pram. It has better suspension than a Range Rover.',
-      'Flattened by a Bugaboo. The baby didn\'t even wake up.',
-      'Ran into a pram. You\'ve been reported to the NCT WhatsApp.',
+      'Rammed by a £1,400 pram. It has better suspension than a Chelsea tractor.',
+      'Flattened by a Bugaboom. The baby didn\'t even wake up.',
+      'Ran into a pram. You\'ve been reported to the nursery group chat.',
     ],
   },
 
@@ -128,7 +128,7 @@ export const ENEMIES = {
     deaths: [
       'Slapped by a Monstera deliciosa. It was £85 on Marketplace.',
       'Taken out by a houseplant. Its name is Gerald.',
-      'Walked into a Monstera. It has more Instagram followers than you.',
+      'Walked into a Monstera. It has more followers than you.',
     ],
   },
 
@@ -138,7 +138,7 @@ export const ENEMIES = {
     animate: (m, t) => animateCafeQueue(m, t + m.phase),
     deaths: [
       'Walked into the cinnamon bun queue. Everyone tutted in unison.',
-      'Cut the narrowboat café queue. You\'re trending on the Hackney Facebook group.',
+      'Cut the narrowboat café queue. You\'re trending in the Hackney neighbours\' group.',
       'Collided with a queue for £6 cinnamon buns. Worth it, apparently.',
     ],
   },

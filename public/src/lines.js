@@ -3,7 +3,7 @@
 export const LINES = {
   runner: [
     'It\'s a RUNNING path!',
-    'Strava or it didn\'t happen',
+    'Strova or it didn\'t happen',
     'Don\'t ruin my segment!',
   ],
 
@@ -30,7 +30,7 @@ export const LINES = {
 
   pram: [
     'Arlo\'s napping!',
-    'Bugaboo coming through!',
+    'Bugaboom coming through!',
   ],
 
   dogWalker: [
@@ -40,7 +40,7 @@ export const LINES = {
   ],
 
   cargoBike: [
-    'We sold the Volvo',
+    'We sold the estate car',
     'Mind the sourdough!',
   ],
 

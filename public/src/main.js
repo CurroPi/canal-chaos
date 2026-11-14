@@ -5,10 +5,11 @@ import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box, makeCargoBike } from './models.js';
 import { ENEMIES } from './enemies.js';
 import { CHARACTERS, characterById, drinkSvg } from './characters.js';
-import { leaderboardEnabled, topScores, submitScore, rankOf, bestOf, cleanName } from './leaderboard.js';
+import { leaderboardEnabled, topScores, submitScore, rankOf, bestOf, cleanName, reportName } from './leaderboard.js';
+import { openLink } from './links.js';
 import { titleFor } from './titles.js';
 import { playAd, queueAd } from './ads.js';
-import { snapshot, makeScoreCard, shareCard } from './share.js';
+import { snapshot, makeScoreCard, shareCard, GAME_URL } from './share.js';
 import { playPool } from './pool.js';
 import { recordRun, recordHustle } from './stats.js';
 import { playCourtship } from './courtship.js';
@@ -18,7 +19,7 @@ import { playSquat } from './squat.js';
 import {
   initAudio, bell, spillSound, crashSound, pickupSound, whineSound,
   startMusic, stopMusic, whooshSound, setMusicIntensity, gameOverJingle, isMuted, toggleMute, fanfare, closeCallSound,
-  isSfxMuted, toggleSfx,
+  isSfxMuted, toggleSfx, suspendAudio, resumeAudio,
 } from './sound.js';
 import { LINES } from './lines.js';
 import { GAGS, makeNarrowboat, addPosters } from './gags.js';
@@ -217,9 +218,13 @@ const warningEl = document.getElementById('warning');
 
 // `credit`: show "BY DUDE LONDON" under the card (only on the intro screens)
 function showOverlay(html, onButton = start, cls = '', credit = false) {
-  overlay.innerHTML = `<div class="card ${cls}">${html}</div>${credit ? '<p class="credit-line">BY DUDE LONDON</p>' : ''}`;
+  const creditHtml = credit ? `<p class="credit-line">BY DUDE LONDON</p>
+    <p class="legal-line"><a data-link href="${GAME_URL}/privacy.html">Privacy</a> · <a data-link href="${GAME_URL}/support.html">Support</a></p>` : '';
+  overlay.innerHTML = `<div class="card ${cls}">${html}</div>${creditHtml}`;
   overlay.classList.remove('hidden', 'clear');
   if (onButton) overlay.querySelector('button')?.addEventListener('click', onButton);
+  // Links open through one helper (a new tab on the website, the in-app browser in the phone apps)
+  overlay.querySelectorAll('a[data-link]').forEach((a) => a.addEventListener('click', (ev) => { ev.preventDefault(); openLink(a.href); }));
 }
 
 // The intro story: lines fade in one by one
@@ -227,7 +232,7 @@ function showStory() {
   const lines = [
     '<p class="when">Saturday, 11am. Regent\'s Canal.</p>',
     '<p>All you want is to walk to Broadway Market with your oat flat white.</p>',
-    '<p>Run clubs hunt in packs. Lime bikes don\'t brake. A sausage dog is attacking a duck.</p>',
+    '<p>Run clubs hunt in packs. Lemon bikes don\'t brake. A sausage dog is attacking a duck.</p>',
     '<p>The sign says <em>Share the Space</em>.<br><strong>Nobody has read the sign.</strong></p>',
     '<p class="motto">Keep your coffee. Keep your dignity. Keep walking.</p>',
   ];
@@ -243,7 +248,7 @@ function showRules() {
   showOverlay(`
     <h2>How to survive</h2>
     <ul class="rules">
-      <li><b>← →</b> or swipe to dodge. Lime bikes, runners, run clubs, dog leads, prams, bridges.</li>
+      <li><b>← →</b> or swipe to dodge. Lemon bikes, runners, run clubs, dog leads, prams, bridges.</li>
       <li><b>🔔 Listen for bells.</b> Bikes come from behind. The red lane is where they're going.</li>
       <li><b>👣 Every step counts.</b> How far down the towpath can you get on a Saturday?</li>
       <li><b>☕ Your drink is your extra life.</b> Coffee, matcha, a pint: spill it and you get one more go. The narrowboat café pops up every now and then with a refill.</li>
@@ -1018,12 +1023,26 @@ function savedName() {
   try { return localStorage.getItem('canal-name') || ''; } catch { return ''; }
 }
 
-function boardRow(rank, name, walker, score, cls = '') {
+// Names this player has reported: hidden from their Top 10 from then on (and sent to the owner, see reportName)
+function reportedNames() {
+  try { return new Set(JSON.parse(localStorage.getItem('canal-reported')) || []); } catch { return new Set(); }
+}
+function rememberReported(name) {
+  const names = reportedNames().add(name);
+  try { localStorage.setItem('canal-reported', JSON.stringify([...names])); } catch { /* storage unavailable */ }
+}
+
+// `reportable` adds a little flag for reporting other people's names (not for your own row or "THIS RUN")
+function boardRow(rank, name, walker, score, cls = '', reportable = false) {
+  const flag = reportable
+    ? `<button type="button" class="flag" data-name="${esc(name)}" data-score="${Number(score)}" aria-label="Report the name ${esc(name)}">🚩</button>`
+    : '<span></span>';
   return `<li class="${cls}">
     <span class="rank">${rank}</span>
     <span class="who">${esc(name)}</span>
     <span class="walker">${walker ? drinkSvg(characterById(walker).drink) : ''}</span>
     <span class="pts">${Number(score)}</span>
+    ${flag}
   </li>`;
 }
 
@@ -1032,7 +1051,8 @@ function boardRow(rank, name, walker, score, cls = '') {
 function renderBoard(top, you) {
   const list = document.getElementById('boardList');
   if (!list) return;
-  const entries = top.map((r) => ({ ...r }));
+  const hiddenNames = reportedNames();
+  const entries = top.filter((r) => !hiddenNames.has(r.name) || r.name === you.name).map((r) => ({ ...r }));
   if (you.preview && you.rank <= 10) {
     entries.splice(you.rank - 1, 0, { name: 'THIS RUN', walker: you.walker, score: you.score, ghost: true });
     entries.length = Math.min(entries.length, 10);
@@ -1041,7 +1061,7 @@ function renderBoard(top, you) {
   const rows = entries.map((r, i) => {
     const mine = !you.preview && r.name === you.name;
     if (mine || r.ghost) shown = true;
-    return boardRow(i + 1, r.name, r.walker, r.score, r.ghost ? 'ghost' : mine ? 'me' : '');
+    return boardRow(i + 1, r.name, r.walker, r.score, r.ghost ? 'ghost' : mine ? 'me' : '', !mine && !r.ghost);
   });
   if (!shown) {
     rows.push('<li class="gap">…</li>');
@@ -1066,6 +1086,28 @@ async function showLeaderboard(final) {
   const input = board.querySelector('input');
   const msg = board.querySelector('.board-msg');
   input.addEventListener('input', () => { input.value = input.value.toUpperCase(); });
+
+  // The flag next to a name: first tap asks, second tap on the same flag sends the report and hides the name
+  let askedAbout = null;
+  board.addEventListener('click', (ev) => {
+    const flag = ev.target.closest('.flag');
+    if (!flag) return;
+    const { name, score } = flag.dataset;
+    if (askedAbout !== flag) {
+      board.querySelectorAll('.flag.sure').forEach((f) => f.classList.remove('sure'));
+      flag.classList.add('sure');
+      askedAbout = flag;
+      msg.textContent = `Report the name ${name}? Tap its flag again.`;
+      return;
+    }
+    rememberReported(name);
+    flag.closest('li').remove();
+    askedAbout = null;
+    msg.textContent = 'That name is now hidden for you. Sending your report…';
+    reportName(name, score)
+      .then(() => { msg.textContent = 'Thanks. That name is hidden for you, and we have been told.'; })
+      .catch(() => { msg.textContent = 'That name is hidden for you. (We couldn\'t send the report right now.)'; });
+  });
 
   try {
     const [top, rank] = await Promise.all([topScores(10), rankOf(final)]);
@@ -1141,6 +1183,17 @@ function wakeAudio() {
 }
 window.addEventListener('pointerdown', wakeAudio, { once: true });
 window.addEventListener('keydown', wakeAudio, { once: true });
+
+// Phone call, app switch, locked screen: stop the music and freeze the walk, so nobody comes back to a crash
+document.addEventListener('visibilitychange', () => {
+  hidden = document.hidden;
+  if (hidden) {
+    suspendAudio();
+  } else {
+    resumeAudio();
+    clock.getDelta(); // skip the time spent away
+  }
+});
 
 const sfxBtn = document.getElementById('sfx');
 function showSfx() {
@@ -1232,6 +1285,7 @@ function updateWarning(t) {
   warningEl.classList.remove('hidden');
 }
 
+let hidden = false;  // the app (or tab) is in the background: freeze the game and go quiet
 let paused = false;  // testing helper
 let simSpeed = 1;    // testing helper: run the game several steps per frame
 let autopilot = null; // testing helper: a bot that plays
@@ -1240,7 +1294,7 @@ let autoRuns = 0;
 const runLog = [];
 
 function tick() {
-  const dt = paused ? 0 : Math.min(clock.getDelta(), 0.05);
+  const dt = paused || hidden ? 0 : Math.min(clock.getDelta(), 0.05);
   for (let i = 0; i < simSpeed; i++) step(dt, clock.elapsedTime + i * dt);
   followCamera();
   renderer.render(scene, camera);

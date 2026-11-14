@@ -12,6 +12,15 @@ export function initAudio() {
   }
 }
 
+// When the app goes to the background (or the tab is hidden) the sound must stop with it,
+// and come back when the player returns. Does nothing if audio hasn't started yet.
+export function suspendAudio() {
+  if (ctx && ctx.state === 'running') ctx.suspend().catch(() => { /* nothing to pause */ });
+}
+export function resumeAudio() {
+  if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => { /* needs a tap first */ });
+}
+
 // All sound effects go through one volume control, so they can be muted separately from the music
 let sfxGain = null;
 let sfxMuted = false;

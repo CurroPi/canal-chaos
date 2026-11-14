@@ -9,7 +9,7 @@ const rand = (min, max) => min + Math.random() * (max - min);
 
 // Invented tags (plus a few local opinions)
 const PIECE_WORDS = ['ZOKE', 'KREM', 'BAZE', 'SKOR', 'OATY', 'DRIP', 'FLUX', 'REMS', 'TOFU', 'YUPZ', 'NOPE', 'E9'];
-const TAG_WORDS = ['zoke', 'krem!', 'E9 KREW', 'NO2LIME', 'YUPPIES OUT', 'oat milk is a lie', 'baze', 'skor E8', 'RENT 2 HIGH', 'dms'];
+const TAG_WORDS = ['zoke', 'krem!', 'E9 KREW', 'NO2LEMON', 'YUPPIES OUT', 'oat milk is a lie', 'baze', 'skor E8', 'RENT 2 HIGH', 'dms'];
 const FILLS = ['#ff5fa2', '#3fd3ff', '#ffd23f', '#7cff6b', '#ff7a1a', '#b07cff', '#ff3b3b'];
 
 function canvasTexture(w, h, draw) {
