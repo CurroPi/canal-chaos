@@ -237,7 +237,7 @@ function showStory() {
     '<p class="motto">Keep your coffee. Keep your dignity. Keep walking.</p>',
   ];
   showOverlay(`
-    <h1 class="title">Canal Chaos</h1>
+    <h1 class="title">On Your Right</h1>
     <p class="subtitle">A Hackney Towpath Survival Game</p>
     <div class="story">${lines.map((l, i) => l.replace('<p', `<p style="animation-delay:${0.4 + i * 0.7}s"`)).join('')}</div>
     <button class="late" style="animation-delay:${0.4 + lines.length * 0.7}s">Continue</button>

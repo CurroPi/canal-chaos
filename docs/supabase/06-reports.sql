@@ -1,4 +1,4 @@
--- Canal Chaos: "report this name" on the leaderboard (the app stores want a way to flag offensive names)
+-- On Your Right: "report this name" on the leaderboard (the app stores want a way to flag offensive names)
 -- Run once in Supabase > SQL Editor. Safe to run again.
 --
 -- Players tap the little flag next to a name on the Top 10. The game hides that name for them straight away

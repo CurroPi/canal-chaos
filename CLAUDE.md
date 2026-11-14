@@ -1,4 +1,5 @@
-# Canal Chaos: A Hackney Towpath Survival Game
+# On Your Right: A Hackney Towpath Survival Game
+(Called "Canal Chaos" until Nov 2026. The website domain is still playcanalchaos.com, the GitHub repo is still canal-chaos, and saved-data keys in the browser still start with `canal-`: all deliberately unchanged.)
 
 A satirical endless-runner browser game set on the Regent's Canal towpath in London on a busy Saturday.
 Inspired by Subway Surfers, but the enemies are cyclists and runners, and the tone is MAXIMUM SATIRE.

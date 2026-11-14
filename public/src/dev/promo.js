@@ -36,7 +36,7 @@ function outlinedText(g, text, x, y, font, fill, outline = INK, thickness = 5) {
   g.fillText(text, x, y);
 }
 
-// The cream "CANAL CHAOS" card from the start screen
+// The cream "ON YOUR RIGHT" card from the start screen
 function titleCard(g, x, y, scale = 1, align = 'left') {
   const w = 600 * scale;
   const h = 210 * scale;
@@ -172,7 +172,7 @@ export const LAYOUTS = {
     shade(g, 1080, 1350, 0.3, 0.55);
     if (line) caption(g, line, 540, 1250, 52, 'center');
     g.textAlign = 'right';
-    outlinedText(g, 'CANAL CHAOS', 1040, 1320, `20px ${PIXEL}`, '#b6d7a8', INK, 4);
+    outlinedText(g, 'ON YOUR RIGHT', 1040, 1320, `20px ${PIXEL}`, '#b6d7a8', INK, 4);
     return c;
   },
 };

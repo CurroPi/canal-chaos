@@ -150,7 +150,7 @@ export async function makeScoreCard({ shot, score, message, walker, drinkSvg, ti
 // Share sheet where possible (phones, Safari); otherwise download the image and copy the link
 export async function shareCard(card, text) {
   const blob = await new Promise((resolve) => card.toBlob(resolve, 'image/png'));
-  const file = new File([blob], 'canal-chaos-score.png', { type: 'image/png' });
+  const file = new File([blob], 'on-your-right-score.png', { type: 'image/png' });
   const message = `${text} ${GAME_URL}`;
   if (navigator.canShare?.({ files: [file] })) {
     try {
@@ -162,7 +162,7 @@ export async function shareCard(card, text) {
   }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'canal-chaos-score.png';
+  a.download = 'on-your-right-score.png';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   try { await navigator.clipboard.writeText(message); } catch { /* clipboard not allowed */ }

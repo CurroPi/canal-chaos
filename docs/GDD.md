@@ -1,4 +1,5 @@
-# Game Design Document: Canal Chaos
+# Game Design Document: On Your Right
+(Working title was "Canal Chaos". Renamed in Nov 2026 before the app stores, because a similar app called "canalchaos" is already in the App Store. "On Your Right" is what cyclists shout as they overtake.)
 
 *A Hackney Towpath Survival Game*
 
