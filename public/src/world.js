@@ -1,5 +1,5 @@
 // The scrolling canal scenery: towpath, canal, narrowboats, brick wall, far bank.
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.min.js';
 import { box, mat, makeLimeBike } from './models.js';
 import { FRONT_X, makeBuilding, makeOffice, makeGasholder, makeContainerville, makeSharks, makeCanalside, makePortraits } from './buildings.js';
 import { CONFIG } from './config.js';

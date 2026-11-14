@@ -1,7 +1,7 @@
 // Towpath wall graffiti, like the real thing: bubble pieces, silver throw-ups, scrawled tags,
 // grey "buffed" patches where the council painted over, and the odd tagged-up electrical box.
 // Every texture is drawn once on a canvas and shared.
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.min.js';
 import { mat } from './models.js';
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];

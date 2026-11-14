@@ -1,6 +1,6 @@
 // East London canal-side buildings for the far bank. Facades use small canvas-drawn
 // textures repeated per window bay; all shapes and textures are shared and cached.
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.min.js';
 import { box, mat } from './models.js';
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];

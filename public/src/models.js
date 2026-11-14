@@ -1,5 +1,5 @@
 // Low-poly "toy" characters, built from simple boxes.
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.min.js';
 import { CONFIG } from './config.js';
 
 const materials = new Map();

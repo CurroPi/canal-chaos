@@ -1,5 +1,5 @@
 // The game: walking, dodging, spilling, dying.
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.min.js';
 import { CONFIG } from './config.js';
 import { createWorld } from './world.js';
 import { makePlayer, animateWalk, setCoffee, box, makeCargoBike } from './models.js';

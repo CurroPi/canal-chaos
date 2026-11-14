@@ -1,7 +1,7 @@
 // Visual gags along the canal: nothing here interacts with you, it's just there for laughs.
 // Boats get silly names and clutter, the wall gets posters, and a set of one-off scenes
 // (tarot boat, magnet fisher, heron...) each turn up once per run.
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.min.js';
 import { CONFIG } from './config.js';
 import { box, mat, makePerson, makeLimeBike } from './models.js';
 
