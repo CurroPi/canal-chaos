@@ -36,7 +36,7 @@
       1. ✅ Bought 14 Nov 2026 at Squarespace (paid to 14 Nov 2027: switch on auto-renew).
       2. ✅ DNS done in Squarespace (four **A** records on `@` → 185.199.108-111.153, **CNAME** `www` → `curropi.github.io`; checked from outside, all correct) and `onyourright.app` set as the custom domain in GitHub Pages. Live on https with a Let's Encrypt certificate (checked 14 Nov 2026). Still to tick: **Enforce HTTPS** (plain http still answers).
       3. ✅ Game links switched to the new domain (`GAME_URL` and the share card line in `share.js`, `public/privacy.html`, docs). Takes effect on the live site when Curro pushes.
-      4. Old `playcanalchaos.com` now shows GitHub's "Site not found" (checked 14 Nov 2026; no automatic redirect). Still to do: in Squarespace delete its four A records and `www` CNAME, then add forwarding rules (`@` and `www`) to `https://onyourright.app`, 301, keep paths.
+      4. ✅ Old `playcanalchaos.com` and `www.playcanalchaos.com` forward to `https://onyourright.app` (Squarespace domain forwarding, 301, paths kept; checked 14 Nov 2026, e.g. `/stats.html` lands on `onyourright.app/stats.html`). Its old GitHub DNS records are gone. Remember `playcanalchaos.com` is also paid yearly: keep it renewed as long as old links matter.
       5. The app id is the new domain written backwards (see the Capacitor item); the stores' privacy and support links use the new domain.
     - [x] **Capacitor projects created** (Nov 2026): `ios/` and `android/`, app id **`app.onyourright`** (the new domain written backwards; can't change after launch), name "On Your Right", iPhone-only, portrait on phones, icons + launch screens from `assets/`. `npm run app:sync` copies the game into both apps. Three.js now loads by file path (no import map, which iOS 15 to 16.3 can't read). **Not built or run yet**: needs Xcode and Android Studio.
     - [ ] Native bits to write and test on the iOS Simulator / Android emulator: sharing the score picture (Capacitor Share + Filesystem plugins), the in-app browser in `public/src/links.js`, phone notch/safe areas on Android, sound after the first tap on iOS, the portrait lock on tablets (Android 16 ignores it on big screens, so check landscape).
@@ -52,7 +52,7 @@
 
 ## 🧑 For Curro (outside the code)
 **App stores (start the waiting ones first):**
-- [ ] **Finish the domain move:** tick **Enforce HTTPS** in GitHub → repo Settings → Pages; in Squarespace forward `playcanalchaos.com` to `https://onyourright.app` (see item 13, step 4); switch on **auto-renew** for `onyourright.app`.
+- [ ] **Finish the domain move:** tick **Enforce HTTPS** in GitHub → repo Settings → Pages; switch on **auto-renew** for `onyourright.app` (the forwarding from `playcanalchaos.com` is done).
 - [ ] Check "On Your Right" is free: in the App Store and Google Play searches now, and by reserving it the moment each account is ready (names are first come, first served).
 - [ ] Enrol in the **Apple Developer Program** as an Individual ($99/year): https://developer.apple.com/programs/enroll/ (can take days).
 - [ ] Create a **Google Play Console** account ($25 once, ID + phone check): https://play.google.com/console/signup
