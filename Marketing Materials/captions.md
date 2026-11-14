@@ -1,6 +1,6 @@
-# Canal Chaos: launch captions
+# On Your Right: launch captions
 
-Replace [LINK] with the game's Netlify address.
+The game lives at https://onyourright.app
 
 ## LinkedIn (with linkedin-post-1080x1350.png)
 
@@ -11,10 +11,10 @@ Anyone who's tried to walk the Regent's Canal on a Saturday knows it's less a to
 
 So we made it one.
 
-🛶 Canal Chaos: a Hackney towpath survival game, built in the browser with AI.
-Dodge run clubs, Lime bikes, delivery riders and a sausage dog attacking a duck. Keep your coffee. Keep your dignity. Keep walking.
+🔔 On Your Right: a Hackney towpath survival game, built in the browser with AI.
+Dodge run clubs, Lemon bikes, delivery riders and a sausage dog attacking a duck. Keep your coffee. Keep your dignity. Keep walking.
 
-Play free (no download) and get your name on the leaderboard: [LINK]
+Play free (no download) and get your name on the leaderboard: https://onyourright.app
 
 By DUDE London
 
@@ -22,12 +22,12 @@ By DUDE London
 
 Saturday on the Regent's Canal. Nobody has read the sign. 🔔
 
-Dodge run clubs, Lime bikes and a sausage dog attacking a duck in Canal Chaos, our Hackney towpath survival game.
+Dodge run clubs, Lemon bikes and a sausage dog attacking a duck in On Your Right, our Hackney towpath survival game.
 
 Play free in your browser. Link in bio. Tag the friend who never moves out of the way. 🛴☕
 
-#CanalChaos #Hackney #RegentsCanal #EastLondon #LondonLife #IndieGame #PixelArt #BrowserGame
+#OnYourRight #Hackney #RegentsCanal #EastLondon #LondonLife #IndieGame #PixelArt #BrowserGame
 
 ## Instagram story (instagram-story-1080x1920.png)
 
-Add a link sticker: "PLAY CANAL CHAOS" → [LINK]
+Add a link sticker: "PLAY ON YOUR RIGHT" → https://onyourright.app

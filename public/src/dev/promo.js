@@ -132,7 +132,7 @@ export const LAYOUTS = {
   // Instagram feed post: 1080 x 1350 (4:5)
   igFeed(shot, {
     warning = '🔔 BEHIND YOU!', warnAt = [540, 520],
-    lines = ['Dodge run clubs, Lime bikes', 'and a sausage dog attacking a duck.'],
+    lines = ['Dodge run clubs, Lemon bikes', 'and a sausage dog attacking a duck.'],
     cta = 'PLAY FREE · LINK IN BIO',
     showCredit = true,
   } = {}) {
