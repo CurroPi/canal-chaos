@@ -32,8 +32,13 @@
     - [x] Phone-app basics: sound and walk pause when the app goes to the background; flag next to leaderboard names to report them (needs `docs/supabase/06-reports.sql`); `public/privacy.html` + `public/support.html` (linked from the title card); 1024px app icon in `store-assets/`.
     - [x] **Name decided: "On Your Right"** (a similar app called "canalchaos" is already in the App Store). Renamed in the title card, page title, manifest, privacy/support/stats pages, share file name and docs. Deliberately NOT changed: the domain playcanalchaos.com (and the share card's "PLAYCANALCHAOS.COM" line), the GitHub repo name, and the `canal-` saved-data keys (changing those would wipe players' scores).
     - [ ] Still shows "Canal Chaos": the Marketing Materials stills and `captions.md` (they also say "Lime bikes"). Regenerate with the `?debug` promo tools before posting; the tool's text is already updated.
-    - [ ] Optional: a new domain that matches the name (e.g. onyourright…), then point `GAME_URL` in `share.js` at it.
-    - [ ] Capacitor wrap: `ios/` and `android/` projects, native share + in-app browser (`public/src/links.js`, `share.js`), icons and splash. Needs Curro to confirm the app id (proposed `com.playcanalchaos.onyourright`; it can't change after launch) and Xcode + Android Studio installed.
+    - [ ] **New domain that matches the name** (Curro's decision, to be consistent). `onyourright.com` is taken (registered 2021 through 2028); `.game` and `.io` are free per the registries; `.co.uk`, `.uk`, `.app` look free in DNS but the registrar's checkout decides. Order of work:
+      1. Curro buys it and tells Claude the exact address.
+      2. DNS for the new domain pointed at GitHub Pages; GitHub → Settings → Pages → custom domain; tick Enforce HTTPS once the certificate appears (can take a while). Claude checks GitHub's current instructions first and walks Curro through it.
+      3. Only when the site loads on the new address: switch `GAME_URL` and the share card's line in `share.js`, the domain mentions in `public/privacy.html`, `CLAUDE.md` and this file.
+      4. Old `playcanalchaos.com`: GitHub Pages serves one domain per site, so set up forwarding to the new address at Squarespace (if the playtest link was already shared), or let it lapse.
+      5. The app id is the new domain written backwards (see the Capacitor item); the stores' privacy and support links use the new domain.
+    - [ ] Capacitor wrap: `ios/` and `android/` projects, native share + in-app browser (`public/src/links.js`, `share.js`), icons and splash. Needs the new domain bought (the app id is that domain written backwards, e.g. `onyourright.game` gives `game.onyourright`; it can't change after launch) and Xcode + Android Studio installed.
     - [ ] Test on iOS Simulator, Android emulator, then real phones (swipes, sound after first tap, share, notch, background, offline, landscape on tablets).
     - [ ] Android closed test: 12 testers opted in for 14 days (Google rule for new personal accounts), then apply for production. iOS: TestFlight.
     - [ ] Listings (`docs/STORE_LISTING.md`), screenshots from the game, age rating + privacy answers, submit (Curro presses Submit).
@@ -46,6 +51,7 @@
 
 ## 🧑 For Curro (outside the code)
 **App stores (start the waiting ones first):**
+- [ ] Buy the new domain (not `.com`, it's taken) and tell Claude the exact address. Do NOT change DNS on `playcanalchaos.com` yet.
 - [ ] Check "On Your Right" is free: in the App Store and Google Play searches now, and by reserving it the moment each account is ready (names are first come, first served).
 - [ ] Enrol in the **Apple Developer Program** as an Individual ($99/year): https://developer.apple.com/programs/enroll/ (can take days).
 - [ ] Create a **Google Play Console** account ($25 once, ID + phone check): https://play.google.com/console/signup
