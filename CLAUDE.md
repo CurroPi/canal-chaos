@@ -6,7 +6,8 @@ Inspired by Subway Surfers, but the enemies are cyclists and runners, and the to
 
 ## Where things are
 - `public/`: the game itself (this is the folder that gets published online). Code is in `public/src/`; all tuning numbers in `public/src/config.js`; speech lines in `public/src/lines.js`.
-- Preview locally: `python3 serve.py` (no-cache server for public/), then open http://localhost:8000 (add `?debug` for test helpers).
+- Preview locally: `python3 serve.py` (no-cache server for public/), then open http://127.0.0.1:8000 (add `?debug` for test helpers). Use 127.0.0.1, not localhost: another project's server can sit on the same port.
+- `ios/` and `android/`: the phone apps (Capacitor wrappers around `public/`). `assets/`: source images for app icons and launch screens. `store-assets/`: App Store / Google Play artwork. `tools/`: small scripts that make those images. After changing anything in `public/`, run `npm run app:sync` to copy it into both apps.
 
 ## Key documents
 - `docs/GDD.md`: Game Design Document. The source of truth for what the game is.
@@ -24,7 +25,8 @@ Inspired by Subway Surfers, but the enemies are cyclists and runners, and the to
 - **View:** 3D, camera behind the player (like Subway Surfers).
 - **Art style:** low-poly "toy" 3D (think Crossy Road). All models are built in code from simple shapes,
   with no external art files needed. 2D overlays (speech bubbles, banners, signs) carry the jokes.
-- **Engine:** Three.js, using plain JavaScript in the browser.
+- **Engine:** Three.js, using plain JavaScript in the browser. Three.js and the fonts ship inside `public/` (no CDN), so the game works offline.
+- **Phone apps:** Capacitor, app id `app.onyourright`, free, bundled (the game lives inside the app, so the apps do NOT update when we push: every update needs a new store build). Signing keys never go in git (`.gitignore` blocks them).
 - **Hosting:** GitHub Pages (moving from Netlify, whose free plan charges credits per deploy). `.github/workflows/publish.yml` publishes `public/` automatically on every push to main. Domain: playcanalchaos.com (Squarespace DNS).
 - **Leaderboard backend:** Supabase, project "CurroPi's Project", table `public.scores` (name, score, walker). Code in `public/src/leaderboard.js` (REST API, no SDK). RLS: anon can select + insert only; deleting/editing needs the Supabase dashboard.
   Only the public "anon/publishable" key goes in the game code. Never secret keys or passwords.

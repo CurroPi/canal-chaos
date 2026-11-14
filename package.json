@@ -1,0 +1,25 @@
+{
+  "name": "on-your-right",
+  "version": "1.0.0",
+  "private": true,
+  "description": "On Your Right: a Hackney towpath survival game. This package only exists to build the iPhone and Android apps (Capacitor); the game itself is plain files in public/.",
+  "scripts": {
+    "app:sync": "cap sync",
+    "app:ios": "cap open ios",
+    "app:android": "cap open android"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CurroPi/canal-chaos.git"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/ios": "^8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0"
+  }
+}

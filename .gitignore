@@ -1,3 +1,11 @@
 .DS_Store
 node_modules/
 .env
+
+# App signing keys and certificates: NEVER commit these (losing or leaking one is a real problem)
+*.keystore
+*.jks
+*.p12
+*.p8
+*.mobileprovision
+android/key.properties
